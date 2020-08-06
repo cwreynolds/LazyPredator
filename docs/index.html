@@ -3,9 +3,100 @@
   <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
     <title>LazyPredator</title>
+    <style>
+			body {
+             background-color: white;
+             font-family: Arial, Helvetica, sans-serif;
+           }
+      h1 { padding: 0; border: 0; margin: 0; margin-top: 0.2em; }
+      h2 { padding: 0; border: 0; margin: 0; margin-top: 0.2em; }
+      p { color: black; }
+      code { font-size: 120%; }
+      pre {
+            color: black;
+	          border: 1px dashed rgb(65%,65%,65%);
+	          padding: 10px;
+           	margin-bottom: 1em;
+          }
+      .comment { color: rgb(80%,80%,80%); }
+      <!-- for in-page date anchors -->
+      a.date         {color: black; }
+			a.date:link    {text-decoration: none; color: black;}
+			a.date:visited {text-decoration: none; color: black;}
+			a.date:hover   {text-decoration: underline; color: black;}
+			a.date:active  {text-decoration: none; color: black;}
+      .post {
+              border-top: 0.3em solid rgb(25%,25%,25%);
+              margin-top: 1em;
+              padding-left: 2em;
+              padding-right: 2em;
+              padding-top: 1em;
+              clear: left ;
+            }
+      .designnote { color: rgb(25%,25%,25%) }
+      .novak_pad { margin-right: 105px; margin-left: 105px; }
+      .smaller { font-size: 75%; }
+    <!-- --------------------------------------------------------------------------- -->
+    <div class="post" id="yyyymmdd">
+      <a href="#yyyymmdd" class="date">Month 0, 0000</a>
+      <h1>Title</h1>
+      <p>...</p>
+      <pre>x</pre>
+    </div>
+    <!-- --------------------------------------------------------------------------- -->
+    </style>
   </head>
-  <body>
-    <h1>LazyPredator </h1>
-    <p>Initial check-in for LazyPredator's devo log.</p>
+  <body id="top">
+    <p class="smaller"><a href="https://cwreynolds.github.io/LazyPredator/">This
+        page on GitHub</a></p>
+    <h1>LazyPredator</h1>
+    <p><strong>LazyPredator</strong> is software for <a href="https://en.wikipedia.org/wiki/Evolutionary_computation">evolutionary
+        computation</a>, a class of population-based optimization algorithm. It
+      uses <a href="https://en.wikipedia.org/wiki/Generic_programming">genetic
+        programming</a> where the individuals of the population are computer
+      programs in a “domain specific language”. The relative “fitness” or
+      “quality” of these programs is measured in small “tournaments” where the
+      programs compete against each other. Using a <a href="https://en.wikipedia.org/wiki/Negative_selection_%28natural_selection%29">negative
+        selection</a> approach, the lower fitness individuals of a tournament
+      are removed from the population, and replaced by a new “offspring” of the
+      tournament's higher fitness individuals. (The offspring is created from
+      parents by “cross-over” and “mutation” as described <a href="https://en.wikipedia.org/wiki/Genetic_programming">here</a>.)
+      Negative selection implies that individuals below a certain fitness
+      threshold die off—while those above generally survive, regardless of rank
+      in the population. This is the opposite of “elitism” and related practices
+      in evolutionary computation where the focus is on identifying and
+      promoting the high fitness individuals. LazyPredator seeks to encourage
+      “genetic drift”—while continuing to prune the low performing
+      individuals—in order to gradually improve population fitness.</p>
+    <p>The name “LazyPredator” refers to this type of negative selection in
+      nature. A lioness may be capable of running down a healthy adult antelope.
+      But given the opportunity, she would rather find easier prey (the young,
+      or old, or injured) so she can obtain food for her family using less of
+      her own energy. Through this action, most of the antelope herd will be
+      fit, strong, and fast enough to survive. At the risk of mixing metaphors,
+      or at least species, there is a very old joke about this:</p>
+    <p style="margin-left: 40px;"> Annie and Bob are camping when they see a
+      bear running toward them.<br>
+      Annie starts putting on her tennis shoes.<br>
+      Bob says, “What are you doing?! You can’t outrun a bear!”<br>
+      Annie says, “I don’t have to outrun the bear—I just have to outrun you!”</p>
+    <p>LazyPredator is a sibling of TexSyn a library for procedural texture
+      synthesis. Together they support experiments in adversarial evolutionary
+      texture synthesis. I am especially interested in simulating the evolution
+      of camouflage in nature, as in this earlier work: <a href="https://www.red3d.com/cwr/iec/">Interactive
+        Evolution of Camouflage</a>.</p>
+    <div class="post" id="20200806"> <a href="#20200806" class="date">August 6,
+        2020</a>
+      <h1>Getting started, stubs for <code>Population</code>, <code>Individual</code>,
+        and <code>UnitTests</code></h1>
+      <p>Just starting to rough out the components of the system today it is a
+        class for an evolutionary <code>Population</code> and the <code>Individual</code>s
+        in it. Also a namespace for <code>UnitTests</code> with a goal of using
+        “test driven development.”</p>
+    </div>
+    <div class="post" id="0">
+      <p>This page, and the software it describes, by <a href="https://www.red3d.com/cwr">Craig
+          Reynolds</a></p>
+    </div>
   </body>
 </html>
