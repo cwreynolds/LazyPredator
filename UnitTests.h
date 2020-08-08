@@ -1,5 +1,5 @@
 //
-//  UnitTests.hpp
+//  UnitTests.h
 //  LazyPredator
 //
 //  Created by Craig Reynolds on 8/6/20.
@@ -8,7 +8,7 @@
 
 #pragma once
 
-class UnitTests // TODO probably namespace instead?
+namespace UnitTests
 {
-    
-};
+    bool allTestsOK();
+}

@@ -11,6 +11,7 @@
 		84F2452824DCA87E00001C0A /* Population.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 84F2452624DCA87E00001C0A /* Population.cpp */; };
 		84F2452B24DCA8A300001C0A /* Individual.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 84F2452924DCA8A300001C0A /* Individual.cpp */; };
 		84F2452E24DCA8C200001C0A /* UnitTests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 84F2452C24DCA8C200001C0A /* UnitTests.cpp */; };
+		84F2453124DE154C00001C0A /* Utilities.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 84F2452F24DE154C00001C0A /* Utilities.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -34,6 +35,9 @@
 		84F2452A24DCA8A300001C0A /* Individual.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Individual.h; sourceTree = "<group>"; };
 		84F2452C24DCA8C200001C0A /* UnitTests.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = UnitTests.cpp; sourceTree = "<group>"; };
 		84F2452D24DCA8C200001C0A /* UnitTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UnitTests.h; sourceTree = "<group>"; };
+		84F2452F24DE154C00001C0A /* Utilities.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Utilities.cpp; sourceTree = "<group>"; };
+		84F2453024DE154C00001C0A /* Utilities.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Utilities.h; sourceTree = "<group>"; };
+		84F2453224DE172000001C0A /* LazyPredator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LazyPredator.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -52,11 +56,14 @@
 			children = (
 				84F2452A24DCA8A300001C0A /* Individual.h */,
 				84F2452924DCA8A300001C0A /* Individual.cpp */,
+				84F2453224DE172000001C0A /* LazyPredator.h */,
 				849C0FF424DB689400590B1D /* main.cpp */,
 				84F2452724DCA87E00001C0A /* Population.h */,
 				84F2452624DCA87E00001C0A /* Population.cpp */,
 				84F2452D24DCA8C200001C0A /* UnitTests.h */,
 				84F2452C24DCA8C200001C0A /* UnitTests.cpp */,
+				84F2453024DE154C00001C0A /* Utilities.h */,
+				84F2452F24DE154C00001C0A /* Utilities.cpp */,
 				849C0FF224DB689400590B1D /* Products */,
 			);
 			sourceTree = "<group>";
@@ -130,6 +137,7 @@
 				84F2452E24DCA8C200001C0A /* UnitTests.cpp in Sources */,
 				849C0FF524DB689400590B1D /* main.cpp in Sources */,
 				84F2452B24DCA8A300001C0A /* Individual.cpp in Sources */,
+				84F2453124DE154C00001C0A /* Utilities.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
