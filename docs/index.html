@@ -87,6 +87,34 @@
       earlier work: <a href="https://www.red3d.com/cwr/iec/">Interactive
         Evolution of Camouflage</a>.</p>
     <p>The code repository for LazyPredator is at <a href="https://github.com/cwreynolds/LazyPredator">GitHub</a>.</p>
+    <p>(I'm wondering about the writing style of this notebook. The one for <a
+        href="https://cwreynolds.github.io/TexSyn/">TexSyn</a> was largely
+      intended to show texture images along with commentary. When possible, I
+      tried to avoid coding detail. LazyPredator is about plain old software
+      design, so probably there will be more discussion here of lower level
+      details of the implementation. On the other hand, I do want it to be more
+      prose-like than the terse <code>git commit</code> messages.)</p>
+    <br style="##########################################################################">
+    <div class="post" id="20200807"> <a href="#20200807" class="date">August 7,
+        2020</a>
+      <h1>Monitor lifetime of <code>Individual</code> in <code>Population</code></h1>
+      <p>My vague plan is that the <code>Population</code> class will handle
+        all aspects of <code>Individual</code>s. A <code>Population</code>
+        instance will generate the initial collection of random programs. It
+        will randomly select the individuals to participate in a tournament. It
+        will form offspring from tournament winners, remove the losers, and
+        replace them with the offspring. </p>
+      <p>One important bit of “owning” the individuals is that they must be
+        properly allocated and de-allocated. I gave the <code>Individual</code>
+        class a counter which gets incremented in the constructor and
+        decremented in the destructor. </p>
+      <p>I made the first unit test which ensures that this count is initially
+        zero, then constructing a <code>Population</code> with <em>n</em> <code>Individual</code>s
+        causes it to be n, and that deleting the <code>Population</code> causes
+        it to go back to zero. Right now it only tests the initial creation of
+        (“mock”) <code>Individual</code>s, later the unit test should include
+        running tournaments.</p>
+    </div>
     <div class="post" id="20200806"> <a href="#20200806" class="date">August 6,
         2020</a>
       <h1>Getting started, stubs for <code>Population</code>, <code>Individual</code>,
