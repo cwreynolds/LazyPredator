@@ -9,6 +9,7 @@
 #pragma once
 
 #include "Individual.h"
+#include "FunctionSet.h"
 
 class Population
 {

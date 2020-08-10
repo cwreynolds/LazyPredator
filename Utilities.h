@@ -6,6 +6,7 @@
 //  Copyright © 2020 Craig Reynolds. All rights reserved.
 //
 
+#pragma once
 #include <cassert>
 #include <iostream>
 #include <limits>

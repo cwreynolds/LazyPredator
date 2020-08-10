@@ -12,6 +12,7 @@
 		84F2452B24DCA8A300001C0A /* Individual.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 84F2452924DCA8A300001C0A /* Individual.cpp */; };
 		84F2452E24DCA8C200001C0A /* UnitTests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 84F2452C24DCA8C200001C0A /* UnitTests.cpp */; };
 		84F2453124DE154C00001C0A /* Utilities.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 84F2452F24DE154C00001C0A /* Utilities.cpp */; };
+		84F2453824E072FB00001C0A /* FunctionSet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 84F2453624E072FB00001C0A /* FunctionSet.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -38,6 +39,8 @@
 		84F2452F24DE154C00001C0A /* Utilities.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Utilities.cpp; sourceTree = "<group>"; };
 		84F2453024DE154C00001C0A /* Utilities.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Utilities.h; sourceTree = "<group>"; };
 		84F2453224DE172000001C0A /* LazyPredator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LazyPredator.h; sourceTree = "<group>"; };
+		84F2453624E072FB00001C0A /* FunctionSet.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = FunctionSet.cpp; sourceTree = "<group>"; };
+		84F2453724E072FB00001C0A /* FunctionSet.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FunctionSet.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -54,6 +57,8 @@
 		849C0FE824DB689400590B1D = {
 			isa = PBXGroup;
 			children = (
+				84F2453724E072FB00001C0A /* FunctionSet.h */,
+				84F2453624E072FB00001C0A /* FunctionSet.cpp */,
 				84F2452A24DCA8A300001C0A /* Individual.h */,
 				84F2452924DCA8A300001C0A /* Individual.cpp */,
 				84F2453224DE172000001C0A /* LazyPredator.h */,
@@ -133,6 +138,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				84F2453824E072FB00001C0A /* FunctionSet.cpp in Sources */,
 				84F2452824DCA87E00001C0A /* Population.cpp in Sources */,
 				84F2452E24DCA8C200001C0A /* UnitTests.cpp in Sources */,
 				849C0FF524DB689400590B1D /* main.cpp in Sources */,
