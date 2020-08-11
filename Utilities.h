@@ -7,6 +7,11 @@
 //
 
 #pragma once
+
+// TODO UTILITIES_NAMESPACES
+#include "../TexSyn/TexSyn.h"
+/* TODO temporarily share utilities with TexSyn
+ 
 #include <cassert>
 #include <iostream>
 #include <limits>
@@ -64,3 +69,5 @@ private:
     const std::string elasped_time_;
     const std::chrono::time_point<std::chrono::high_resolution_clock> start_time_;
 };
+
+*/

@@ -91,7 +91,7 @@ public:
     {
         std::vector<std::string> results;
         findAllFunctionReturningType(return_type, results);
-        return results.at(rand() % results.size()); // TODO!!!
+        return results.at(rs_.nextInt() % results.size());
     }
 
     void printSet()
@@ -117,6 +117,7 @@ public:
     }
 
 private:
+    RandomSequence rs_;
     // TODO these are "mocks" to allow getting started.
     // just to get started, assume types are strings with int ID.
     std::map<std::string, int> types_;
