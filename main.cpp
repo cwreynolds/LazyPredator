@@ -57,6 +57,9 @@ int main(int argc, const char * argv[])
     fs.addFunction("Affine", "Texture", {"Vec2", "Vec2", "Texture"});
     
     fs.printSet();
+    
+    for (int i = 0; i < 20; i++)
+        debugPrint(fs.randomFunctionReturningType("Texture"));
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     return EXIT_SUCCESS;
 }

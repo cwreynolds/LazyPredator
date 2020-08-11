@@ -68,6 +68,31 @@ public:
     {
         functions_[fd.name] = fd;
     }
+    
+    // Find collection of functions in this set that return the given type.
+    // TODO very prototype, we can probably cache this information per-type
+    // TODO does brute force search, stores results in "results"
+    void findAllFunctionReturningType(const std::string& return_type,
+                                      std::vector<std::string>& results)
+    {
+        results.clear();
+        for (auto& pair : functions_)
+        {
+            FunctionDescription& fd = pair.second;
+            if (return_type == fd.return_type) results.push_back(fd.name);
+        }
+    }
+    
+    // Randomly select a function in this set that return the given type.
+    // TODO very prototype, we can probably cache this information per-type
+    // TODO should not call rand() directly
+    // TODO returning a string just for prototyping
+    std::string randomFunctionReturningType(const std::string& return_type)
+    {
+        std::vector<std::string> results;
+        findAllFunctionReturningType(return_type, results);
+        return results.at(rand() % results.size()); // TODO!!!
+    }
 
     void printSet()
     {
