@@ -23,29 +23,29 @@
 #include <map>
 #include "Utilities.h"
 
+// Describes one function in the set.
+//     TODO mocked with strings
+//     TODO inside FunctionSet or global?
+class FunctionDescription
+{
+public:
+    FunctionDescription(){}
+    FunctionDescription(const std::string& name_,
+                        const std::string& return_type_,
+                        const std::vector<std::string>& parameter_types_)
+      : name(name_),
+        return_type(return_type_),
+        parameter_types(parameter_types_) {}
+    std::string name;
+    std::string return_type;
+    std::vector<std::string> parameter_types;
+};
+
 class FunctionSet
 {
 public:
-    // TODO default constructor -- just for testing
-    FunctionSet()
-    {
+    FunctionSet(){}
         
-    }
-    
-//    void addType(const std::string& name)
-//    {
-//        debugPrint(types_.size());
-//
-//        int id = int(types_.size());
-//        types_[name] = id;
-//
-//        for (auto& pair : types_)
-//        {
-//            std::cout << "{" << pair.first << ", " << pair.second << "}";
-//            std::cout << std::endl;
-//        }
-//    }
-    
     void addType(const std::string& name)
     {
         int id = int(types_.size());
@@ -57,27 +57,43 @@ public:
         assert("unknown type" && (types_.find(name) != types_.end()));
         return types_[name];
     }
-    
+        
     void addFunction(const std::string& name,
+                     const std::string& return_type,
                      const std::vector<std::string>& parameter_types)
     {
-        functions_[name] = parameter_types;
-        
+        addFunction({name, return_type, parameter_types});
+    }
+    void addFunction(const FunctionDescription& fd)
+    {
+        functions_[fd.name] = fd;
+    }
+
+    void printSet()
+    {
+        for (auto& pair : types_)
+        {
+            std::cout << "type: " << pair.first << " " << pair.second;
+            std::cout << std::endl;
+        }
         for (auto& pair : functions_)
         {
             bool first = true;
-            std::cout << "{" << pair.first << ", {";
-            for (auto& s : pair.second)
+            FunctionDescription& fd = pair.second;
+            std::cout << "function: " << fd.name << ", returns: ";
+            std::cout << fd.return_type << ", parameters: (";
+            for (auto& pt : fd.parameter_types)
             {
                 if (first) first = false; else std::cout << ", ";
-                std::cout << s;
+                std::cout << pt;
             }
-            std::cout << "}}" << std::endl;
+            std::cout << ")" << std::endl;
         }
     }
-    
+
 private:
+    // TODO these are "mocks" to allow getting started.
     // just to get started, assume types are strings with int ID.
     std::map<std::string, int> types_;
-    std::map<std::string, std::vector<std::string>> functions_;
+    std::map<std::string, FunctionDescription> functions_;
 };

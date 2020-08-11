@@ -32,17 +32,31 @@ int main(int argc, const char * argv[])
     std::string path = "/Users/cwr/Desktop/TexSyn_temp/20200809_";
     FunctionSet fs;
     
-    fs.addType("A");
-    fs.addType("B");
-    fs.addType("C");
+//    fs.addType("A");
+//    fs.addType("B");
+//    fs.addType("C");
+//
+//    debugPrint(fs.typeIdFromName("A"));
+//    debugPrint(fs.typeIdFromName("B"));
+//    debugPrint(fs.typeIdFromName("C"));
+//    // debugPrint(fs.typeIdFromName("D"));
+//
+//    fs.addFunction("quux", "T", {"a", "b", "c"});
     
-    debugPrint(fs.typeIdFromName("A"));
-    debugPrint(fs.typeIdFromName("B"));
-    debugPrint(fs.typeIdFromName("C"));
-//    debugPrint(fs.typeIdFromName("D"));
     
-    fs.addFunction("quux", {"a", "b", "c"});
+    // Simple set
     
+    fs.addType("Float");
+    fs.addType("Vec2");
+    fs.addType("Texture");
+    
+    fs.addFunction("EphemeralVec2", "Vec2", {});      // with three parameters
+    fs.addFunction({"EphemeralFloat", "Float", {}});  // with one FD parameter
+    fs.addFunction("Uniform", "Texture", {});       // like an ephemeral const
+    fs.addFunction({"Multiply", "Texture", {"Texture", "Texture"}});
+    fs.addFunction("Affine", "Texture", {"Vec2", "Vec2", "Texture"});
+    
+    fs.printSet();
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     return EXIT_SUCCESS;
 }
