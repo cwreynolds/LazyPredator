@@ -23,9 +23,14 @@
 #include <map>
 #include "Utilities.h"
 
+// Types for function values and parameters within this FunctionSet
+// TODO for now I am using std::string name to "mock" a type
+typedef std::string FunctionType;
+
 // Describes one function in the set.
 //     TODO mocked with strings
 //     TODO inside FunctionSet or global?
+//     TODO added support for "ephemeral constant". Not sure if it belongs here.
 class FunctionDescription
 {
 public:
@@ -33,12 +38,19 @@ public:
     FunctionDescription(const std::string& name_,
                         const std::string& return_type_,
                         const std::vector<std::string>& parameter_types_)
+      : FunctionDescription(name_, return_type_, parameter_types_, nullptr) {}
+    FunctionDescription(const std::string& name_,
+                        const std::string& return_type_,
+                        const std::vector<std::string>& parameter_types_,
+                        std::function<void()> ephemeral_generator_)
       : name(name_),
         return_type(return_type_),
-        parameter_types(parameter_types_) {}
+        parameter_types(parameter_types_),
+        ephemeral_generator(ephemeral_generator_) {}
     std::string name;
     std::string return_type;
     std::vector<std::string> parameter_types;
+    std::function<void()> ephemeral_generator;
 };
 
 class FunctionSet
@@ -93,6 +105,49 @@ public:
         findAllFunctionReturningType(return_type, results);
         return results.at(rs_.nextInt() % results.size());
     }
+    
+    // Creates a random program (nested expression) using the "language" defined
+    // in this FunctionSet. Parameter "max_size" is upper bound on the number of
+    // function calls in the resulting program. The program computes a value of
+    // "return_type".
+    void makeRandomProgram(int max_size, const FunctionType& return_type)
+    {
+        // debugPrint(max_size);
+        
+        // TODO just for prototype, randomFunctionReturningType should return fd
+        std::string function_name = randomFunctionReturningType(return_type);
+        FunctionDescription fd = functions_[function_name];
+        
+        auto ephemeral = fd.ephemeral_generator;
+        
+        if (ephemeral)
+            ephemeral();
+        else
+            std::cout << function_name << "(";  // TODO log
+        
+        // TODO this "knows" that only parameters of the main return_type can be
+        // the root of subtrees. But that is not necessarily the case. Needs to
+        // be better.
+        int count = 0;  // count parameters of return_type
+        for (auto& pt : fd.parameter_types)
+        {
+            if (pt == return_type) count++;
+        }
+//        int subtree_max_size = (max_size - 1) / (count == 0 ? 1 : count);
+        // TODO numerator = 1 for fd + 1 of each Texture operator
+        int subtree_max_size = ((max_size - count) /
+                                (count == 0 ? 1 : count));
+
+        bool first = true;   // TODO log
+        for (auto& pt : fd.parameter_types)
+        {
+            if (!ephemeral)
+                { if (first) first = false; else std::cout << ", "; }  // TODO log
+            makeRandomProgram(subtree_max_size, pt);
+        }
+
+        if (!ephemeral) std::cout << ")";  // TODO log
+    }
 
     void printSet()
     {
@@ -115,6 +170,9 @@ public:
             std::cout << ")" << std::endl;
         }
     }
+    
+    // Accessor for RandomSequence, perhaps only needed for testing?
+    RandomSequence& rs() { return rs_; }
 
 private:
     RandomSequence rs_;

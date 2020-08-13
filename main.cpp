@@ -50,35 +50,54 @@ int main(int argc, const char * argv[])
     std::string path = "/Users/cwr/Desktop/TexSyn_temp/20200811_";
     FunctionSet fs;
     
+    auto ephemeral_float = [&]()
+    {
+        std::cout << fs.rs().frandom2(-5, 5);
+    };
+
     // Simple function set that mimics Texsyn
     fs.addType("Float");
     fs.addType("Vec2");
     fs.addType("Texture");
-    fs.addFunction("EphemeralVec2", "Vec2", {});      // with three parameters
-    fs.addFunction({"EphemeralFloat", "Float", {}});  // with one FD parameter
+    // with three parameters
+    fs.addFunction("Vec2", "Vec2", {"Float", "Float"});
+    // with one FD parameter
+    fs.addFunction({"EphemeralFloat", "Float", {}, ephemeral_float});
     fs.addFunction("Uniform", "Texture", {});       // like an ephemeral const
     fs.addFunction({"Multiply", "Texture", {"Texture", "Texture"}});
     fs.addFunction("Affine", "Texture", {"Vec2", "Vec2", "Texture"});
+    fs.addFunction("Scale", "Texture", {"Float", "Texture"});
     fs.printSet();
     for (int i = 0; i < 20; i++)
         debugPrint(fs.randomFunctionReturningType("Texture"));
     
-    int a = 0;
-    int b = 0;
-    int c = 0;
-    RandomSequence rs;
-    for (int i = 0; i < 3000000; i++)
-    {
-        int r = rs.nextInt() % 3;
-        if (r == 0) a++;
-        if (r == 1) b++;
-        if (r == 2) c++;
-    }
-    debugPrint(a);
-    debugPrint(b);
-    debugPrint(c);
+    fs.makeRandomProgram(10, "Texture");
+    std::cout << std::endl;
+    fs.makeRandomProgram(10, "Texture");
+    std::cout << std::endl;
+    
+//    Multiply(Affine(EphemeralVec2(),
+//                    EphemeralVec2(),
+//                    Affine(EphemeralVec2(),
+//                           EphemeralVec2(),
+//                           Affine(EphemeralVec2(),
+//                                  EphemeralVec2(),
+//                                  Affine(EphemeralVec2(),
+//                                         EphemeralVec2(),
+//                                         Multiply(Uniform(),
+//                                                  Uniform()))))),
+//             Uniform())
 
-
+//    Scale(4.52324,
+//          Scale(-1.24412,
+//                Affine(Vec2(4.25972, -1.4378),
+//                       Vec2(3.30065, -2.68157),
+//                       Multiply(Scale(-0.617392, Uniform()),
+//                                Affine(Vec2(-2.40257, 3.26076),
+//                                       Vec2(1.59726, 2.31896),
+//                                       Scale(-3.55737, Uniform()))))))
+    
+    
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     return EXIT_SUCCESS;
 }
