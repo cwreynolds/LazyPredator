@@ -95,6 +95,60 @@
       details of the implementation. On the other hand, I do want it to be more
       prose-like than the terse <code>git commit</code> messages.)</p>
     <br style="##########################################################################">
+    <div class="post" id="20200813"> <a href="#20200813" class="date">August
+        13, 2020</a>
+      <h1>Making random programs</h1>
+      <p>I've been prototyping a <code>FunctionSet</code> class to represent
+        the “domain specific language” manipulated by genetic programming.
+        LazyPredator implements <em>strongly typed genetic programming</em>
+        where the values of <em>function</em> and <em>terminals</em>, and the
+        parameters to <em>functions</em>, all have associated <em>types</em>.
+        I made a simple API for adding definitions of the <em>types</em> and
+        the <em>functions</em> used in the “domain specific language”. These
+        use prototype underpinnings, just enough scaffolding to begin developing
+        additional functionality. After I “rough out” a working <code>FunctionSet</code>
+        class, and so better understand the requirements, I will refactor the
+        underlying <code>FunctionSet</code> structure to be more clean and
+        efficient.</p>
+      <p>To initialize a GP population we need a utility—here called <code>FunctionSet</code><code>::makeRandomProgram()</code>—to
+        generate a “random program” in the “domain specific language” (aka a
+        grammar) defined by a <code>FunctionSet</code> instance. By “random
+        program” I mean a random <em>expression</em>, a composition of <em>functions</em>
+        and <em>terminals</em> which, when evaluated, produce a value. <code>makeRandomProgram()</code>
+        is further parameterized by a <code>max_size</code> for the generated
+        programs. This size is measured as the count of function names and <em>
+          terminals</em> such as numeric constants (and potentially input <em>variables</em>,
+        but that is not currently supported).</p>
+      <p>This post is to mark that my prototype <code>makeRandomProgram()</code>
+        is now generating random programs that are no longer obviously wrong. I
+        made a toy <code>FunctionSet</code> corresponding to a tiny subset of <a
+          href="https://cwreynolds.github.io/TexSyn/">TexSyn</a>. The <em>functions</em>
+        are drawn from: <code>Vec2</code>, <code>Uniform</code>, <code>Affine</code>,
+        <code>Multiply</code>, and <code>Scale</code>. The <em>terminals</em>
+        are <code>float</code> “ephemeral constants” whose values are randomly
+        initialized. Here are a couple of “random programs” of size 20:</p>
+      <pre>Scale(-1.89065,
+      Affine(Vec2(2.71928, 1.51213),
+             Vec2(-2.15447, 3.58087),
+             Multiply(Scale(-0.46497,
+                            Uniform(0.270371, 0.544808, 0.653164)),
+                      Uniform(0.582032, 0.0811457, 0.593893))))
+
+Affine(Vec2(1.62775, 0.925812),
+       Vec2(0.892051, -2.5576),
+       Scale(-3.9347,
+             Affine(Vec2(1.14234, 0.321014),
+                    Vec2(3.70146, 3.92498),
+                    Uniform(0.842375, 0.46032, 0.180332))))</pre>
+      <p>These are of course gibberish, not only because they are “random” but
+        because this tiny function set is unable to express anything
+        interesting. One important problem with the current code is that there
+        is a bug in the control of program size. The <code>max_size</code>
+        parameter is intended to be a strict upper bound. Instead <code>FunctionSet</code><code>::makeRandomProgram()</code>
+        generates programs whose sizes are distributed “in the vicinity of” <code>max_size</code>.
+        That is at least better than a recent version that generated programs up
+        to size 1000.</p>
+    </div>
     <div class="post" id="20200807"> <a href="#20200807" class="date">August 7,
         2020</a>
       <h1>Monitor lifetime of <code>Individual</code> in <code>Population</code></h1>

@@ -93,6 +93,7 @@ public:
             FunctionDescription& fd = pair.second;
             if (return_type == fd.return_type) results.push_back(fd.name);
         }
+        assert("no function of given return_type found" && !results.empty());
     }
     
     // Randomly select a function in this set that return the given type.
@@ -106,47 +107,81 @@ public:
         return results.at(rs_.nextInt() % results.size());
     }
     
+    // Randomly select a function in this set that returns the given type AND is
+    // terminal. Here terminal will mean none of it parameters are of the given
+    // type.
+    //
+    // TODO Ideally it should be one producing the smallest subtree.
+    //
+    // TODO very prototype, we can probably cache this information per-type
+    // TODO should not call rand() directly
+    // TODO returning a string just for prototyping
+    std::string terminalFunctionReturningType(const std::string& return_type)
+    {
+        std::vector<std::string> functions_returning_type;
+        findAllFunctionReturningType(return_type, functions_returning_type);
+        
+        std::string terminal;
+        for (auto& function_name : functions_returning_type)
+        {
+            bool is_terminal = true;
+            FunctionDescription fd = functions_[function_name];
+            for (auto& pt : fd.parameter_types)
+            {
+                if (pt == return_type) is_terminal = false;
+            }
+            if (is_terminal) { terminal = function_name; break; }
+        }
+        return terminal;
+    }
+    
     // Creates a random program (nested expression) using the "language" defined
     // in this FunctionSet. Parameter "max_size" is upper bound on the number of
     // function calls in the resulting program. The program computes a value of
     // "return_type".
+    // TODO just for prototype, randomFunctionReturningType should return fd
     void makeRandomProgram(int max_size, const FunctionType& return_type)
     {
-        // debugPrint(max_size);
-        
-        // TODO just for prototype, randomFunctionReturningType should return fd
-        std::string function_name = randomFunctionReturningType(return_type);
+        int ignore_actual_size = 0;
+        makeRandomProgram(max_size, return_type, ignore_actual_size);
+    }
+    // version to keep track of actual size (maybe this version is private?)
+    void makeRandomProgram(int max_size,
+                           const FunctionType& return_type,
+                           int& output_actual_size)
+    {
+        // if max_size too small: must choose terminal (Uniform/ColorNoise)
+        int min_size = 5;
+        std::string function_name = (max_size < min_size ?
+                                     terminalFunctionReturningType(return_type) :
+                                     randomFunctionReturningType(return_type));
         FunctionDescription fd = functions_[function_name];
-        
-        auto ephemeral = fd.ephemeral_generator;
-        
-        if (ephemeral)
-            ephemeral();
+        output_actual_size++;
+        // "Epheneral constant" or normal function.
+        if (fd.ephemeral_generator)
+        {
+            fd.ephemeral_generator();
+        }
         else
+        {
+            int size_used = 0;
+            int count = int(fd.parameter_types.size());
             std::cout << function_name << "(";  // TODO log
-        
-        // TODO this "knows" that only parameters of the main return_type can be
-        // the root of subtrees. But that is not necessarily the case. Needs to
-        // be better.
-        int count = 0;  // count parameters of return_type
-        for (auto& pt : fd.parameter_types)
-        {
-            if (pt == return_type) count++;
+            bool first = true;   // TODO log
+            for (auto& pt : fd.parameter_types)
+            {
+                if (first) first = false; else std::cout << ", ";  // TODO log
+                // TODO numerator = 1 for fd + 1 of each Texture operator
+                int subtree_max_size = ((max_size - (size_used - count)) /
+                                        (count == 0 ? 1 : count));
+                int subtree_actual_size = 0;
+                makeRandomProgram(subtree_max_size, pt, subtree_actual_size);
+                output_actual_size += subtree_actual_size;
+                size_used += subtree_actual_size;
+                count--;
+            }
+            std::cout << ")";  // TODO log
         }
-//        int subtree_max_size = (max_size - 1) / (count == 0 ? 1 : count);
-        // TODO numerator = 1 for fd + 1 of each Texture operator
-        int subtree_max_size = ((max_size - count) /
-                                (count == 0 ? 1 : count));
-
-        bool first = true;   // TODO log
-        for (auto& pt : fd.parameter_types)
-        {
-            if (!ephemeral)
-                { if (first) first = false; else std::cout << ", "; }  // TODO log
-            makeRandomProgram(subtree_max_size, pt);
-        }
-
-        if (!ephemeral) std::cout << ")";  // TODO log
     }
 
     void printSet()
