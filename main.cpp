@@ -161,7 +161,8 @@ int main(int argc, const char * argv[])
     for (int i = 0; i < 30; i++)
     {
         int actual_size = 0;
-        full_texsyn_fs.makeRandomProgram(30, "Texture", actual_size);
+//        full_texsyn_fs.makeRandomProgram(30, "Texture", actual_size);
+        full_texsyn_fs.makeRandomProgram(50, "Texture", actual_size);
         std::cout << std::endl << "  size=" << actual_size << std::endl;
     }
     
