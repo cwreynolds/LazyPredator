@@ -7,6 +7,7 @@
 //
 
 #include "LazyPredator.h"
+#include "TexSynTemp.h"
 
 int main(int argc, const char * argv[])
 {
@@ -44,49 +45,40 @@ int main(int argc, const char * argv[])
 //    fs.printSet();
 //    for (int i = 0; i < 20; i++)
 //        debugPrint(fs.randomFunctionReturningType("Texture"));
-    //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    // Prototyping “make random program” for FunctionSet.
-    std::cout << "August 11, 2020" << std::endl;
-    std::string path = "/Users/cwr/Desktop/TexSyn_temp/20200811_";
-    FunctionSet fs;
-    
-    auto ephemeral_float_m5_5 = [&]()
-    {
-        std::cout << fs.rs().frandom2(-5, 5);
-    };
-
-    // Simple function set that mimics Texsyn
-    fs.addType("Float");
-    fs.addType("Vec2");
-    fs.addType("Texture");
-    // with three parameters
-    fs.addFunction("Vec2", "Vec2", {"Float", "Float"});
-    
-    // with one FD parameter
-//    fs.addFunction({"EphemeralFloat", "Float", {}, ephemeral_float_m5_5});
-    fs.addFunction({"Float_m5_5", "Float", {}, ephemeral_float_m5_5});
-    
-    fs.addFunction({"Float_01", "Float_01", {},
-                    [&](){ std::cout << fs.rs().frandom01(); }});
-
-//    fs.addFunction("Uniform", "Texture", {});
-//    fs.addFunction("Uniform", "Texture", {"Float", "Float", "Float"});
-    fs.addFunction("Uniform", "Texture", {"Float_01", "Float_01", "Float_01"});
-
-    fs.addFunction({"Multiply", "Texture", {"Texture", "Texture"}});
-    fs.addFunction("Affine", "Texture", {"Vec2", "Vec2", "Texture"});
-    fs.addFunction("Scale", "Texture", {"Float", "Texture"});
-    fs.printSet();
-    for (int i = 0; i < 20; i++)
-        debugPrint(fs.randomFunctionReturningType("Texture"));
-    
-    for (int i = 0; i < 10; i++)
-    {
-        int actual_size = 0;
-        fs.makeRandomProgram(20, "Texture", actual_size);
-        std::cout << std::endl << "  size=" << actual_size << std::endl;
-    }
-    
+//    //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+//    // Prototyping “make random program” for FunctionSet.
+//    std::cout << "August 11, 2020" << std::endl;
+//    std::string path = "/Users/cwr/Desktop/TexSyn_temp/20200811_";
+//    FunctionSet fs;
+//    auto ephemeral_float_m5_5 = [&]()
+//    {
+//        std::cout << fs.rs().frandom2(-5, 5);
+//    };
+//    // Simple function set that mimics Texsyn
+//    fs.addType("Float");
+//    fs.addType("Vec2");
+//    fs.addType("Texture");
+//    // with three parameters
+//    fs.addFunction("Vec2", "Vec2", {"Float", "Float"});
+//    // with one FD parameter
+//    fs.addFunction({"Float_m5_5", "Float", {}, ephemeral_float_m5_5});
+//    fs.addFunction({"Float_01", "Float_01", {},
+//                    [&](){ std::cout << fs.rs().frandom01(); }});
+//    fs.addFunction("Uniform", "Texture", {"Float_01", "Float_01", "Float_01"});
+//    fs.addFunction({"Multiply", "Texture", {"Texture", "Texture"}});
+//    fs.addFunction("Affine", "Texture", {"Vec2", "Vec2", "Texture"});
+//    fs.addFunction("Scale", "Texture", {"Float", "Texture"});
+//    fs.printSet();
+//    for (int i = 0; i < 20; i++)
+//        debugPrint(fs.randomFunctionReturningType("Texture"));
+//
+//    for (int i = 0; i < 10; i++)
+//    {
+//        int actual_size = 0;
+//        fs.makeRandomProgram(20, "Texture", actual_size);
+//        std::cout << std::endl << "  size=" << actual_size << std::endl;
+//    }
+//
 //    Multiply(Affine(EphemeralVec2(),
 //                    EphemeralVec2(),
 //                    Affine(EphemeralVec2(),
@@ -154,6 +146,24 @@ int main(int argc, const char * argv[])
 //                 Multiply(Scale(-0.46497,
 //                                Uniform(0.270371, 0.544808, 0.653164)),
 //                          Uniform(0.582032, 0.0811457, 0.593893))))
+    
+    //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    // Prototyping “make random program” for FunctionSet.
+    std::cout << "August 14, 2020" << std::endl;
+    std::string path = "/Users/cwr/Desktop/TexSyn_temp/20200814_";
+    
+    FunctionSet tiny_texsyn_fs;
+    make_tiny_texsyn_fs(tiny_texsyn_fs);
+    std::cout << std::endl;
+    FunctionSet full_texsyn_fs;
+    make_full_texsyn_fs(full_texsyn_fs);
+    
+    for (int i = 0; i < 30; i++)
+    {
+        int actual_size = 0;
+        full_texsyn_fs.makeRandomProgram(30, "Texture", actual_size);
+        std::cout << std::endl << "  size=" << actual_size << std::endl;
+    }
     
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     return EXIT_SUCCESS;

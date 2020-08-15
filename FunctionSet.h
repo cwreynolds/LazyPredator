@@ -72,6 +72,13 @@ public:
         
     void addFunction(const std::string& name,
                      const std::string& return_type,
+                     const std::vector<std::string>& parameter_types,
+                     std::function<void()> ephemeral_generator)
+    {
+        addFunction({name, return_type, parameter_types, ephemeral_generator});
+    }
+    void addFunction(const std::string& name,
+                     const std::string& return_type,
                      const std::vector<std::string>& parameter_types)
     {
         addFunction({name, return_type, parameter_types});
@@ -120,19 +127,16 @@ public:
     {
         std::vector<std::string> functions_returning_type;
         findAllFunctionReturningType(return_type, functions_returning_type);
-        
-        std::string terminal;
+        std::vector<std::string> terminals;
         for (auto& function_name : functions_returning_type)
         {
             bool is_terminal = true;
             FunctionDescription fd = functions_[function_name];
             for (auto& pt : fd.parameter_types)
-            {
                 if (pt == return_type) is_terminal = false;
-            }
-            if (is_terminal) { terminal = function_name; break; }
+            if (is_terminal) { terminals.push_back(function_name); }
         }
-        return terminal;
+        return terminals.at(rs_.nextInt() % terminals.size());
     }
     
     // Creates a random program (nested expression) using the "language" defined
