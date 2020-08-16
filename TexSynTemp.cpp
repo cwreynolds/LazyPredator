@@ -17,9 +17,9 @@ void make_tiny_texsyn_fs(FunctionSet& fs)
     fs.addType("Texture");
     // Ephemeral constants (floats on different random ranges)
     fs.addFunction("Float_01", "Float_01", {},
-                   [&](){ std::cout << fs.rs().frandom01(); });
+                   [&](){ return std::to_string(fs.rs().frandom01()); });
     fs.addFunction("Float_m5p5", "Float_m5p5", {},
-                   [&](){std::cout << fs.rs().frandom2(-5, 5);});
+                   [&](){ return std::to_string(fs.rs().frandom2(-5, 5)) ;});
     // Functions
     fs.addFunction("Vec2", "Vec2", {"Float_m5p5", "Float_m5p5"});
     fs.addFunction("Uniform", "Texture", {"Float_01", "Float_01", "Float_01"});
@@ -37,13 +37,13 @@ void make_full_texsyn_fs(FunctionSet& fs)
     fs.addType("Texture");
     // Ephemeral constants (floats on different random ranges)
     fs.addFunction("Float_01", "Float_01", {},
-                   [&](){ std::cout << fs.rs().frandom01(); });
+                   [&](){ return std::to_string(fs.rs().frandom01()); });
     fs.addFunction("Float_02", "Float_02", {},
-                   [&](){ std::cout << fs.rs().frandom2(0, 2); });
+                   [&](){ return std::to_string(fs.rs().frandom2(0, 2)); });
     fs.addFunction("Float_0_10", "Float_0_10", {},
-                   [&](){ std::cout << fs.rs().frandom2(0, 10); });
+                   [&](){ return std::to_string(fs.rs().frandom2(0, 10)); });
     fs.addFunction("Float_m5p5", "Float_m5p5", {},
-                   [&](){std::cout << fs.rs().frandom2(-5, 5);});
+                   [&](){ return std::to_string(fs.rs().frandom2(-5, 5)); });
     // Functions
     fs.addFunction("Vec2", "Vec2",
                    {"Float_m5p5", "Float_m5p5"});

@@ -42,7 +42,7 @@ public:
     FunctionDescription(const std::string& name_,
                         const std::string& return_type_,
                         const std::vector<std::string>& parameter_types_,
-                        std::function<void()> ephemeral_generator_)
+                        std::function<std::string()> ephemeral_generator_)
       : name(name_),
         return_type(return_type_),
         parameter_types(parameter_types_),
@@ -50,7 +50,7 @@ public:
     std::string name;
     std::string return_type;
     std::vector<std::string> parameter_types;
-    std::function<void()> ephemeral_generator;
+    std::function<std::string()> ephemeral_generator;
 };
 
 class FunctionSet
@@ -73,7 +73,7 @@ public:
     void addFunction(const std::string& name,
                      const std::string& return_type,
                      const std::vector<std::string>& parameter_types,
-                     std::function<void()> ephemeral_generator)
+                     std::function<std::string()> ephemeral_generator)
     {
         addFunction({name, return_type, parameter_types, ephemeral_generator});
     }
@@ -146,45 +146,83 @@ public:
     // TODO just for prototype, randomFunctionReturningType should return fd
     void makeRandomProgram(int max_size, const FunctionType& return_type)
     {
-        int ignore_actual_size = 0;
-        makeRandomProgram(max_size, return_type, ignore_actual_size);
+        int actual_size = 0;
+        std::string source_code;
+        makeRandomProgram(max_size, return_type, actual_size, source_code);
     }
-    // version to keep track of actual size (maybe this version is private?)
+    // version to keep track of actual size and a string of the program text.
     void makeRandomProgram(int max_size,
                            const FunctionType& return_type,
-                           int& output_actual_size)
+                           int& output_actual_size,
+                           std::string& source_code)
     {
-        // if max_size too small: must choose terminal (Uniform/ColorNoise)
-        int min_size = 5;
-        std::string function_name = (max_size < min_size ?
+        bool dp = false;
+        if (dp)
+        {
+            std::cout << ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" << std::endl;
+            debugPrint(max_size);
+            debugPrint(return_type);
+            debugPrint(source_code);
+            std::cout << std::endl;
+        }
+        // TODO later this should be an assert
+        if (!(max_size > 0) && dp)
+        {
+            std::cout << "bad max_size=" << max_size;
+            std::cout << " type=" << return_type << std::endl;
+        }
+        // if max_size too small: must choose terminal (eg: Uniform, ColorNoise)
+        // TODO 8 corresponds to "ColorNoise(Vec2(x, y), Vec2(x, y), f)"
+        int min_size = 8;
+        std::string function_name = (max_size <= min_size ?
                                      terminalFunctionReturningType(return_type) :
                                      randomFunctionReturningType(return_type));
         FunctionDescription fd = functions_[function_name];
-        output_actual_size++;
+        if (dp)
+        {
+            debugPrint(function_name);
+            debugPrint(fd.parameter_types.size());
+        }
+        output_actual_size++;  // for "function_name" (or epheneral) itself
         // "Epheneral constant" or normal function.
         if (fd.ephemeral_generator)
         {
-            fd.ephemeral_generator();
+            source_code += fd.ephemeral_generator();  // TODO log
         }
         else
         {
             int size_used = 0;
             int count = int(fd.parameter_types.size());
-            std::cout << function_name << "(";  // TODO log
+            source_code += function_name + "(";  // TODO log
             bool first = true;   // TODO log
-            for (auto& pt : fd.parameter_types)
+            // Loop over each parameter of "function_name" generating a subtree.
+            for (auto& parameter_type : fd.parameter_types)
             {
-                if (first) first = false; else std::cout << ", ";  // TODO log
-                // TODO numerator = 1 for fd + 1 of each Texture operator
-                int subtree_max_size = ((max_size - (size_used - count)) /
-                                        (count == 0 ? 1 : count));
+                if (first) first = false; else source_code += ", ";  // TODO log
+                int subtree_max_size = std::max(1.0f,
+                                                ((max_size - (1.0f + size_used)) /
+                                                 count));
                 int subtree_actual_size = 0;
-                makeRandomProgram(subtree_max_size, pt, subtree_actual_size);
+                std::string subtree_source;
+                makeRandomProgram(subtree_max_size, parameter_type,
+                                  subtree_actual_size, subtree_source);
                 output_actual_size += subtree_actual_size;
                 size_used += subtree_actual_size;
+                source_code += subtree_source;
+                if (dp)
+                {
+                    debugPrint(subtree_max_size);
+                    debugPrint(subtree_actual_size);
+                    debugPrint(subtree_source);
+                    debugPrint(count);
+                }
                 count--;
             }
-            std::cout << ")";  // TODO log
+            source_code += ")";
+        }
+        if (dp)
+        {
+            std::cout << "<<<<<<<<<<<<<<<<<><<<<<<<<<<<<<<<<<<<<<<" << std::endl;
         }
     }
 
