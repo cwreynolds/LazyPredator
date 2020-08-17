@@ -105,7 +105,6 @@ public:
     
     // Randomly select a function in this set that return the given type.
     // TODO very prototype, we can probably cache this information per-type
-    // TODO should not call rand() directly
     // TODO returning a string just for prototyping
     std::string randomFunctionReturningType(const std::string& return_type)
     {
@@ -139,6 +138,70 @@ public:
         return terminals.at(rs_.nextInt() % terminals.size());
     }
     
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // TODO new experimental thing that estimates how much "size" is required to
+    // "terminate" a given FunctionDescription fd
+    int minSizeToTerminate(const std::string& function_name)
+    {
+        FunctionDescription fd = functions_[function_name];
+        return minSizeToTerminate(fd);
+    }
+    int minSizeToTerminate(const FunctionDescription& fd)
+    {
+        // Given a type, lookup the min size to terminate.
+        auto typeToMinSize = [](const FunctionType& function_type)
+        {
+            // for first pass, lets assume we know type "Float *" needs size 1
+            // (ephemeral constant), type "Vec2" requires size 3 (Vec2(x, y)),
+            // and type "Texture" requires size 4: Uniform(r, g, b). Eventually
+            // we want to derive these at FunctionSet definition time.
+            std::map<std::string, int> type_to_min_size;
+            type_to_min_size["Float_01"] = 1;
+            type_to_min_size["Float_02"] = 1;
+            type_to_min_size["Float_0_10"] = 1;
+            type_to_min_size["Float_m5p5"] = 1;
+            type_to_min_size["Vec2"] = 3;
+            type_to_min_size["Texture"] = 4;
+            
+            assert(type_to_min_size.find(function_type) !=
+                   type_to_min_size.end());
+            
+            return type_to_min_size[function_type];
+        };
+        // We need 1 for the function name itself (or an ephemeral constant).
+        int size = 1;
+        // Then loop over all parameter types.
+        for (auto& parameter_type : fd.parameter_types)
+        {
+            size += typeToMinSize(parameter_type);
+        }
+        return size;
+    }
+    
+    // TODO like/replaces randomFunctionReturningType
+    std::string randomFunctionOfTypeInSize(int max_size,
+                                           const FunctionType& return_type)
+    {
+        std::vector<std::string> functions_returning_type;
+        findAllFunctionReturningType(return_type, functions_returning_type);
+        std::vector<std::string> fit_size;
+        for (auto& function_name : functions_returning_type)
+        {
+            if (max_size >= minSizeToTerminate(function_name))
+            {
+                fit_size.push_back(function_name);
+            }
+        }
+        
+        if (fit_size.empty()) debugPrint(max_size);
+        if (fit_size.empty()) debugPrint(return_type);
+        assert(!fit_size.empty());
+        
+        return fit_size.at(rs_.nextInt() % fit_size.size());
+    }
+
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
     // Creates a random program (nested expression) using the "language" defined
     // in this FunctionSet. Parameter "max_size" is upper bound on the number of
     // function calls in the resulting program. The program computes a value of
@@ -156,7 +219,7 @@ public:
                            int& output_actual_size,
                            std::string& source_code)
     {
-        bool dp = false;
+        bool dp = true;
         if (dp)
         {
             std::cout << ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" << std::endl;
@@ -171,12 +234,19 @@ public:
             std::cout << "bad max_size=" << max_size;
             std::cout << " type=" << return_type << std::endl;
         }
-        // if max_size too small: must choose terminal (eg: Uniform, ColorNoise)
-        // TODO 8 corresponds to "ColorNoise(Vec2(x, y), Vec2(x, y), f)"
-        int min_size = 8;
-        std::string function_name = (max_size <= min_size ?
-                                     terminalFunctionReturningType(return_type) :
-                                     randomFunctionReturningType(return_type));
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        
+//        // if max_size too small: must choose terminal (eg: Uniform, ColorNoise)
+//        // TODO 8 corresponds to "ColorNoise(Vec2(x, y), Vec2(x, y), f)"
+//        int min_size = 8;
+//        std::string function_name = (max_size <= min_size ?
+//                                     terminalFunctionReturningType(return_type) :
+//                                     randomFunctionReturningType(return_type));
+        
+        std::string function_name = randomFunctionOfTypeInSize(max_size,
+                                                               return_type);
+
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         FunctionDescription fd = functions_[function_name];
         if (dp)
         {
