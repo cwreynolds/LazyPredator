@@ -139,6 +139,20 @@ public:
     }
     
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // TODO just for debugging
+    bool dp = true;
+    int dp_depth = 0;
+    void dp_prefix()
+    {
+        if (dp)
+        {
+            std::string prefix;
+            for (int i = 0; i < dp_depth + 1; i++) prefix += "| ";
+            std::cout << prefix;
+        }
+    }
+
+    
     // TODO new experimental thing that estimates how much "size" is required to
     // "terminate" a given FunctionDescription fd
     int minSizeToTerminate(const std::string& function_name)
@@ -192,41 +206,44 @@ public:
                 fit_size.push_back(function_name);
             }
         }
-        
-        if (fit_size.empty()) debugPrint(max_size);
-        if (fit_size.empty()) debugPrint(return_type);
+        if (fit_size.empty() && dp)
+        {
+            dp_prefix(); debugPrint(max_size);
+            dp_prefix(); debugPrint(return_type);
+        }
         assert(!fit_size.empty());
-        
         return fit_size.at(rs_.nextInt() % fit_size.size());
     }
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
+    
     // Creates a random program (nested expression) using the "language" defined
     // in this FunctionSet. Parameter "max_size" is upper bound on the number of
     // function calls in the resulting program. The program computes a value of
     // "return_type".
     // TODO just for prototype, randomFunctionReturningType should return fd
-    void makeRandomProgram(int max_size, const FunctionType& return_type)
-    {
-        int actual_size = 0;
-        std::string source_code;
-        makeRandomProgram(max_size, return_type, actual_size, source_code);
-    }
+//    void makeRandomProgram(int max_size, const FunctionType& return_type)
+//    {
+//        int actual_size = 0;
+//        std::string source_code;
+//        makeRandomProgram(max_size, return_type, actual_size, source_code);
+//    }
     // version to keep track of actual size and a string of the program text.
     void makeRandomProgram(int max_size,
                            const FunctionType& return_type,
                            int& output_actual_size,
                            std::string& source_code)
     {
-        bool dp = true;
+//        bool dp = true;
         if (dp)
         {
+//            for (int i = 0; i < dp_depth + 1; i++) prefix += "| ";
+            dp_prefix();
             std::cout << ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" << std::endl;
-            debugPrint(max_size);
-            debugPrint(return_type);
-            debugPrint(source_code);
-            std::cout << std::endl;
+            dp_prefix(); debugPrint(max_size);
+            dp_prefix(); debugPrint(return_type);
+            dp_prefix(); debugPrint(source_code);
+            dp_prefix(); std::cout << std::endl;
         }
         // TODO later this should be an assert
         if (!(max_size > 0) && dp)
@@ -250,8 +267,8 @@ public:
         FunctionDescription fd = functions_[function_name];
         if (dp)
         {
-            debugPrint(function_name);
-            debugPrint(fd.parameter_types.size());
+            dp_prefix(); debugPrint(function_name);
+            dp_prefix(); debugPrint(fd.parameter_types.size());
         }
         output_actual_size++;  // for "function_name" (or epheneral) itself
         // "Epheneral constant" or normal function.
@@ -272,19 +289,42 @@ public:
                 int subtree_max_size = std::max(1.0f,
                                                 ((max_size - (1.0f + size_used)) /
                                                  count));
+                
+                //~~  ~~  ~~  ~~  ~~  ~~  ~~  ~~  ~~  ~~  ~~  ~~  ~~  ~~  ~~  ~~
+                // TODO Mon Aug 17
+                // If dividing remaining size equally amoung args leaves less
+                // size than needed to terminate this parameter_type, set
+                // subtree_max_size to minSizeToTerminate.
+                // TODO obviously not general, uses knowledge of TexSyn api
+                if ((parameter_type == "Vec2") &&
+                    (subtree_max_size < minSizeToTerminate("Vec2")))
+                {
+                    subtree_max_size = minSizeToTerminate("Vec2");
+                }
+                
+                if ((parameter_type == "Texture") &&
+                    (subtree_max_size < minSizeToTerminate("Texture")))
+                {
+                    subtree_max_size = minSizeToTerminate("Texture");
+                }
+                
+                //~~  ~~  ~~  ~~  ~~  ~~  ~~  ~~  ~~  ~~  ~~  ~~  ~~  ~~  ~~  ~~
+
                 int subtree_actual_size = 0;
                 std::string subtree_source;
+                dp_depth++;
                 makeRandomProgram(subtree_max_size, parameter_type,
                                   subtree_actual_size, subtree_source);
+                dp_depth--;
                 output_actual_size += subtree_actual_size;
                 size_used += subtree_actual_size;
                 source_code += subtree_source;
                 if (dp)
                 {
-                    debugPrint(subtree_max_size);
-                    debugPrint(subtree_actual_size);
-                    debugPrint(subtree_source);
-                    debugPrint(count);
+                    dp_prefix(); debugPrint(subtree_max_size);
+                    dp_prefix(); debugPrint(subtree_actual_size);
+                    dp_prefix(); debugPrint(subtree_source);
+                    dp_prefix(); debugPrint(count);
                 }
                 count--;
             }
@@ -292,7 +332,8 @@ public:
         }
         if (dp)
         {
-            std::cout << "<<<<<<<<<<<<<<<<<><<<<<<<<<<<<<<<<<<<<<<" << std::endl;
+            dp_prefix();
+            std::cout << "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<" << std::endl;
         }
     }
 

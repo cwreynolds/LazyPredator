@@ -166,9 +166,8 @@ int main(int argc, const char * argv[])
     {
         int actual_size = 0;
         std::string source_code;
-//        full_texsyn_fs.makeRandomProgram(50, "Texture", actual_size, source_code);
-        full_texsyn_fs.makeRandomProgram(10, "Texture", actual_size, source_code);
-
+        full_texsyn_fs.dp_depth = 0;
+        full_texsyn_fs.makeRandomProgram(50, "Texture", actual_size, source_code);
         std::cout << std::endl << std::endl << source_code << std::endl;
         std::cout << "size=" << actual_size << std::endl;
     }
