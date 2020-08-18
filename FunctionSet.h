@@ -102,46 +102,12 @@ public:
         }
         assert("no function of given return_type found" && !results.empty());
     }
-    
-    // Randomly select a function in this set that return the given type.
-    // TODO very prototype, we can probably cache this information per-type
-    // TODO returning a string just for prototyping
-    std::string randomFunctionReturningType(const std::string& return_type)
-    {
-        std::vector<std::string> results;
-        findAllFunctionReturningType(return_type, results);
-        return results.at(rs_.nextInt() % results.size());
-    }
-    
-    // Randomly select a function in this set that returns the given type AND is
-    // terminal. Here terminal will mean none of it parameters are of the given
-    // type.
-    //
-    // TODO Ideally it should be one producing the smallest subtree.
-    //
-    // TODO very prototype, we can probably cache this information per-type
-    // TODO should not call rand() directly
-    // TODO returning a string just for prototyping
-    std::string terminalFunctionReturningType(const std::string& return_type)
-    {
-        std::vector<std::string> functions_returning_type;
-        findAllFunctionReturningType(return_type, functions_returning_type);
-        std::vector<std::string> terminals;
-        for (auto& function_name : functions_returning_type)
-        {
-            bool is_terminal = true;
-            FunctionDescription fd = functions_[function_name];
-            for (auto& pt : fd.parameter_types)
-                if (pt == return_type) is_terminal = false;
-            if (is_terminal) { terminals.push_back(function_name); }
-        }
-        return terminals.at(rs_.nextInt() % terminals.size());
-    }
-    
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        
     // TODO just for debugging
-    bool dp = true;
+    bool dp = false;
+    // TODO just for debugging
     int dp_depth = 0;
+    // TODO just for debugging
     void dp_prefix()
     {
         if (dp)
@@ -152,47 +118,49 @@ public:
         }
     }
 
+    // Given a type, lookup the min size to terminate.
+    // TODO this is all hard coded and needs a real implementation
+    int minSizeToTerminateType(const FunctionType& function_type)
+    {
+        // for first pass, lets assume we know type "Float *" needs size 1
+        // (ephemeral constant), type "Vec2" requires size 3 (Vec2(x, y)),
+        // and type "Texture" requires size 4: Uniform(r, g, b). Eventually
+        // we want to derive these at FunctionSet definition time.
+        std::map<std::string, int> type_to_min_size;
+        type_to_min_size["Float_01"] = 1;
+        type_to_min_size["Float_02"] = 1;
+        type_to_min_size["Float_0_10"] = 1;
+        type_to_min_size["Float_m5p5"] = 1;
+        type_to_min_size["Vec2"] = 3;
+        type_to_min_size["Texture"] = 4;
+        assert("Unknown function type" &&
+               type_to_min_size.find(function_type) != type_to_min_size.end());
+        return type_to_min_size[function_type];
+    }
     
     // TODO new experimental thing that estimates how much "size" is required to
     // "terminate" a given FunctionDescription fd
-    int minSizeToTerminate(const std::string& function_name)
+    int minSizeToTerminateFunction(const std::string& function_name)
     {
+        assert("Unknown function name" &&
+               functions_.find(function_name) != functions_.end());
         FunctionDescription fd = functions_[function_name];
-        return minSizeToTerminate(fd);
+        return minSizeToTerminateFunction(fd);
     }
-    int minSizeToTerminate(const FunctionDescription& fd)
+    int minSizeToTerminateFunction(const FunctionDescription& fd)
     {
-        // Given a type, lookup the min size to terminate.
-        auto typeToMinSize = [](const FunctionType& function_type)
-        {
-            // for first pass, lets assume we know type "Float *" needs size 1
-            // (ephemeral constant), type "Vec2" requires size 3 (Vec2(x, y)),
-            // and type "Texture" requires size 4: Uniform(r, g, b). Eventually
-            // we want to derive these at FunctionSet definition time.
-            std::map<std::string, int> type_to_min_size;
-            type_to_min_size["Float_01"] = 1;
-            type_to_min_size["Float_02"] = 1;
-            type_to_min_size["Float_0_10"] = 1;
-            type_to_min_size["Float_m5p5"] = 1;
-            type_to_min_size["Vec2"] = 3;
-            type_to_min_size["Texture"] = 4;
-            
-            assert(type_to_min_size.find(function_type) !=
-                   type_to_min_size.end());
-            
-            return type_to_min_size[function_type];
-        };
         // We need 1 for the function name itself (or an ephemeral constant).
         int size = 1;
         // Then loop over all parameter types.
         for (auto& parameter_type : fd.parameter_types)
         {
-            size += typeToMinSize(parameter_type);
+            size += minSizeToTerminateType(parameter_type);
         }
         return size;
     }
     
-    // TODO like/replaces randomFunctionReturningType
+    // Randomly select a function in this set that return the given type and can
+    // be implemented in no more than max_size.
     std::string randomFunctionOfTypeInSize(int max_size,
                                            const FunctionType& return_type)
     {
@@ -201,7 +169,7 @@ public:
         std::vector<std::string> fit_size;
         for (auto& function_name : functions_returning_type)
         {
-            if (max_size >= minSizeToTerminate(function_name))
+            if (max_size >= minSizeToTerminateFunction(function_name))
             {
                 fit_size.push_back(function_name);
             }
@@ -214,30 +182,18 @@ public:
         assert(!fit_size.empty());
         return fit_size.at(rs_.nextInt() % fit_size.size());
     }
-
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     
     // Creates a random program (nested expression) using the "language" defined
     // in this FunctionSet. Parameter "max_size" is upper bound on the number of
-    // function calls in the resulting program. The program computes a value of
-    // "return_type".
-    // TODO just for prototype, randomFunctionReturningType should return fd
-//    void makeRandomProgram(int max_size, const FunctionType& return_type)
-//    {
-//        int actual_size = 0;
-//        std::string source_code;
-//        makeRandomProgram(max_size, return_type, actual_size, source_code);
-//    }
-    // version to keep track of actual size and a string of the program text.
+    // nodes (function calls or constants) in the resulting program. The program
+    // computes a value of "return_type".
     void makeRandomProgram(int max_size,
                            const FunctionType& return_type,
                            int& output_actual_size,
                            std::string& source_code)
     {
-//        bool dp = true;
         if (dp)
         {
-//            for (int i = 0; i < dp_depth + 1; i++) prefix += "| ";
             dp_prefix();
             std::cout << ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" << std::endl;
             dp_prefix(); debugPrint(max_size);
@@ -245,29 +201,30 @@ public:
             dp_prefix(); debugPrint(source_code);
             dp_prefix(); std::cout << std::endl;
         }
-        // TODO later this should be an assert
-        if (!(max_size > 0) && dp)
-        {
-            std::cout << "bad max_size=" << max_size;
-            std::cout << " type=" << return_type << std::endl;
-        }
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        
-//        // if max_size too small: must choose terminal (eg: Uniform, ColorNoise)
-//        // TODO 8 corresponds to "ColorNoise(Vec2(x, y), Vec2(x, y), f)"
-//        int min_size = 8;
-//        std::string function_name = (max_size <= min_size ?
-//                                     terminalFunctionReturningType(return_type) :
-//                                     randomFunctionReturningType(return_type));
-        
-        std::string function_name = randomFunctionOfTypeInSize(max_size,
-                                                               return_type);
-
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        FunctionDescription fd = functions_[function_name];
+        makeRandomProgramRoot(max_size,
+                              return_type,
+                              randomFunctionOfTypeInSize(max_size, return_type),
+                              output_actual_size,
+                              source_code);
         if (dp)
         {
-            dp_prefix(); debugPrint(function_name);
+            dp_prefix();
+            std::cout << "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<" << std::endl;
+        }
+    }
+
+    void makeRandomProgramRoot(int max_size,
+                               const FunctionType& return_type,
+                               const std::string& root_function_name,
+                               int& output_actual_size,
+                               std::string& source_code)
+    {
+        FunctionDescription fd = functions_[root_function_name];
+        if (dp)
+        {
+            dp_prefix(); debugPrint(max_size);
+            dp_prefix(); debugPrint(return_type);
+            dp_prefix(); debugPrint(root_function_name);
             dp_prefix(); debugPrint(fd.parameter_types.size());
         }
         output_actual_size++;  // for "function_name" (or epheneral) itself
@@ -280,36 +237,23 @@ public:
         {
             int size_used = 0;
             int count = int(fd.parameter_types.size());
-            source_code += function_name + "(";  // TODO log
+            source_code += root_function_name + "(";  // TODO log
             bool first = true;   // TODO log
             // Loop over each parameter of "function_name" generating a subtree.
             for (auto& parameter_type : fd.parameter_types)
             {
+                if (dp)
+                {
+                    dp_prefix(); std::cout << "((((((((((((((((((";
+                    std::cout << " param=" << fd.parameter_types.size() - count;
+                    std::cout << " type=" << parameter_type;
+                    std::cout << std::endl;
+                }
                 if (first) first = false; else source_code += ", ";  // TODO log
-                int subtree_max_size = std::max(1.0f,
-                                                ((max_size - (1.0f + size_used)) /
-                                                 count));
-                
-                //~~  ~~  ~~  ~~  ~~  ~~  ~~  ~~  ~~  ~~  ~~  ~~  ~~  ~~  ~~  ~~
-                // TODO Mon Aug 17
-                // If dividing remaining size equally amoung args leaves less
-                // size than needed to terminate this parameter_type, set
-                // subtree_max_size to minSizeToTerminate.
-                // TODO obviously not general, uses knowledge of TexSyn api
-                if ((parameter_type == "Vec2") &&
-                    (subtree_max_size < minSizeToTerminate("Vec2")))
-                {
-                    subtree_max_size = minSizeToTerminate("Vec2");
-                }
-                
-                if ((parameter_type == "Texture") &&
-                    (subtree_max_size < minSizeToTerminate("Texture")))
-                {
-                    subtree_max_size = minSizeToTerminate("Texture");
-                }
-                
-                //~~  ~~  ~~  ~~  ~~  ~~  ~~  ~~  ~~  ~~  ~~  ~~  ~~  ~~  ~~  ~~
-
+                int fair_share = (max_size - (1 + size_used)) / count;
+                int min_size_for_type = minSizeToTerminateType(parameter_type);
+                int subtree_max_size = std::max(fair_share, min_size_for_type);
+                if (dp) { dp_prefix(); debugPrint(subtree_max_size); }
                 int subtree_actual_size = 0;
                 std::string subtree_source;
                 dp_depth++;
@@ -327,13 +271,12 @@ public:
                     dp_prefix(); debugPrint(count);
                 }
                 count--;
+                if (dp)
+                {
+                    dp_prefix(); std::cout << "))))))))))))))))))" << std::endl;
+                }
             }
             source_code += ")";
-        }
-        if (dp)
-        {
-            dp_prefix();
-            std::cout << "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<" << std::endl;
         }
     }
 

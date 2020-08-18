@@ -148,20 +148,18 @@ int main(int argc, const char * argv[])
 //                          Uniform(0.582032, 0.0811457, 0.593893))))
     
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    // Prototyping “make random program” for FunctionSet.
-    std::cout << "August 14, 2020" << std::endl;
-    std::string path = "/Users/cwr/Desktop/TexSyn_temp/20200814_";
+    // Debugging max_size for FunctionSet::makeRandomProgram().
+    std::cout << "August 17, 2020" << std::endl;
+    std::string path = "/Users/cwr/Desktop/TexSyn_temp/20200817_";
     
     FunctionSet tiny_texsyn_fs;
     make_tiny_texsyn_fs(tiny_texsyn_fs);
     std::cout << std::endl;
     FunctionSet full_texsyn_fs;
     make_full_texsyn_fs(full_texsyn_fs);
-    
-    debugPrint(full_texsyn_fs.minSizeToTerminate("LotsOfSpots"))
-    debugPrint(full_texsyn_fs.minSizeToTerminate("ColorNoise"))
-
-    
+    debugPrint(full_texsyn_fs.minSizeToTerminateFunction("LotsOfSpots"))
+    debugPrint(full_texsyn_fs.minSizeToTerminateFunction("ColorNoise"))
+    debugPrint(full_texsyn_fs.minSizeToTerminateFunction("Grating"))
     for (int i = 0; i < 20; i++)
     {
         int actual_size = 0;
@@ -171,23 +169,6 @@ int main(int argc, const char * argv[])
         std::cout << std::endl << std::endl << source_code << std::endl;
         std::cout << "size=" << actual_size << std::endl;
     }
-    
-    // Ring(float _copies, Vec2 _basis, Vec2 _center, const Texture& _texture)
-
-    // Ring(5.741549, Vec2(-0.906608, -4.878014), Vec2(2.884423, -3.600070), ColoredSpots(0.678892, 0.553492, 0.929361, 0.208069, 0.767077, Row(Vec2(-3.395577, -0.600270), Vec2(2.026988, -3.274830), Gamma(5.036533, Multiply(ColorNoise(Vec2(2.966635, 1.534505), Vec2(0.274355, 0.184283), 0.101204), Uniform(0.595716, 0.368557, 0.756554)))), Uniform(0.249416, 0.841403, 0.287192)))
-    
-    // ColorNoise(Vec2(2.966635, 1.534505), Vec2(0.274355, 0.184283), 0.101204)
-    
-    
-    // TODO CURRENT MYSTERY:
-    //
-    //
-    // LotsOfSpots(0.520066, 0.205853, 0.796664, 0.653451, 0.008100,
-    //             Uniform(0.518428, 0.101204, 0.673980),
-    //             Uniform(0.368557, 0.756554, 0.231773))
-    // size=14
-    //
-    // full_texsyn_fs.minSizeToTerminate("LotsOfSpots") = 9 !!!!!!!!!!!!!!!!!
     
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     return EXIT_SUCCESS;
