@@ -18,7 +18,16 @@
 	          padding: 10px;
            	margin-bottom: 1em;
           }
-      .comment { color: rgb(80%,80%,80%); }
+      .wrapping_code {
+                       color: black;
+                       border: 1px dashed rgb(65%,65%,65%);
+                       padding: 10px;
+                       margin-bottom: 1em;
+                       font-family: Courier, "Courier New", monospace;
+                       font-weight: normal;
+                       font-size: 83%;
+                     }
+      .comment { color: rgb(30%,30%,30%); }
       <!-- for in-page date anchors -->
       a.date         {color: rgb(40%,40%,40%); }
 			a.date:link    {text-decoration: none; color: rgb(40%,40%,40%);}
@@ -95,6 +104,86 @@
       details of the implementation. On the other hand, I do want it to be more
       prose-like than the terse <code>git commit</code> messages.)</p>
     <br style="##########################################################################">
+    <div class="post" id="20200817"> <a href="#20200817" class="date">August
+        17, 2020</a>
+      <h1>Size control fixed for random programs</h1>
+      <p>I tracked down the bug(s) that prevented exact control of the maximum
+        size of GP programs constructed by <code>FunctionSet::makeRandomProgram()</code>.&nbsp;
+        Now, generating a series of programs (here for the TexSyn <code>FunctionSet</code>)
+        produces mostly programs of the given max_size (which is 50 in these
+        examples), some slightly smaller, and occasionally much smaller. I have
+        not decided if I care about the minimum size of these programs.</p>
+      <p class="wrapping_code"><span class="comment">// size=50</span> <br>
+        Colorize(Vec2(3.337209, -0.111232), Vec2(-1.048723, 2.609511),
+        SliceToRadial(Vec2(-0.735182, 2.328732), Vec2(2.607049, 4.752589),
+        Blur(0.763175, Gamma(4.788119, EdgeDetect(0.303196, Blur(0.725915,
+        Gamma(1.888874, Uniform(0.645293, 0.362680, 0.187303))))))),
+        EdgeEnhance(0.566709, 0.395660, Min(BrightnessToHue(0.227292,
+        EdgeDetect(0.088983, Uniform(0.432841, 0.452565, 0.759366))),
+        Blur(0.878352, AdjustSaturation(0.648826, EdgeDetect(0.192719,
+        Uniform(0.464628, 0.675937, 0.744247))))))) <br>
+        <br>
+        <span class="comment">// size=50</span> <br>
+        LotsOfSpots(0.012097, 0.135414, 0.751684, 0.965764, 0.281318,
+        LotsOfSpots(0.147613, 0.588885, 0.570666, 0.800021, 0.687004,
+        AdjustSaturation(0.277342, EdgeDetect(0.894000, Uniform(0.127598,
+        0.188189, 0.893133))), Blur(0.093948, Gamma(3.296728, Uniform(0.652457,
+        0.482005, 0.737463)))), LotsOfButtons(0.797039, 0.144344, 0.208901,
+        0.213856, 0.829122, Vec2(-1.575197, 1.251038), Uniform(0.904293,
+        0.052319, 0.090617), 0.854814, ColorNoise(Vec2(3.118072, 1.187010),
+        Vec2(-0.589404, 2.754478), 0.299059))) <br>
+        <br>
+        <span class="comment">// size=49</span> <br>
+        Wrap(-3.596494, Vec2(0.694285, 0.919086), Vec2(0.989166, -4.823082),
+        SliceShear(Vec2(-0.120761, -2.569393), Vec2(-0.134178, 1.804898),
+        EdgeDetect(0.959444, Gamma(6.956436, Uniform(0.111692, 0.197541,
+        0.677295))), Vec2(2.580718, 0.258248), Vec2(3.048599, -3.998405),
+        Min(BrightnessWrap(0.183154, 0.216393, EdgeEnhance(0.937688, 0.592261,
+        Uniform(0.792651, 0.186018, 0.810909))), AbsDiff(Uniform(0.830450,
+        0.310026, 0.461115), Uniform(0.473002, 0.195799, 0.609615))))) <br>
+        <br>
+        <span class="comment"><span class="comment">// size=8</span> <br>
+          ColorNoise(Vec2(4.320298, 0.666899), Vec2(2.787325, 4.352788),
+          0.550106) <br>
+          <br>
+          <span class="comment"></span>// size=50</span> <br>
+        Multiply(Gamma(9.301153, EdgeDetect(0.117543, HueOnly(0.059045,
+        0.402121, Add(ColorNoise(Vec2(-0.885789, -2.376529), Vec2(4.686641,
+        -0.853005), 0.158803), ColorNoise(Vec2(-0.682632, -3.960764),
+        Vec2(0.204911, -0.370719), 0.662522))))), SliceGrating(Vec2(0.915037,
+        3.041960), Vec2(-3.293618, 4.275027), SoftMatte(Uniform(0.031453,
+        0.989732, 0.696574), Blur(0.835575, Uniform(0.979765, 0.764766,
+        0.473790)), BrightnessWrap(0.012443, 0.341328, Uniform(0.533497,
+        0.499851, 0.642036))))) <br>
+        <br>
+        <span class="comment">// size=20</span> <br>
+        AdjustSaturation(0.066990, Ring(4.104012, Vec2(-2.495622, 0.238659),
+        Vec2(0.829247, -3.823189), AdjustBrightness(0.070340,
+        ColorNoise(Vec2(-0.894583, 2.009082), Vec2(-4.681360, -2.824072),
+        0.809685)))) <br>
+        <br>
+        <span class="comment">// size=4</span> <br>
+        Uniform(0.912225, 0.591371, 0.169519) <br>
+        <br>
+        <span class="comment">// size=49</span> <br>
+        LotsOfButtons(0.522967, 0.333162, 0.085013, 0.728105, 0.668366,
+        Vec2(1.857913, -2.245440), ColorNoise(Vec2(-0.412046, -3.319272),
+        Vec2(-4.977819, 2.511291), 0.610481), 0.917300, AdjustHue(0.857817,
+        SoftMatte(Min(Uniform(0.211855, 0.353225, 0.061723), Uniform(0.792557,
+        0.015160, 0.339307)), Max(Uniform(0.163184, 0.786264, 0.147327),
+        Uniform(0.351334, 0.191037, 0.729921)), AdjustSaturation(0.686154,
+        ColorNoise(Vec2(0.018567, 4.154261), Vec2(3.782207, 4.571167),
+        0.044231))))) <br>
+        <br>
+        <span class="comment">// size=50</span> <br>
+        Ring(5.741549, Vec2(-0.906608, -4.878014), Vec2(2.884423, -3.600070),
+        ColoredSpots(0.678892, 0.553492, 0.929361, 0.208069, 0.767077,
+        CotsMap(Vec2(-3.395577, -0.600270), Vec2(2.026988, -3.274830),
+        Vec2(0.036533, -4.649998), Vec2(2.966635, 1.534505), Uniform(0.527436,
+        0.518428, 0.101204)), Grating(Vec2(-1.834993, -0.729365),
+        Uniform(0.231773, 0.243197, 0.261381), Vec2(2.077976, -3.491028),
+        Uniform(0.279188, 0.504817, 0.897037), 0.532966, 0.978290)))</p>
+    </div>
     <div class="post" id="20200815"> <a href="#20200815" class="date">August
         15, 2020</a>
       <h1>Prototype <code>FunctionSet</code> covering entire TexSyn API</h1>
