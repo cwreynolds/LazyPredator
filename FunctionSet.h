@@ -23,6 +23,57 @@
 #include <map>
 #include "Utilities.h"
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// TODO Aug 18: to "reduce confusion" I will define two new types:
+//     GpType
+//     GpFunction
+// and start on new constructors for FunctionSet that accepts collections of
+// these two, then does all caching so that subsequent lookups are fast.
+class GpType
+{
+public:
+    GpType(){}
+    GpType(const std::string& name) : name_(name) {}
+    GpType(const std::string& name,
+           std::function<std::string()> ephemeral_generator)
+      : name_(name), ephemeral_generator_(ephemeral_generator){}
+    const std::string& name() const { return name_; }
+    const std::function<std::string()>& ephemeralGenerator() const
+        { return ephemeral_generator_; }
+private:
+
+    std::string name_;
+    // all functions returning type
+    // minSizeToTerminateType
+    
+    // This should be templated to the c++ type
+    // TODO right now it is the type name as a string.
+    std::function<std::string()> ephemeral_generator_ = nullptr;
+};
+
+class GpFunction
+{
+public:
+    GpFunction(){}
+    GpFunction(const std::string& name,
+               const std::string& return_type,
+               const std::vector<std::string>& parameter_types)
+      : name_(name),
+        return_type_(return_type),
+        parameter_types_(parameter_types) {}
+    const std::string& name() const { return name_; }
+    const std::string& returnType() const { return return_type_; }
+    const std::vector<std::string>& parameterTypes() const
+        { return parameter_types_; }
+private:
+    std::string name_;
+    std::string return_type_;
+    std::vector<std::string> parameter_types_;
+};
+
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 // Types for function values and parameters within this FunctionSet
 // TODO for now I am using std::string name to "mock" a type
 typedef std::string FunctionType;
@@ -57,6 +108,34 @@ class FunctionSet
 {
 public:
     FunctionSet(){}
+    
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // TODO Aug 18: to "reduce confusion" I will define two new types:
+    //     GpType
+    //     GpFunction
+    
+    FunctionSet(const std::vector<GpType>& type_specs,
+                const std::vector<GpFunction>& function_specs)
+    {
+        for (auto& ts : type_specs)
+        {
+            auto& eg = ts.ephemeralGenerator();
+            if (eg) addFunction(ts.name(), ts.name(), {}, eg);
+        }
+
+        
+        for (auto& fs : function_specs)
+        {
+            addFunction(fs.name(),
+                        fs.returnType(),
+                        fs.parameterTypes());
+        }
+    }
+    
+    
+
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
         
     void addType(const std::string& name)
     {
@@ -89,7 +168,7 @@ public:
     }
     
     // Find collection of functions in this set that return the given type.
-    // TODO very prototype, we can probably cache this information per-type
+    // TODO very prototype, we can cache this information per-type
     // TODO does brute force search, stores results in "results"
     void findAllFunctionReturningType(const std::string& return_type,
                                       std::vector<std::string>& results)
@@ -118,6 +197,8 @@ public:
         }
     }
 
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    
     // Given a type, lookup the min size to terminate.
     // TODO this is all hard coded and needs a real implementation
     int minSizeToTerminateType(const FunctionType& function_type)
@@ -137,6 +218,94 @@ public:
                type_to_min_size.find(function_type) != type_to_min_size.end());
         return type_to_min_size[function_type];
     }
+
+
+//        // Given a type, lookup the minimum "size" to terminate a subtree.
+//        // TODO this is all hard coded and needs a real implementation
+//        int minSizeToTerminateType(const FunctionType& function_type)
+//        {
+//            // for first pass, lets assume we know type "Float *" needs size 1
+//            // (ephemeral constant), type "Vec2" requires size 3 (Vec2(x, y)),
+//            // and type "Texture" requires size 4: Uniform(r, g, b). Eventually
+//            // we want to derive these at FunctionSet definition time.
+//            std::map<std::string, int> type_to_min_size;
+//            type_to_min_size["Float_01"] = 1;
+//            type_to_min_size["Float_02"] = 1;
+//            type_to_min_size["Float_0_10"] = 1;
+//            type_to_min_size["Float_m5p5"] = 1;
+//            type_to_min_size["Vec2"] = 3;
+//            type_to_min_size["Texture"] = 4;
+//    //        assert("Unknown function type" &&
+//    //               type_to_min_size.find(function_type) != type_to_min_size.end());
+//    //        return type_to_min_size[function_type];
+//            auto found = type_to_min_size.find(function_type);
+//            assert("Unknown function type" && found != type_to_min_size.end());
+//            return found->second;
+//        }
+    
+    // TODO temporary prototype to find all FunctionTypes in this FunctionSet
+    //      as a set of strings
+    void fillInSetOfTypes(std::set<FunctionType>& set_of_function_types)
+    {
+        for (auto& pair : functions_)
+        {
+            FunctionDescription& fd = pair.second;
+            set_of_function_types.insert(fd.return_type);
+            for (auto& parameter_type : fd.parameter_types)
+            {
+                set_of_function_types.insert(parameter_type);
+            }
+        }
+    }
+    
+//        // Given a type, lookup the minimum "size" to terminate a subtree.
+//        // TODO this is all hard coded and needs a real implementation
+//        int minSizeToTerminateType(const FunctionType& function_type)
+//        {
+//            // for first pass, lets assume we know type "Float *" needs size 1
+//            // (ephemeral constant), type "Vec2" requires size 3 (Vec2(x, y)),
+//            // and type "Texture" requires size 4: Uniform(r, g, b). Eventually
+//            // we want to derive these at FunctionSet definition time.
+//            std::map<std::string, int> type_to_min_size;
+//
+//            //~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+//    //        type_to_min_size["Float_01"] = 1;
+//    //        type_to_min_size["Float_02"] = 1;
+//    //        type_to_min_size["Float_0_10"] = 1;
+//    //        type_to_min_size["Float_m5p5"] = 1;
+//
+//            type_to_min_size["Vec2"] = 3;
+//            type_to_min_size["Texture"] = 4;
+//
+//
+//            // For each FunctionType
+//            std::set<FunctionType> set_of_function_types;
+//            fillInSetOfTypes(set_of_function_types);
+//            for (auto& type : set_of_function_types)
+//            {
+//                std::vector<std::string> functions;
+//                findAllFunctionReturningType(type, functions);
+//                // For each function of this type
+//                for (auto& function_name : functions)
+//                {
+//                    FunctionDescription fd = functions_[function_name];
+//                    if (fd.ephemeral_generator) type_to_min_size[type] = 1;
+//
+//                    // TODO more stuff here!!!! TODO TODO TODO TODO TODO TODO TODO
+//
+//    //                minSizeToTerminateFunction ... uh oh, this is co-recursive!!!
+//                }
+//            }
+//            //~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+//
+//            // Lookup given FunctionType in table, return if found, else error.
+//            auto found = type_to_min_size.find(function_type);
+//            assert("Unknown function type" && found != type_to_min_size.end());
+//            return found->second;
+//        }
+
+    // TODO QQQ
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     
     // TODO new experimental thing that estimates how much "size" is required to
     // "terminate" a given FunctionDescription fd
