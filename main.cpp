@@ -185,6 +185,7 @@ int main(int argc, const char * argv[])
     debugPrint(full_texsyn_fs.minSizeToTerminateFunction("LotsOfSpots"))
     debugPrint(full_texsyn_fs.minSizeToTerminateFunction("ColorNoise"))
     debugPrint(full_texsyn_fs.minSizeToTerminateFunction("Grating"))
+/*
     for (int i = 0; i < 20; i++)
     {
         int actual_size = 0;
@@ -194,7 +195,7 @@ int main(int argc, const char * argv[])
         std::cout << std::endl << std::endl << source_code << std::endl;
         std::cout << "size=" << actual_size << std::endl;
     }
-    
+*/
     std::set<FunctionType> set_of_function_types;
     full_texsyn_fs.fillInSetOfTypes(set_of_function_types);
     std::cout << "set_of_function_types={ ";
@@ -212,7 +213,8 @@ int main(int argc, const char * argv[])
 
     FunctionSet foo(
     {
-        {"Float_01", [](){return "0";}},
+//        {"Float_01", [](){return "0";}},
+        {"Float_01", [](){ return frandom01() < 0.5 ? "0" : "1"; }},
         {"Texture"},
         {"Vec2"}
     },
@@ -229,7 +231,7 @@ int main(int argc, const char * argv[])
 
     });
     foo.printSet();
-
+/*
     for (int i = 0; i < 20; i++)
     {
         int actual_size = 0;
@@ -238,8 +240,10 @@ int main(int argc, const char * argv[])
         std::cout << std::endl << std::endl << source_code << std::endl;
         std::cout << "size=" << actual_size << std::endl;
     }
+*/
 
-
+//    debugPrint(foo.);
+    
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     return EXIT_SUCCESS;
 }

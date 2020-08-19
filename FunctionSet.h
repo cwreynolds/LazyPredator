@@ -23,57 +23,6 @@
 #include <map>
 #include "Utilities.h"
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// TODO Aug 18: to "reduce confusion" I will define two new types:
-//     GpType
-//     GpFunction
-// and start on new constructors for FunctionSet that accepts collections of
-// these two, then does all caching so that subsequent lookups are fast.
-class GpType
-{
-public:
-    GpType(){}
-    GpType(const std::string& name) : name_(name) {}
-    GpType(const std::string& name,
-           std::function<std::string()> ephemeral_generator)
-      : name_(name), ephemeral_generator_(ephemeral_generator){}
-    const std::string& name() const { return name_; }
-    const std::function<std::string()>& ephemeralGenerator() const
-        { return ephemeral_generator_; }
-private:
-
-    std::string name_;
-    // all functions returning type
-    // minSizeToTerminateType
-    
-    // This should be templated to the c++ type
-    // TODO right now it is the type name as a string.
-    std::function<std::string()> ephemeral_generator_ = nullptr;
-};
-
-class GpFunction
-{
-public:
-    GpFunction(){}
-    GpFunction(const std::string& name,
-               const std::string& return_type,
-               const std::vector<std::string>& parameter_types)
-      : name_(name),
-        return_type_(return_type),
-        parameter_types_(parameter_types) {}
-    const std::string& name() const { return name_; }
-    const std::string& returnType() const { return return_type_; }
-    const std::vector<std::string>& parameterTypes() const
-        { return parameter_types_; }
-private:
-    std::string name_;
-    std::string return_type_;
-    std::vector<std::string> parameter_types_;
-};
-
-
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 // Types for function values and parameters within this FunctionSet
 // TODO for now I am using std::string name to "mock" a type
 typedef std::string FunctionType;
@@ -104,36 +53,157 @@ public:
     std::function<std::string()> ephemeral_generator;
 };
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// TODO Aug 18: to "reduce confusion" I will define two NEW types:
+//     GpType
+//     GpFunction
+// and start on new constructors for FunctionSet that accepts collections of
+// these two, then does all caching so that subsequent lookups are fast.
+class GpType
+{
+public:
+    GpType(){}
+    GpType(const std::string& name) : name_(name) {}
+    GpType(const std::string& name,
+           std::function<std::string()> ephemeral_generator)
+      : name_(name), ephemeral_generator_(ephemeral_generator){}
+    const std::string& name() const { return name_; }
+    const std::function<std::string()>& ephemeralGenerator() const
+        { return ephemeral_generator_; }
+private:
+
+    std::string name_;
+    // all functions returning type
+    // minSizeToTerminateType
+    
+    // This should be templated to the c++ type
+    // TODO right now it is the type name as a string.
+    std::function<std::string()> ephemeral_generator_ = nullptr;
+};
+
+// TODO This has to deal somehow with types themsleves (as pointers?) AND
+//      as std::string type names.
+class GpFunction
+{
+public:
+    GpFunction(){}
+    GpFunction(const std::string& name,
+//               const std::string& return_type,
+               const std::string& return_type_name,
+//               const std::vector<std::string>& parameter_types)
+               const std::vector<std::string>& parameter_type_names)
+      : name_(name),
+//        return_type_(return_type),
+        return_type_name_(return_type_name),
+//        parameter_types_(parameter_types) {}
+        parameter_type_names_(parameter_type_names) {}
+    const std::string& name() const { return name_; }
+//    const std::string& returnType() const { return return_type_; }
+    const std::string& returnTypeName() const { return return_type_name_; }
+    GpType* returnType() const { return return_type_; }
+//    const std::vector<std::string>& parameterTypes() const
+//        { return parameter_types_; }
+    const std::vector<GpType*>& parameterTypes() const
+        { return parameter_types_; }
+    const std::vector<std::string>& parameterTypeNames() const
+        { return parameter_type_names_; }
+    void setReturnTypePointer(GpType* rtp) { return_type_ = rtp; }
+
+    void setParameterTypePointers(const std::vector<GpType*>& vec_ptype_ptrs)
+        { parameter_types_ = vec_ptype_ptrs; }
+
+    void print()
+    {
+        std::cout << "GpFunction: " << name() << ", return_type: " <<
+            returnTypeName() << "(" <<  returnType() << "), parameters: (";
+        bool comma = false;
+        for (int i = 0; i < parameterTypes().size(); i ++)
+        {
+            if (comma) std::cout << ", "; else comma = true;
+            std::cout << parameterTypeNames().at(i) << "(" <<
+                parameterTypes().at(i) << ")";
+        }
+        std::cout << ")" << std::endl;
+    }
+
+private:
+    std::string name_;
+    
+//    std::string return_type_;
+    std::string return_type_name_;
+    GpType* return_type_ = nullptr;
+
+//    std::vector<std::string> parameter_types_;
+    std::vector<std::string> parameter_type_names_;
+    std::vector<GpType*> parameter_types_;
+
+    // minSizeToTerminateFunction
+};
+
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 class FunctionSet
 {
 public:
     FunctionSet(){}
     
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // TODO Aug 18: to "reduce confusion" I will define two new types:
+    // TODO Aug 18: to "reduce confusion" I will define two NEW types:
     //     GpType
     //     GpFunction
-    
     FunctionSet(const std::vector<GpType>& type_specs,
                 const std::vector<GpFunction>& function_specs)
     {
+        // TODO for reference:
+        // std::map<std::string, GpType> name_to_gp_type_;
+        // std::map<std::string, GpFunction> name_to_gp_function_;
+
         for (auto& ts : type_specs)
         {
+            name_to_gp_type_[ts.name()] = ts;
             auto& eg = ts.ephemeralGenerator();
             if (eg) addFunction(ts.name(), ts.name(), {}, eg);
         }
-
         
-        for (auto& fs : function_specs)
+//        for (auto& fs : function_specs)
+//        {
+//            name_to_gp_function_[fs.name()] = fs;
+//            // TODO (Aug 18) I expect this to become obsolete soon:
+//            addFunction(fs.name(), fs.returnType(), fs.parameterTypes());
+//        }
+        for (auto& function_spec : function_specs)
         {
+            // Local writeable copy.
+            // TODO need better name, can be confused with fs for FunctionSet
+            GpFunction fs = function_spec;
+            
+            // TODO (Aug 18) I expect this to become obsolete soon:
+//            addFunction(fs.name(),
+//                        fs.returnType(),
+//                        fs.parameterTypes());
             addFunction(fs.name(),
-                        fs.returnType(),
-                        fs.parameterTypes());
-        }
-    }
-    
-    
+                        fs.returnTypeName(),
+                        fs.parameterTypeNames());
 
+            // Connect named types to GpType object
+            fs.setReturnTypePointer(&name_to_gp_type_[fs.returnTypeName()]);
+                        
+            std::vector<GpType*> parameter_types;
+            for (auto& parameter_name : fs.parameterTypeNames())
+            {
+                parameter_types.push_back(&name_to_gp_type_[parameter_name]);
+            }
+            fs.setParameterTypePointers(parameter_types);
+            
+            // Copy once more to map from name to GpFunction object (inside map)
+            name_to_gp_function_[fs.name()] = fs;
+
+            
+        }
+
+    }
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
         
@@ -469,6 +539,14 @@ public:
             }
             std::cout << ")" << std::endl;
         }
+        
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // TODO for reference:
+        // std::map<std::string, GpType> name_to_gp_type_;
+        // std::map<std::string, GpFunction> name_to_gp_function_;
+        
+        for (auto& pair : name_to_gp_function_) pair.second.print();
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     }
     
     // Accessor for RandomSequence, perhaps only needed for testing?
@@ -480,4 +558,15 @@ private:
     // just to get started, assume types are strings with int ID.
     std::map<std::string, int> types_;
     std::map<std::string, FunctionDescription> functions_;
+    
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // TODO Aug 18: to "reduce confusion" I will define two NEW types:
+    //     GpType
+    //     GpFunction
+    
+    // TODO these should be covered by accessors.
+    std::map<std::string, GpType> name_to_gp_type_;
+    std::map<std::string, GpFunction> name_to_gp_function_;
+
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 };
