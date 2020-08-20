@@ -59,6 +59,7 @@ public:
 //     GpFunction
 // and start on new constructors for FunctionSet that accepts collections of
 // these two, then does all caching so that subsequent lookups are fast.
+class GpFunction;
 class GpType
 {
 public:
@@ -68,17 +69,21 @@ public:
            std::function<std::string()> ephemeral_generator)
       : name_(name), ephemeral_generator_(ephemeral_generator){}
     const std::string& name() const { return name_; }
-    const std::function<std::string()>& ephemeralGenerator() const
+    const std::function<std::string()> ephemeralGenerator() const
         { return ephemeral_generator_; }
+    const std::vector<GpFunction*>& functionsReturningThisType() const
+        { return functions_returning_this_type_; }
+    void addFunctionReturningThisType(GpFunction* gp_function_pointer)
+        { functions_returning_this_type_.push_back(gp_function_pointer); }
+    void print();
 private:
-
     std::string name_;
-    // all functions returning type
-    // minSizeToTerminateType
-    
+    // TODO minSizeToTerminateType
     // This should be templated to the c++ type
     // TODO right now it is the type name as a string.
     std::function<std::string()> ephemeral_generator_ = nullptr;
+    // Collection of pointers to GpFunctions which return this type.
+    std::vector<GpFunction*> functions_returning_this_type_;
 };
 
 // TODO This has to deal somehow with types themsleves (as pointers?) AND
@@ -88,30 +93,21 @@ class GpFunction
 public:
     GpFunction(){}
     GpFunction(const std::string& name,
-//               const std::string& return_type,
                const std::string& return_type_name,
-//               const std::vector<std::string>& parameter_types)
                const std::vector<std::string>& parameter_type_names)
       : name_(name),
-//        return_type_(return_type),
         return_type_name_(return_type_name),
-//        parameter_types_(parameter_types) {}
         parameter_type_names_(parameter_type_names) {}
     const std::string& name() const { return name_; }
-//    const std::string& returnType() const { return return_type_; }
     const std::string& returnTypeName() const { return return_type_name_; }
     GpType* returnType() const { return return_type_; }
-//    const std::vector<std::string>& parameterTypes() const
-//        { return parameter_types_; }
     const std::vector<GpType*>& parameterTypes() const
         { return parameter_types_; }
     const std::vector<std::string>& parameterTypeNames() const
         { return parameter_type_names_; }
     void setReturnTypePointer(GpType* rtp) { return_type_ = rtp; }
-
     void setParameterTypePointers(const std::vector<GpType*>& vec_ptype_ptrs)
         { parameter_types_ = vec_ptype_ptrs; }
-
     void print()
     {
         std::cout << "GpFunction: " << name() << ", return_type: " <<
@@ -125,24 +121,36 @@ public:
         }
         std::cout << ")" << std::endl;
     }
-
 private:
     std::string name_;
-    
-//    std::string return_type_;
     std::string return_type_name_;
     GpType* return_type_ = nullptr;
-
-//    std::vector<std::string> parameter_types_;
     std::vector<std::string> parameter_type_names_;
     std::vector<GpType*> parameter_types_;
 
     // minSizeToTerminateFunction
 };
 
+// Down here because it needs both GpType and GpFunction to be defined.
+inline void GpType::print()
+{
+    std::cout << "GpType: " << name();
+    if (ephemeralGenerator()) std::cout << ", has ephemeral_generator";
+    if (functions_returning_this_type_.size() > 0)
+    {
+        bool first = true;
+        std::cout << ", functions returning this type: (";
+        for (auto& f : functions_returning_this_type_)
+        {
+            if (first) first = false; else std::cout << ", ";
+            std::cout << f->name();
+        }
+        std::cout << ")";
+    }
+    std::cout << std::endl;
+}
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 
 class FunctionSet
 {
@@ -150,63 +158,43 @@ public:
     FunctionSet(){}
     
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // TODO Aug 18: to "reduce confusion" I will define two NEW types:
-    //     GpType
-    //     GpFunction
+    // New constructor using vectors of GpType and GpFunction.
     FunctionSet(const std::vector<GpType>& type_specs,
                 const std::vector<GpFunction>& function_specs)
     {
-        // TODO for reference:
-        // std::map<std::string, GpType> name_to_gp_type_;
-        // std::map<std::string, GpFunction> name_to_gp_function_;
-
+        // Process each of the GpType specifications
         for (auto& ts : type_specs)
         {
             name_to_gp_type_[ts.name()] = ts;
             auto& eg = ts.ephemeralGenerator();
             if (eg) addFunction(ts.name(), ts.name(), {}, eg);
         }
-        
-//        for (auto& fs : function_specs)
-//        {
-//            name_to_gp_function_[fs.name()] = fs;
-//            // TODO (Aug 18) I expect this to become obsolete soon:
-//            addFunction(fs.name(), fs.returnType(), fs.parameterTypes());
-//        }
-        for (auto& function_spec : function_specs)
+        // Process each of the GpFunction specifications (copy then modify)
+        for (GpFunction func : function_specs)
         {
-            // Local writeable copy.
-            // TODO need better name, can be confused with fs for FunctionSet
-            GpFunction fs = function_spec;
-            
             // TODO (Aug 18) I expect this to become obsolete soon:
-//            addFunction(fs.name(),
-//                        fs.returnType(),
-//                        fs.parameterTypes());
-            addFunction(fs.name(),
-                        fs.returnTypeName(),
-                        fs.parameterTypeNames());
-
-            // Connect named types to GpType object
-            fs.setReturnTypePointer(&name_to_gp_type_[fs.returnTypeName()]);
-                        
+            addFunction(func.name(),
+                        func.returnTypeName(),
+                        func.parameterTypeNames());
+            // Connect type names to GpType object
+            func.setReturnTypePointer(&name_to_gp_type_[func.returnTypeName()]);
             std::vector<GpType*> parameter_types;
-            for (auto& parameter_name : fs.parameterTypeNames())
-            {
-                parameter_types.push_back(&name_to_gp_type_[parameter_name]);
-            }
-            fs.setParameterTypePointers(parameter_types);
-            
+            for (auto& parameter_name : func.parameterTypeNames())
+                {parameter_types.push_back(&name_to_gp_type_[parameter_name]);}
+            func.setParameterTypePointers(parameter_types);
             // Copy once more to map from name to GpFunction object (inside map)
-            name_to_gp_function_[fs.name()] = fs;
-
-            
+            name_to_gp_function_[func.name()] = func;
         }
-
+        // Build per-GpType collections of GpFunctions returning that type.
+        for (auto& pair : name_to_gp_function_)
+        {
+            GpFunction* f = &pair.second;
+            GpType* t = f->returnType();
+            t->addFunctionReturningThisType(f);
+        }
     }
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-        
     void addType(const std::string& name)
     {
         int id = int(types_.size());
@@ -544,7 +532,7 @@ public:
         // TODO for reference:
         // std::map<std::string, GpType> name_to_gp_type_;
         // std::map<std::string, GpFunction> name_to_gp_function_;
-        
+        for (auto& pair : name_to_gp_type_) pair.second.print();
         for (auto& pair : name_to_gp_function_) pair.second.print();
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     }

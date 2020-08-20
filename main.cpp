@@ -177,6 +177,7 @@ int main(int argc, const char * argv[])
     std::cout << "August 18, 2020" << std::endl;
     std::string path = "/Users/cwr/Desktop/TexSyn_temp/20200818_";
     
+/*
     FunctionSet tiny_texsyn_fs;
     make_tiny_texsyn_fs(tiny_texsyn_fs);
     std::cout << std::endl;
@@ -185,7 +186,7 @@ int main(int argc, const char * argv[])
     debugPrint(full_texsyn_fs.minSizeToTerminateFunction("LotsOfSpots"))
     debugPrint(full_texsyn_fs.minSizeToTerminateFunction("ColorNoise"))
     debugPrint(full_texsyn_fs.minSizeToTerminateFunction("Grating"))
-/*
+ 
     for (int i = 0; i < 20; i++)
     {
         int actual_size = 0;
@@ -195,7 +196,7 @@ int main(int argc, const char * argv[])
         std::cout << std::endl << std::endl << source_code << std::endl;
         std::cout << "size=" << actual_size << std::endl;
     }
-*/
+
     std::set<FunctionType> set_of_function_types;
     full_texsyn_fs.fillInSetOfTypes(set_of_function_types);
     std::cout << "set_of_function_types={ ";
@@ -208,12 +209,11 @@ int main(int argc, const char * argv[])
         full_texsyn_fs.findAllFunctionReturningType(type, functions);
         std::cout << type << " " << functions.size() << std::endl;
     }
-
+*/
     std::cout << std::endl << "FunctionSet foo:" << std::endl;
 
     FunctionSet foo(
     {
-//        {"Float_01", [](){return "0";}},
         {"Float_01", [](){ return frandom01() < 0.5 ? "0" : "1"; }},
         {"Texture"},
         {"Vec2"}
@@ -231,7 +231,7 @@ int main(int argc, const char * argv[])
 
     });
     foo.printSet();
-/*
+
     for (int i = 0; i < 20; i++)
     {
         int actual_size = 0;
@@ -240,10 +240,22 @@ int main(int argc, const char * argv[])
         std::cout << std::endl << std::endl << source_code << std::endl;
         std::cout << "size=" << actual_size << std::endl;
     }
-*/
 
-//    debugPrint(foo.);
-    
+//    std::map<std::string, int> test;
+//    debugPrint(test["a"] = 10);
+//    debugPrint(test["a"] = 11);
+//    debugPrint(test["a"]);
+//    debugPrint(test["b"] = 20);
+//    debugPrint(test["b"] = 21);
+//    debugPrint(test["b"]);
+//    for (auto& pair : test)
+//    {
+//        std::cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << std::endl;
+//        debugPrint(pair.first);
+//        debugPrint(pair.second);
+//    }
+//    std::cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << std::endl;
+
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     return EXIT_SUCCESS;
 }
