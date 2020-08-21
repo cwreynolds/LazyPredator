@@ -21,6 +21,7 @@
 
 #pragma once
 #include <map>
+#include <limits>
 #include "Utilities.h"
 
 // Types for function values and parameters within this FunctionSet
@@ -75,15 +76,27 @@ public:
         { return functions_returning_this_type_; }
     void addFunctionReturningThisType(GpFunction* gp_function_pointer)
         { functions_returning_this_type_.push_back(gp_function_pointer); }
+    // Minimum "size" of tree returning this type from root;
+    int minSizeToTerminate() const { return min_size_to_terminate_; }
+    void setMinSizeToTerminate(int s) { min_size_to_terminate_ = s; }
+
     void print();
+    bool valid() const
+    {
+        return ((!name().empty()) &&
+                (!functionsReturningThisType().empty()) &&
+                (minSizeToTerminate() < std::numeric_limits<int>::max()));
+    }
 private:
     std::string name_;
-    // TODO minSizeToTerminateType
     // This should be templated to the c++ type
     // TODO right now it is the type name as a string.
     std::function<std::string()> ephemeral_generator_ = nullptr;
     // Collection of pointers to GpFunctions which return this type.
     std::vector<GpFunction*> functions_returning_this_type_;
+    // Minimum "size" of tree returning this type from root;
+    // TODO minSizeToTerminateType
+    int min_size_to_terminate_ = std::numeric_limits<int>::max();
 };
 
 // TODO This has to deal somehow with types themsleves (as pointers?) AND
@@ -135,17 +148,18 @@ private:
 inline void GpType::print()
 {
     std::cout << "GpType: " << name();
-    if (ephemeralGenerator()) std::cout << ", has ephemeral_generator";
+    std::cout << ", min size to terminate: " << minSizeToTerminate();
+    if (ephemeralGenerator()) std::cout << ", has ephemeral generator";
     if (functions_returning_this_type_.size() > 0)
     {
         bool first = true;
-        std::cout << ", functions returning this type: (";
+        std::cout << ", functions returning this type: ";
         for (auto& f : functions_returning_this_type_)
         {
             if (first) first = false; else std::cout << ", ";
             std::cout << f->name();
         }
-        std::cout << ")";
+//        std::cout << ")";
     }
     std::cout << std::endl;
 }
@@ -159,15 +173,33 @@ public:
     
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // New constructor using vectors of GpType and GpFunction.
+    // TODO eventually this needs to be rewritten to be smaller.
     FunctionSet(const std::vector<GpType>& type_specs,
                 const std::vector<GpFunction>& function_specs)
     {
         // Process each of the GpType specifications
-        for (auto& ts : type_specs)
+//        for (auto& ts : type_specs)
+        for (GpType gp_type : type_specs)
         {
-            name_to_gp_type_[ts.name()] = ts;
-            auto& eg = ts.ephemeralGenerator();
-            if (eg) addFunction(ts.name(), ts.name(), {}, eg);
+//            name_to_gp_type_[ts.name()] = ts;
+
+            auto& eg = gp_type.ephemeralGenerator();
+            if (eg) gp_type.setMinSizeToTerminate(1);
+
+            // TODO temporary stand in. Uses hard coded values that eventually
+            //      need to be computed from an arbitrary FunctionSet
+            if (gp_type.name() == "Texture") gp_type.setMinSizeToTerminate(4);
+            if (gp_type.name() == "Vec2") gp_type.setMinSizeToTerminate(3);
+
+            // Insert updated GpType into by-name map.
+            name_to_gp_type_[gp_type.name()] = gp_type;
+
+            
+//            auto& eg = ts.ephemeralGenerator();
+//            // TODO (Aug 18) I expect this to become obsolete soon:
+//            if (eg) addFunction(ts.name(), ts.name(), {}, eg);
+            // TODO (Aug 18) I expect this to become obsolete soon:
+            if (eg) addFunction(gp_type.name(), gp_type.name(), {}, eg);
         }
         // Process each of the GpFunction specifications (copy then modify)
         for (GpFunction func : function_specs)
@@ -257,25 +289,83 @@ public:
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     
+//    // Given a type, lookup the min size to terminate.
+//    // TODO this is all hard coded and needs a real implementation
+//    int minSizeToTerminateType(const FunctionType& function_type)
+//    {
+//        // for first pass, lets assume we know type "Float *" needs size 1
+//        // (ephemeral constant), type "Vec2" requires size 3 (Vec2(x, y)),
+//        // and type "Texture" requires size 4: Uniform(r, g, b). Eventually
+//        // we want to derive these at FunctionSet definition time.
+//        std::map<std::string, int> type_to_min_size;
+//        type_to_min_size["Float_01"] = 1;
+//        type_to_min_size["Float_02"] = 1;
+//        type_to_min_size["Float_0_10"] = 1;
+//        type_to_min_size["Float_m5p5"] = 1;
+//        type_to_min_size["Vec2"] = 3;
+//        type_to_min_size["Texture"] = 4;
+//        assert("Unknown function type" &&
+//               type_to_min_size.find(function_type) != type_to_min_size.end());
+//        return type_to_min_size[function_type];
+//    }
+    
+//    // Given a type, lookup the min size to terminate.
+//    // TODO this is all hard coded and needs a real implementation
+//    // TODO now superceeded by GpType::minSizeToTerminate()
+//    int minSizeToTerminateType(const FunctionType& function_type)
+//    {
+//        // for first pass, lets assume we know type "Float *" needs size 1
+//        // (ephemeral constant), type "Vec2" requires size 3 (Vec2(x, y)),
+//        // and type "Texture" requires size 4: Uniform(r, g, b). Eventually
+//        // we want to derive these at FunctionSet definition time.
+//        std::map<std::string, int> type_to_min_size;
+//        type_to_min_size["Float_01"] = 1;
+//        type_to_min_size["Float_02"] = 1;
+//        type_to_min_size["Float_0_10"] = 1;
+//        type_to_min_size["Float_m5p5"] = 1;
+//        type_to_min_size["Vec2"] = 3;
+//        type_to_min_size["Texture"] = 4;
+//        assert("Unknown function type" &&
+//               type_to_min_size.find(function_type) != type_to_min_size.end());
+//
+//        assert("new/old minSizeToTerminate mismatch" &&
+//               (type_to_min_size[function_type] !=
+//                name_to_gp_type_[function_type].minSizeToTerminate()));
+//
+//        return type_to_min_size[function_type];
+//    }
+
     // Given a type, lookup the min size to terminate.
     // TODO this is all hard coded and needs a real implementation
+    // TODO now superceeded by GpType::minSizeToTerminate()
     int minSizeToTerminateType(const FunctionType& function_type)
     {
-        // for first pass, lets assume we know type "Float *" needs size 1
-        // (ephemeral constant), type "Vec2" requires size 3 (Vec2(x, y)),
-        // and type "Texture" requires size 4: Uniform(r, g, b). Eventually
-        // we want to derive these at FunctionSet definition time.
-        std::map<std::string, int> type_to_min_size;
-        type_to_min_size["Float_01"] = 1;
-        type_to_min_size["Float_02"] = 1;
-        type_to_min_size["Float_0_10"] = 1;
-        type_to_min_size["Float_m5p5"] = 1;
-        type_to_min_size["Vec2"] = 3;
-        type_to_min_size["Texture"] = 4;
-        assert("Unknown function type" &&
-               type_to_min_size.find(function_type) != type_to_min_size.end());
-        return type_to_min_size[function_type];
+//        // for first pass, lets assume we know type "Float *" needs size 1
+//        // (ephemeral constant), type "Vec2" requires size 3 (Vec2(x, y)),
+//        // and type "Texture" requires size 4: Uniform(r, g, b). Eventually
+//        // we want to derive these at FunctionSet definition time.
+//        std::map<std::string, int> type_to_min_size;
+//        type_to_min_size["Float_01"] = 1;
+//        type_to_min_size["Float_02"] = 1;
+//        type_to_min_size["Float_0_10"] = 1;
+//        type_to_min_size["Float_m5p5"] = 1;
+//        type_to_min_size["Vec2"] = 3;
+//        type_to_min_size["Texture"] = 4;
+//        assert("Unknown function type" &&
+//               type_to_min_size.find(function_type) != type_to_min_size.end());
+//
+//        //    debugPrint(function_type);
+//        //    debugPrint(type_to_min_size[function_type]);
+//        //    debugPrint(name_to_gp_type_[function_type].minSizeToTerminate());
+//        assert("new/old minSizeToTerminate mismatch" &&
+//               (type_to_min_size[function_type] ==
+//                name_to_gp_type_[function_type].minSizeToTerminate()));
+//
+//        return type_to_min_size[function_type];
+        
+        return name_to_gp_type_[function_type].minSizeToTerminate();
     }
+
 
 
 //        // Given a type, lookup the minimum "size" to terminate a subtree.
