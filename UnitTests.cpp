@@ -46,6 +46,44 @@ bool population_allocation_of_individuals()
     return start_with_none && match_target_count && end_with_none;
 }
 
+bool random_program_size_limit()
+{
+    // TODO I tried this on August 21 with make_full_texsyn_fs() and it failed.
+    // But I am switching over from old-style to GpType and GpFunction so may be
+    // related to that. Eventually want to use TexSyn API here (plus others?)
+    FunctionSet fs(
+    {
+        {"Float_01", [](){ return frandom01() < 0.5 ? "0" : "1"; }},
+        {"Texture"},
+        {"Vec2"}
+    },
+    {
+        {"Vec2", "Vec2",
+            {"Float_01", "Float_01"}},
+        {"Uniform", "Texture",
+            {"Float_01", "Float_01", "Float_01"}},
+        {"Spot", "Texture",
+            {"Vec2", "Float_01", "Texture", "Float_01", "Texture"}},
+        {"Add", "Texture", {"Texture", "Texture"}},
+        {"Blur", "Texture", {"Float_01", "Texture"}},
+        {"Affine", "Texture", {"Vec2", "Vec2", "Texture"}}
+    });
+    
+    bool all_ok = true;
+    int total_subtests = 1000;
+    RandomSequence rs(77365918);
+    for (int i = 0; i < total_subtests; i++)
+    {
+        int max_size = int(rs.frandom2(4, 100));
+        int actual_size = 0;
+        std::string source_code;
+        fs.dp_depth = 0;
+        fs.makeRandomProgram(max_size, "Texture", actual_size, source_code);
+        if (!st(actual_size <= max_size)) all_ok = false;
+    }
+    return all_ok;
+}
+
 bool UnitTests::allTestsOK()
 {
     Timer timer("Run time for unit test suite: ", "");
@@ -53,7 +91,8 @@ bool UnitTests::allTestsOK()
     
     logAndTally(mock);
     logAndTally(population_allocation_of_individuals);
-    
+    logAndTally(random_program_size_limit);
+
     std::cout << std::endl;
     std::cout << (all_tests_passed ? "All tests PASS." : "Some tests FAIL.");
     std::cout << std::endl << std::endl;

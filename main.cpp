@@ -210,6 +210,8 @@ int main(int argc, const char * argv[])
         std::cout << type << " " << functions.size() << std::endl;
     }
 */
+    
+/*
     std::cout << std::endl << "FunctionSet foo:" << std::endl;
 
     FunctionSet foo(
@@ -240,21 +242,7 @@ int main(int argc, const char * argv[])
         std::cout << std::endl << std::endl << source_code << std::endl;
         std::cout << "size=" << actual_size << std::endl;
     }
-
-//    std::map<std::string, int> test;
-//    debugPrint(test["a"] = 10);
-//    debugPrint(test["a"] = 11);
-//    debugPrint(test["a"]);
-//    debugPrint(test["b"] = 20);
-//    debugPrint(test["b"] = 21);
-//    debugPrint(test["b"]);
-//    for (auto& pair : test)
-//    {
-//        std::cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << std::endl;
-//        debugPrint(pair.first);
-//        debugPrint(pair.second);
-//    }
-//    std::cout << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << std::endl;
+*/
 
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     return EXIT_SUCCESS;
