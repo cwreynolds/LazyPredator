@@ -121,6 +121,13 @@ public:
     void setReturnTypePointer(GpType* rtp) { return_type_ = rtp; }
     void setParameterTypePointers(const std::vector<GpType*>& vec_ptype_ptrs)
         { parameter_types_ = vec_ptype_ptrs; }
+    // Does this function have parameter of its return type? (Can call itself?)
+    bool recursive() const
+    {
+        bool r = false;
+        for (auto& n : parameterTypeNames()) if(n == returnTypeName()) r = true;
+        return r;
+    }
     void print()
     {
         std::cout << "GpFunction: " << name() << ", return_type: " <<
@@ -132,7 +139,7 @@ public:
             std::cout << parameterTypeNames().at(i) << "(" <<
                 parameterTypes().at(i) << ")";
         }
-        std::cout << ")" << std::endl;
+        std::cout << ")." << std::endl;
     }
 private:
     std::string name_;
@@ -161,7 +168,7 @@ inline void GpType::print()
         }
 //        std::cout << ")";
     }
-    std::cout << std::endl;
+    std::cout << "." << std::endl;
 }
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -177,43 +184,43 @@ public:
     FunctionSet(const std::vector<GpType>& type_specs,
                 const std::vector<GpFunction>& function_specs)
     {
-        // Process each of the GpType specifications
-//        for (auto& ts : type_specs)
+        // Process each GpType specifications, make local copy to modify.
         for (GpType gp_type : type_specs)
         {
-//            name_to_gp_type_[ts.name()] = ts;
-
+            // If ephemeral generator provided, type terminates with size 1.
             auto& eg = gp_type.ephemeralGenerator();
             if (eg) gp_type.setMinSizeToTerminate(1);
-
-            // TODO temporary stand in. Uses hard coded values that eventually
-            //      need to be computed from an arbitrary FunctionSet
-            if (gp_type.name() == "Texture") gp_type.setMinSizeToTerminate(4);
-            if (gp_type.name() == "Vec2") gp_type.setMinSizeToTerminate(3);
-
-            // Insert updated GpType into by-name map.
+            // Insert updated GpType into by-name map. (Copied again into map.)
             name_to_gp_type_[gp_type.name()] = gp_type;
-
-            
-//            auto& eg = ts.ephemeralGenerator();
-//            // TODO (Aug 18) I expect this to become obsolete soon:
-//            if (eg) addFunction(ts.name(), ts.name(), {}, eg);
-            // TODO (Aug 18) I expect this to become obsolete soon:
+            // TODO (Aug 18) old style, I expect this to become obsolete soon:
             if (eg) addFunction(gp_type.name(), gp_type.name(), {}, eg);
         }
         // Process each of the GpFunction specifications (copy then modify)
         for (GpFunction func : function_specs)
         {
-            // TODO (Aug 18) I expect this to become obsolete soon:
-            addFunction(func.name(),
-                        func.returnTypeName(),
-                        func.parameterTypeNames());
+            // Character string name of this function's return type.
+            std::string rtn = func.returnTypeName();
+            // TODO (Aug 18) old style, I expect this to become obsolete soon:
+            addFunction(func.name(), rtn, func.parameterTypeNames());
             // Connect type names to GpType object
-            func.setReturnTypePointer(&name_to_gp_type_[func.returnTypeName()]);
+            func.setReturnTypePointer(&name_to_gp_type_[rtn]);
             std::vector<GpType*> parameter_types;
             for (auto& parameter_name : func.parameterTypeNames())
                 {parameter_types.push_back(&name_to_gp_type_[parameter_name]);}
             func.setParameterTypePointers(parameter_types);
+            // If this function does not call its own type (eg Uniform) it can
+            // be used to terminate a subtree of that type. Record in GpType.
+            if (!func.recursive())
+            {
+                std::cout << "NOT recursive: " << func.returnTypeName();
+                GpType& rt = name_to_gp_type_[rtn];
+                // TODO this is "min size to terminate type" ASSUMING all
+                // parameters are ephemeral constants. Make more general.
+                int mstt = 1 + int(func.parameterTypeNames().size());
+                if (mstt < rt.minSizeToTerminate())
+                    rt.setMinSizeToTerminate(mstt);
+                std::cout << " min size to terminate: " << mstt << std::endl;
+            }
             // Copy once more to map from name to GpFunction object (inside map)
             name_to_gp_function_[func.name()] = func;
         }
