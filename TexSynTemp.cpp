@@ -8,6 +8,7 @@
 
 #include "TexSynTemp.h"
 
+/*
 // Simple function set that mimics Texsyn
 void make_tiny_texsyn_fs(FunctionSet& fs)
 {
@@ -137,3 +138,4 @@ void make_full_texsyn_fs(FunctionSet& fs)
 
     fs.printSet();
 }
+*/

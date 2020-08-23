@@ -36,39 +36,7 @@
 // TODO for now I am using std::string name to "mock" a type
 typedef std::string FunctionType;
 
-// TODO -- OBSOLETE
-// Describes one function in the set.
-//     TODO mocked with strings
-//     TODO inside FunctionSet or global?
-//     TODO added support for "ephemeral constant". Not sure if it belongs here.
-class FunctionDescription
-{
-public:
-    FunctionDescription(){}
-    FunctionDescription(const std::string& name_,
-                        const std::string& return_type_,
-                        const std::vector<std::string>& parameter_types_)
-      : FunctionDescription(name_, return_type_, parameter_types_, nullptr) {}
-    FunctionDescription(const std::string& name_,
-                        const std::string& return_type_,
-                        const std::vector<std::string>& parameter_types_,
-                        std::function<std::string()> ephemeral_generator_)
-      : name(name_),
-        return_type(return_type_),
-        parameter_types(parameter_types_),
-        ephemeral_generator(ephemeral_generator_) {}
-    std::string name;
-    std::string return_type;
-    std::vector<std::string> parameter_types;
-    std::function<std::string()> ephemeral_generator;
-};
-
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// TODO Aug 18: to "reduce confusion" I will define two NEW types:
-//     GpType
-//     GpFunction
-// and start on new constructors for FunctionSet that accepts collections of
-// these two, then does all caching so that subsequent lookups are fast.
+// Class to represent types in "strongly typed genetic programming".
 class GpFunction;
 class GpType
 {
@@ -88,7 +56,6 @@ public:
     // Minimum "size" of tree returning this type from root;
     int minSizeToTerminate() const { return min_size_to_terminate_; }
     void setMinSizeToTerminate(int s) { min_size_to_terminate_ = s; }
-
     void print();
     bool valid() const
     {
@@ -104,12 +71,10 @@ private:
     // Collection of pointers to GpFunctions which return this type.
     std::vector<GpFunction*> functions_returning_this_type_;
     // Minimum "size" of tree returning this type from root;
-    // TODO minSizeToTerminateType
     int min_size_to_terminate_ = std::numeric_limits<int>::max();
 };
 
-// TODO This has to deal somehow with types themsleves (as pointers?) AND
-//      as std::string type names.
+// Class to represent functions in "strongly typed genetic programming".
 class GpFunction
 {
 public:
@@ -162,7 +127,7 @@ private:
     int min_size_to_terminate_ = std::numeric_limits<int>::max();
 };
 
-// Down here because it needs both GpType and GpFunction to be defined.
+// Down here because it requires both GpType and GpFunction to be defined.
 inline void GpType::print()
 {
     std::cout << "GpType: " << name();
@@ -177,19 +142,14 @@ inline void GpType::print()
             if (first) first = false; else std::cout << ", ";
             std::cout << f->name();
         }
-//        std::cout << ")";
     }
     std::cout << "." << std::endl;
 }
-
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 class FunctionSet
 {
 public:
     FunctionSet(){}
-    
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // New constructor using vectors of GpType and GpFunction.
     // TODO eventually this needs to be rewritten to be smaller.
     FunctionSet(const std::vector<GpType>& type_specs,
@@ -203,16 +163,12 @@ public:
             if (eg) gp_type.setMinSizeToTerminate(1);
             // Insert updated GpType into by-name map. (Copied again into map.)
             addGpType(gp_type);
-//          // TODO (Aug 18) old style, I expect this to become obsolete soon:
-//          if (eg) addFunction(gp_type.name(), gp_type.name(), {}, eg);
         }
         // Process each of the GpFunction specifications (copy then modify)
         for (GpFunction func : function_specs)
         {
             // Character string name of this function's return type.
             std::string rtn = func.returnTypeName();
-            // TODO (Aug 18) old style, I expect this to become obsolete soon:
-            addFunction(func.name(), rtn, func.parameterTypeNames());
             // Connect type names to GpType object
             func.setReturnTypePointer(lookupGpTypeByName(rtn));
             std::vector<GpType*> parameter_types;
@@ -249,53 +205,7 @@ public:
             f.setMinSizeToTerminate(minSizeToTerminateFunction(f));
         }
     }
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    void addType(const std::string& name)
-    {
-        int id = int(types_.size());
-        types_[name] = id;
-    }
-    
-    int typeIdFromName(const std::string& name)
-    {
-        assert("unknown type" && (types_.find(name) != types_.end()));
-        return types_[name];
-    }
-        
-    void addFunction(const std::string& name,
-                     const std::string& return_type,
-                     const std::vector<std::string>& parameter_types,
-                     std::function<std::string()> ephemeral_generator)
-    {
-        addFunction({name, return_type, parameter_types, ephemeral_generator});
-    }
-    void addFunction(const std::string& name,
-                     const std::string& return_type,
-                     const std::vector<std::string>& parameter_types)
-    {
-        addFunction({name, return_type, parameter_types});
-    }
-    void addFunction(const FunctionDescription& fd)
-    {
-        functions_[fd.name] = fd;
-    }
-    
-    // Find collection of functions in this set that return the given type.
-    // TODO very prototype, we can cache this information per-type
-    // TODO does brute force search, stores results in "results"
-    void findAllFunctionReturningType(const std::string& return_type,
-                                      std::vector<std::string>& results)
-    {
-        results.clear();
-        for (auto& pair : functions_)
-        {
-            FunctionDescription& fd = pair.second;
-            if (return_type == fd.return_type) results.push_back(fd.name);
-        }
-        assert("no function of given return_type found" && !results.empty());
-    }
-        
     // TODO just for debugging
     bool dp = false;
     // TODO just for debugging
@@ -310,57 +220,10 @@ public:
             std::cout << prefix;
         }
     }
-
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//    // Given a type, lookup the min size to terminate.
-//    // TODO this is all hard coded and needs a real implementation
-//    // TODO now superceeded by GpType::minSizeToTerminate()
-//    int minSizeToTerminateType(const FunctionType& function_type)
-//    {
-//        // for first pass, lets assume we know type "Float *" needs size 1
-//        // (ephemeral constant), type "Vec2" requires size 3 (Vec2(x, y)),
-//        // and type "Texture" requires size 4: Uniform(r, g, b). Eventually
-//        // we want to derive these at FunctionSet definition time.
-//        std::map<std::string, int> type_to_min_size;
-//        type_to_min_size["Float_01"] = 1;
-//        type_to_min_size["Float_02"] = 1;
-//        type_to_min_size["Float_0_10"] = 1;
-//        type_to_min_size["Float_m5p5"] = 1;
-//        type_to_min_size["Vec2"] = 3;
-//        type_to_min_size["Texture"] = 4;
-//        assert("Unknown function type" &&
-//               type_to_min_size.find(function_type) != type_to_min_size.end());
-//
-//        //    debugPrint(function_type);
-//        //    debugPrint(type_to_min_size[function_type]);
-//        //    debugPrint(name_to_gp_type_[function_type].minSizeToTerminate());
-//        assert("new/old minSizeToTerminate mismatch" &&
-//               (type_to_min_size[function_type] ==
-//                name_to_gp_type_[function_type].minSizeToTerminate()));
-//
-//        return type_to_min_size[function_type];
-//    }
-    
-    // Given a type, lookup the min size to terminate.
-    // TODO now superceeded by GpType::minSizeToTerminate()
-    // TODO eventually delete this.
-    int minSizeToTerminateType(const FunctionType& function_type)
-    {
-        return lookupGpTypeByName(function_type)->minSizeToTerminate();
-    }
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     
     // What is the minimum "size" required to terminate a program subtree with
     // the given function at the root? At FunctionSet construction time, this
-    // computes the number which is then stored on the GpFunction instance.
-    //
-    // TODO new experimental thing that estimates how much "size" is required to
-    // "terminate" a given FunctionDescription fd
-    int minSizeToTerminateFunction(const std::string& function_name)
-    {
-        GpFunction& gp_function = *lookupGpFunctionByName(function_name);
-        return minSizeToTerminateFunction(gp_function);
-    }
+    // computes the number which is then stored on each GpFunction instance.
     int minSizeToTerminateFunction(const GpFunction& gp_function)
     {
         // We need 1 for the function name itself (or an ephemeral constant).
@@ -378,15 +241,11 @@ public:
     GpFunction& randomFunctionOfTypeInSize(int max_size,
                                            const GpType& return_type)
     {
-        std::vector<std::string> functions_returning_type;
-        findAllFunctionReturningType(return_type.name(),
-                                     functions_returning_type);
-        std::vector<std::string> fit_size;
-        for (auto& function_name : functions_returning_type)
+        std::vector<GpFunction*> fit_size;
+        for (auto& gp_function : return_type.functionsReturningThisType())
         {
-            GpFunction& func = *lookupGpFunctionByName(function_name);
-            int ms = func.minSizeToTerminate();
-            if (max_size >= ms) { fit_size.push_back(function_name); }
+            int ms = gp_function->minSizeToTerminate();
+            if (max_size >= ms) { fit_size.push_back(gp_function); }
         }
         if (fit_size.empty() && dp)
         {
@@ -394,8 +253,7 @@ public:
             dp_prefix(); debugPrint(return_type.name());
         }
         assert(!fit_size.empty());
-        return *lookupGpFunctionByName(fit_size.at(rs_.nextInt() %
-                                                   fit_size.size()));
+        return *(fit_size.at(rs_.nextInt() % fit_size.size()));
     }
 
     // Creates a random program (nested expression) using the "language" defined
@@ -416,13 +274,6 @@ public:
             dp_prefix(); debugPrint(source_code);
             dp_prefix(); std::cout << std::endl;
         }
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//        makeRandomProgramRoot(max_size,
-//                              return_type,
-//                              randomFunctionOfTypeInSize(max_size, return_type),
-//                              output_actual_size,
-//                              source_code);
-        
         // TODO, this is left-over confusion from initial protype which did not
         // differentiate well between types and functions, overloaded functions
         // with ephemeral generators, and used strings as IDs for both. Trying
@@ -447,7 +298,6 @@ public:
             makeRandomProgramRoot(max_size, return_type, rf,
                                   output_actual_size, source_code);
         }
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         if (dp)
         {
             dp_prefix();
@@ -515,43 +365,36 @@ public:
 
     void printSet()
     {
-        for (auto& pair : types_)
+        for (auto& pair : nameToGpTypeMap())
         {
-            std::cout << "type: " << pair.first << " " << pair.second;
+            GpType& gp_type = pair.second;
+            std::cout << "type: " << gp_type.name() << " " << &gp_type;
             std::cout << std::endl;
         }
-        for (auto& pair : functions_)
+        for (auto& pair : nameToGpFunctionMap())
         {
             bool first = true;
-            FunctionDescription& fd = pair.second;
-            std::cout << "function: " << fd.name << ", returns: ";
-            std::cout << fd.return_type << ", parameters: (";
-            for (auto& pt : fd.parameter_types)
+            GpFunction& gp_function = pair.second;
+            std::cout << "function: " << gp_function.name() << ", returns: ";
+            std::cout << gp_function.returnTypeName() << ", parameters: (";
+            for (auto& pt : gp_function.parameterTypeNames())
             {
                 if (first) first = false; else std::cout << ", ";
                 std::cout << pt;
             }
             std::cout << ")" << std::endl;
         }
-        
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // TODO for reference:
-        // std::map<std::string, GpType> name_to_gp_type_;
-        // std::map<std::string, GpFunction> name_to_gp_function_;
         for (auto& pair : nameToGpTypeMap()) pair.second.print();
         for (auto& pair : nameToGpFunctionMap()) pair.second.print();
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     }
     
     // Accessor for RandomSequence, perhaps only needed for testing?
     RandomSequence& rs() { return rs_; }
     
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // TODO maybe there should be const versions of these for "observers" like
     // UnitTests.
     // TODO should these be private?
     // TODO better to return pointer or reference?
-    
     // Lookup pointer to GpType/GpFunction object.
     GpType* lookupGpTypeByName(const std::string& name) //const
     {
@@ -565,36 +408,18 @@ public:
         assert("unknown function" && (it != name_to_gp_function_.end()));
         return &(it->second);
     }
-    
     // Add new GpType/GpFunction to FunctionSet, stored in a name-to-object map.
     void addGpType(GpType& type) { name_to_gp_type_[type.name()] = type; }
     void addGpFunction(GpFunction& f) { name_to_gp_function_[f.name()] = f; }
-    
     // Get reference to name-to-object maps of all GpType/GpFunction objects
-    
     std::map<std::string, GpType>& nameToGpTypeMap()
         { return name_to_gp_type_; }
     std::map<std::string, GpFunction>& nameToGpFunctionMap()
         { return name_to_gp_function_; }
-
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
 private:
-    RandomSequence rs_;
-    // TODO these are "mocks" to allow getting started.
-    // just to get started, assume types are strings with int ID.
-    std::map<std::string, int> types_;
-    std::map<std::string, FunctionDescription> functions_;
-    
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // TODO Aug 18: to "reduce confusion" I will define two NEW types:
-    //     GpType
-    //     GpFunction
-    
-    // TODO these should be covered by accessors.
+    // These maps are used both to store the GpType and GpFunction objects,
+    // plus to look up those objects from their character string names.
     std::map<std::string, GpType> name_to_gp_type_;
     std::map<std::string, GpFunction> name_to_gp_function_;
-
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    RandomSequence rs_;
 };
