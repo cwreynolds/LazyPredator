@@ -19,15 +19,24 @@
 //
 // TODO--so far this is all just prototyping
 
+// TODO note about terminology -- as in "minimum 'size' required to terminate
+// subtree with this function at root" -- terminate in the sense of "terminate
+// the top-down random program generation process" -- consider also that it
+// could be phrased as "minimum depth of subtree..." better to use that?
+// "Termination" applies more to the construction process, but I think we can
+// describe it in terms of static program structure.
+
 #pragma once
 #include <map>
 #include <limits>
 #include "Utilities.h"
 
+// TODO -- OBSOLETE
 // Types for function values and parameters within this FunctionSet
 // TODO for now I am using std::string name to "mock" a type
 typedef std::string FunctionType;
 
+// TODO -- OBSOLETE
 // Describes one function in the set.
 //     TODO mocked with strings
 //     TODO inside FunctionSet or global?
@@ -128,6 +137,9 @@ public:
         for (auto& n : parameterTypeNames()) if(n == returnTypeName()) r = true;
         return r;
     }
+    // Minimum "size" required to terminate subtree with this function at root.
+    int minSizeToTerminate() const { return min_size_to_terminate_; }
+    void setMinSizeToTerminate(int s) { min_size_to_terminate_ = s; }
     void print()
     {
         std::cout << "GpFunction: " << name() << ", return_type: " <<
@@ -147,8 +159,7 @@ private:
     GpType* return_type_ = nullptr;
     std::vector<std::string> parameter_type_names_;
     std::vector<GpType*> parameter_types_;
-
-    // minSizeToTerminateFunction
+    int min_size_to_terminate_ = std::numeric_limits<int>::max();
 };
 
 // Down here because it needs both GpType and GpFunction to be defined.
@@ -230,6 +241,12 @@ public:
             GpFunction* f = &pair.second;
             GpType* t = f->returnType();
             t->addFunctionReturningThisType(f);
+        }
+        // Set minSizeToTerminate() for each GpFunction.
+        for (auto& pair : nameToGpFunctionMap())
+        {
+            GpFunction& f = pair.second;
+            f.setMinSizeToTerminate(minSizeToTerminateFunction(f));
         }
     }
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -333,30 +350,8 @@ public:
     }
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//    // TODO new experimental thing that estimates how much "size" is required to
-//    // "terminate" a given FunctionDescription fd
-//    int minSizeToTerminateFunction(const std::string& function_name)
-//    {
-//        assert("Unknown function name" &&
-//               functions_.find(function_name) != functions_.end());
-//        FunctionDescription fd = functions_[function_name];
-//        return minSizeToTerminateFunction(fd);
-//    }
-//    int minSizeToTerminateFunction(const FunctionDescription& fd)
-//    {
-//        // We need 1 for the function name itself (or an ephemeral constant).
-//        int size = 1;
-//        // Then loop over all parameter types.
-//        for (auto& parameter_type : fd.parameter_types)
-//        {
-//            size += minSizeToTerminateType(parameter_type);
-//        }
-//        return size;
-//    }
-
     // What is the minimum "size" required to terminate a program subtree with
-    // the fiven function at the root? At FunctionSet construction time, this
+    // the given function at the root? At FunctionSet construction time, this
     // computes the number which is then stored on the GpFunction instance.
     //
     // TODO new experimental thing that estimates how much "size" is required to
@@ -378,32 +373,30 @@ public:
         return size;
     }
 
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    // Randomly select a function in this set that return the given type and can
-    // be implemented in no more than max_size.
-    std::string randomFunctionOfTypeInSize(int max_size,
-                                           const FunctionType& return_type)
+    // Randomly select a function in this set that returns the given type and
+    // can be implemented in a subtree no larger than max_size.
+    GpFunction& randomFunctionOfTypeInSize(int max_size,
+                                           const GpType& return_type)
     {
         std::vector<std::string> functions_returning_type;
-        findAllFunctionReturningType(return_type, functions_returning_type);
+        findAllFunctionReturningType(return_type.name(),
+                                     functions_returning_type);
         std::vector<std::string> fit_size;
         for (auto& function_name : functions_returning_type)
         {
-            if (max_size >= minSizeToTerminateFunction(function_name))
-            {
-                fit_size.push_back(function_name);
-            }
+            GpFunction& func = *lookupGpFunctionByName(function_name);
+            int ms = func.minSizeToTerminate();
+            if (max_size >= ms) { fit_size.push_back(function_name); }
         }
         if (fit_size.empty() && dp)
         {
             dp_prefix(); debugPrint(max_size);
-            dp_prefix(); debugPrint(return_type);
+            dp_prefix(); debugPrint(return_type.name());
         }
         assert(!fit_size.empty());
-        return fit_size.at(rs_.nextInt() % fit_size.size());
+        return *lookupGpFunctionByName(fit_size.at(rs_.nextInt() %
+                                                   fit_size.size()));
     }
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     // Creates a random program (nested expression) using the "language" defined
     // in this FunctionSet. Parameter "max_size" is upper bound on the number of
@@ -450,7 +443,7 @@ public:
         }
         else
         {
-            std::string rf = randomFunctionOfTypeInSize(max_size, return_type);
+            GpFunction& rf = randomFunctionOfTypeInSize(max_size, return_gp_type);
             makeRandomProgramRoot(max_size, return_type, rf,
                                   output_actual_size, source_code);
         }
@@ -464,69 +457,60 @@ public:
 
     void makeRandomProgramRoot(int max_size,
                                const FunctionType& return_type,
-                               const std::string& root_function_name,
+                               const GpFunction& root_function,
                                int& output_actual_size,
                                std::string& source_code)
     {
-        FunctionDescription fd = functions_[root_function_name];
         if (dp)
         {
             dp_prefix(); debugPrint(max_size);
             dp_prefix(); debugPrint(return_type);
-            dp_prefix(); debugPrint(root_function_name);
-            dp_prefix(); debugPrint(fd.parameter_types.size());
+            dp_prefix(); debugPrint(root_function.name());
+            dp_prefix(); debugPrint(root_function.parameterTypes().size());
         }
         output_actual_size++;  // for "function_name" (or epheneral) itself
-        // "Epheneral constant" or normal function.
-        if (fd.ephemeral_generator)
+        int size_used = 0;
+        int count = int(root_function.parameterTypes().size());
+        source_code += root_function.name() + "(";  // TODO log
+        bool first = true;   // TODO log
+        // Loop over each parameter of "function_name" generating a subtree.
+        for (auto& parameter_type : root_function.parameterTypes())
         {
-            source_code += fd.ephemeral_generator();  // TODO log
-        }
-        else
-        {
-            int size_used = 0;
-            int count = int(fd.parameter_types.size());
-            source_code += root_function_name + "(";  // TODO log
-            bool first = true;   // TODO log
-            // Loop over each parameter of "function_name" generating a subtree.
-            for (auto& parameter_type : fd.parameter_types)
+            if (dp)
             {
-                if (dp)
-                {
-                    dp_prefix(); std::cout << "((((((((((((((((((";
-                    std::cout << " param=" << fd.parameter_types.size() - count;
-                    std::cout << " type=" << parameter_type;
-                    std::cout << std::endl;
-                }
-                if (first) first = false; else source_code += ", ";  // TODO log
-                int fair_share = (max_size - (1 + size_used)) / count;
-                int min_size_for_type = minSizeToTerminateType(parameter_type);
-                int subtree_max_size = std::max(fair_share, min_size_for_type);
-                if (dp) { dp_prefix(); debugPrint(subtree_max_size); }
-                int subtree_actual_size = 0;
-                std::string subtree_source;
-                dp_depth++;
-                makeRandomProgram(subtree_max_size, parameter_type,
-                                  subtree_actual_size, subtree_source);
-                dp_depth--;
-                output_actual_size += subtree_actual_size;
-                size_used += subtree_actual_size;
-                source_code += subtree_source;
-                if (dp)
-                {
-                    dp_prefix(); debugPrint(subtree_max_size);
-                    dp_prefix(); debugPrint(subtree_actual_size);
-                    dp_prefix(); debugPrint(subtree_source);
-                    dp_prefix(); debugPrint(count);
-                }
-                count--;
-                if (dp)
-                {
-                    dp_prefix(); std::cout << "))))))))))))))))))" << std::endl;
-                }
+                dp_prefix(); std::cout << "((((((((((((((((((";
+                std::cout << " param=" << root_function.parameterTypes().size() - count;
+                std::cout << " type=" << parameter_type;
+                std::cout << std::endl;
             }
-            source_code += ")";
+            if (first) first = false; else source_code += ", ";  // TODO log
+            int fair_share = (max_size - (1 + size_used)) / count;
+            int min_size_for_type = parameter_type->minSizeToTerminate();
+            int subtree_max_size = std::max(fair_share, min_size_for_type);
+            if (dp) { dp_prefix(); debugPrint(subtree_max_size); }
+            int subtree_actual_size = 0;
+            std::string subtree_source;
+            dp_depth++;
+            makeRandomProgram(subtree_max_size, parameter_type->name(),
+                              subtree_actual_size, subtree_source);
+            dp_depth--;
+            output_actual_size += subtree_actual_size;
+            size_used += subtree_actual_size;
+            source_code += subtree_source;
+            if (dp)
+            {
+                dp_prefix(); debugPrint(subtree_max_size);
+                dp_prefix(); debugPrint(subtree_actual_size);
+                dp_prefix(); debugPrint(subtree_source);
+                dp_prefix(); debugPrint(count);
+            }
+            count--;
+            if (dp)
+            {
+                dp_prefix(); std::cout << "))))))))))))))))))" << std::endl;
+            }
         }
+        source_code += ")";
     }
 
     void printSet()
