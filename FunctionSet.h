@@ -191,7 +191,7 @@ public:
             auto& eg = gp_type.ephemeralGenerator();
             if (eg) gp_type.setMinSizeToTerminate(1);
             // Insert updated GpType into by-name map. (Copied again into map.)
-            name_to_gp_type_[gp_type.name()] = gp_type;
+            addGpType(gp_type);
             // TODO (Aug 18) old style, I expect this to become obsolete soon:
             if (eg) addFunction(gp_type.name(), gp_type.name(), {}, eg);
         }
@@ -203,17 +203,17 @@ public:
             // TODO (Aug 18) old style, I expect this to become obsolete soon:
             addFunction(func.name(), rtn, func.parameterTypeNames());
             // Connect type names to GpType object
-            func.setReturnTypePointer(&name_to_gp_type_[rtn]);
+            func.setReturnTypePointer(lookupGpTypeByName(rtn));
             std::vector<GpType*> parameter_types;
             for (auto& parameter_name : func.parameterTypeNames())
-                {parameter_types.push_back(&name_to_gp_type_[parameter_name]);}
+                {parameter_types.push_back(lookupGpTypeByName(parameter_name));}
             func.setParameterTypePointers(parameter_types);
             // If this function does not call its own type (eg Uniform) it can
             // be used to terminate a subtree of that type. Record in GpType.
             if (!func.recursive())
             {
                 std::cout << "NOT recursive: " << func.returnTypeName();
-                GpType& rt = name_to_gp_type_[rtn];
+                GpType& rt = *lookupGpTypeByName(rtn);
                 // TODO this is "min size to terminate type" ASSUMING all
                 // parameters are ephemeral constants. Make more general.
                 int mstt = 1 + int(func.parameterTypeNames().size());
@@ -221,11 +221,11 @@ public:
                     rt.setMinSizeToTerminate(mstt);
                 std::cout << " min size to terminate: " << mstt << std::endl;
             }
-            // Copy once more to map from name to GpFunction object (inside map)
-            name_to_gp_function_[func.name()] = func;
+            // Copy once more into name-to-GpFunction-object map.
+            addGpFunction(func);
         }
         // Build per-GpType collections of GpFunctions returning that type.
-        for (auto& pair : name_to_gp_function_)
+        for (auto& pair : nameToGpFunctionMap())
         {
             GpFunction* f = &pair.second;
             GpType* t = f->returnType();
@@ -370,7 +370,7 @@ public:
 //
 //        return type_to_min_size[function_type];
         
-        return name_to_gp_type_[function_type].minSizeToTerminate();
+        return lookupGpTypeByName(function_type)->minSizeToTerminate();
     }
 
 
@@ -629,13 +629,47 @@ public:
         // TODO for reference:
         // std::map<std::string, GpType> name_to_gp_type_;
         // std::map<std::string, GpFunction> name_to_gp_function_;
-        for (auto& pair : name_to_gp_type_) pair.second.print();
-        for (auto& pair : name_to_gp_function_) pair.second.print();
+        for (auto& pair : nameToGpTypeMap()) pair.second.print();
+        for (auto& pair : nameToGpFunctionMap()) pair.second.print();
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     }
     
     // Accessor for RandomSequence, perhaps only needed for testing?
     RandomSequence& rs() { return rs_; }
+    
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // TODO maybe there should be const versions of these for "observers" like
+    // UnitTests.
+    // TODO should these be private?
+    // TODO better to return pointer or reference?
+    
+    // Lookup pointer to GpType/GpFunction object.
+    GpType* lookupGpTypeByName(const std::string& name) //const
+    {
+        auto it = name_to_gp_type_.find(name);
+        assert("unknown type" && (it != name_to_gp_type_.end()));
+        return &(it->second);
+    }
+    GpFunction* lookupGpFunctionByName(const std::string& name) //const
+    {
+        auto it = name_to_gp_function_.find(name);
+        assert("unknown function" && (it != name_to_gp_function_.end()));
+        return &(it->second);
+    }
+    
+    // Add new GpType/GpFunction to FunctionSet, stored in a name-to-object map.
+    void addGpType(GpType& type) { name_to_gp_type_[type.name()] = type; }
+    void addGpFunction(GpFunction& f) { name_to_gp_function_[f.name()] = f; }
+    
+    // Get reference to name-to-object maps of all GpType/GpFunction objects
+    
+    std::map<std::string, GpType>& nameToGpTypeMap()
+        { return name_to_gp_type_; }
+    std::map<std::string, GpFunction>& nameToGpFunctionMap()
+        { return name_to_gp_function_; }
+
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 
 private:
     RandomSequence rs_;
