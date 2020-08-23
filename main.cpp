@@ -242,7 +242,7 @@ int main(int argc, const char * argv[])
         std::cout << "size=" << actual_size << std::endl;
     }
 
-    // TODO should end with
+    // TODO (recorded Aug 22) should end with:
     // Spot(Vec2(1, 1), 0, Uniform(1, 0, 0), 0, Add(Affine(Vec2(1, 0),
     //      Vec2(1, 0), Add(Uniform(1, 1, 1), Blur(1, Uniform(0, 0, 0)))),
     //      Affine(Vec2(0, 0), Vec2(0, 1),

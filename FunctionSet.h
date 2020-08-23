@@ -192,8 +192,8 @@ public:
             if (eg) gp_type.setMinSizeToTerminate(1);
             // Insert updated GpType into by-name map. (Copied again into map.)
             addGpType(gp_type);
-            // TODO (Aug 18) old style, I expect this to become obsolete soon:
-            if (eg) addFunction(gp_type.name(), gp_type.name(), {}, eg);
+//          // TODO (Aug 18) old style, I expect this to become obsolete soon:
+//          if (eg) addFunction(gp_type.name(), gp_type.name(), {}, eg);
         }
         // Process each of the GpFunction specifications (copy then modify)
         for (GpFunction func : function_specs)
@@ -295,58 +295,11 @@ public:
     }
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    
-//    // Given a type, lookup the min size to terminate.
-//    // TODO this is all hard coded and needs a real implementation
-//    int minSizeToTerminateType(const FunctionType& function_type)
-//    {
-//        // for first pass, lets assume we know type "Float *" needs size 1
-//        // (ephemeral constant), type "Vec2" requires size 3 (Vec2(x, y)),
-//        // and type "Texture" requires size 4: Uniform(r, g, b). Eventually
-//        // we want to derive these at FunctionSet definition time.
-//        std::map<std::string, int> type_to_min_size;
-//        type_to_min_size["Float_01"] = 1;
-//        type_to_min_size["Float_02"] = 1;
-//        type_to_min_size["Float_0_10"] = 1;
-//        type_to_min_size["Float_m5p5"] = 1;
-//        type_to_min_size["Vec2"] = 3;
-//        type_to_min_size["Texture"] = 4;
-//        assert("Unknown function type" &&
-//               type_to_min_size.find(function_type) != type_to_min_size.end());
-//        return type_to_min_size[function_type];
-//    }
-    
 //    // Given a type, lookup the min size to terminate.
 //    // TODO this is all hard coded and needs a real implementation
 //    // TODO now superceeded by GpType::minSizeToTerminate()
 //    int minSizeToTerminateType(const FunctionType& function_type)
 //    {
-//        // for first pass, lets assume we know type "Float *" needs size 1
-//        // (ephemeral constant), type "Vec2" requires size 3 (Vec2(x, y)),
-//        // and type "Texture" requires size 4: Uniform(r, g, b). Eventually
-//        // we want to derive these at FunctionSet definition time.
-//        std::map<std::string, int> type_to_min_size;
-//        type_to_min_size["Float_01"] = 1;
-//        type_to_min_size["Float_02"] = 1;
-//        type_to_min_size["Float_0_10"] = 1;
-//        type_to_min_size["Float_m5p5"] = 1;
-//        type_to_min_size["Vec2"] = 3;
-//        type_to_min_size["Texture"] = 4;
-//        assert("Unknown function type" &&
-//               type_to_min_size.find(function_type) != type_to_min_size.end());
-//
-//        assert("new/old minSizeToTerminate mismatch" &&
-//               (type_to_min_size[function_type] !=
-//                name_to_gp_type_[function_type].minSizeToTerminate()));
-//
-//        return type_to_min_size[function_type];
-//    }
-
-    // Given a type, lookup the min size to terminate.
-    // TODO this is all hard coded and needs a real implementation
-    // TODO now superceeded by GpType::minSizeToTerminate()
-    int minSizeToTerminateType(const FunctionType& function_type)
-    {
 //        // for first pass, lets assume we know type "Float *" needs size 1
 //        // (ephemeral constant), type "Vec2" requires size 3 (Vec2(x, y)),
 //        // and type "Texture" requires size 4: Uniform(r, g, b). Eventually
@@ -369,120 +322,64 @@ public:
 //                name_to_gp_type_[function_type].minSizeToTerminate()));
 //
 //        return type_to_min_size[function_type];
-        
+//    }
+    
+    // Given a type, lookup the min size to terminate.
+    // TODO now superceeded by GpType::minSizeToTerminate()
+    // TODO eventually delete this.
+    int minSizeToTerminateType(const FunctionType& function_type)
+    {
         return lookupGpTypeByName(function_type)->minSizeToTerminate();
     }
-
-
-
-//        // Given a type, lookup the minimum "size" to terminate a subtree.
-//        // TODO this is all hard coded and needs a real implementation
-//        int minSizeToTerminateType(const FunctionType& function_type)
-//        {
-//            // for first pass, lets assume we know type "Float *" needs size 1
-//            // (ephemeral constant), type "Vec2" requires size 3 (Vec2(x, y)),
-//            // and type "Texture" requires size 4: Uniform(r, g, b). Eventually
-//            // we want to derive these at FunctionSet definition time.
-//            std::map<std::string, int> type_to_min_size;
-//            type_to_min_size["Float_01"] = 1;
-//            type_to_min_size["Float_02"] = 1;
-//            type_to_min_size["Float_0_10"] = 1;
-//            type_to_min_size["Float_m5p5"] = 1;
-//            type_to_min_size["Vec2"] = 3;
-//            type_to_min_size["Texture"] = 4;
-//    //        assert("Unknown function type" &&
-//    //               type_to_min_size.find(function_type) != type_to_min_size.end());
-//    //        return type_to_min_size[function_type];
-//            auto found = type_to_min_size.find(function_type);
-//            assert("Unknown function type" && found != type_to_min_size.end());
-//            return found->second;
-//        }
-    
-    // TODO temporary prototype to find all FunctionTypes in this FunctionSet
-    //      as a set of strings
-    void fillInSetOfTypes(std::set<FunctionType>& set_of_function_types)
-    {
-        for (auto& pair : functions_)
-        {
-            FunctionDescription& fd = pair.second;
-            set_of_function_types.insert(fd.return_type);
-            for (auto& parameter_type : fd.parameter_types)
-            {
-                set_of_function_types.insert(parameter_type);
-            }
-        }
-    }
-    
-//        // Given a type, lookup the minimum "size" to terminate a subtree.
-//        // TODO this is all hard coded and needs a real implementation
-//        int minSizeToTerminateType(const FunctionType& function_type)
-//        {
-//            // for first pass, lets assume we know type "Float *" needs size 1
-//            // (ephemeral constant), type "Vec2" requires size 3 (Vec2(x, y)),
-//            // and type "Texture" requires size 4: Uniform(r, g, b). Eventually
-//            // we want to derive these at FunctionSet definition time.
-//            std::map<std::string, int> type_to_min_size;
-//
-//            //~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
-//    //        type_to_min_size["Float_01"] = 1;
-//    //        type_to_min_size["Float_02"] = 1;
-//    //        type_to_min_size["Float_0_10"] = 1;
-//    //        type_to_min_size["Float_m5p5"] = 1;
-//
-//            type_to_min_size["Vec2"] = 3;
-//            type_to_min_size["Texture"] = 4;
-//
-//
-//            // For each FunctionType
-//            std::set<FunctionType> set_of_function_types;
-//            fillInSetOfTypes(set_of_function_types);
-//            for (auto& type : set_of_function_types)
-//            {
-//                std::vector<std::string> functions;
-//                findAllFunctionReturningType(type, functions);
-//                // For each function of this type
-//                for (auto& function_name : functions)
-//                {
-//                    FunctionDescription fd = functions_[function_name];
-//                    if (fd.ephemeral_generator) type_to_min_size[type] = 1;
-//
-//                    // TODO more stuff here!!!! TODO TODO TODO TODO TODO TODO TODO
-//
-//    //                minSizeToTerminateFunction ... uh oh, this is co-recursive!!!
-//                }
-//            }
-//            //~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
-//
-//            // Lookup given FunctionType in table, return if found, else error.
-//            auto found = type_to_min_size.find(function_type);
-//            assert("Unknown function type" && found != type_to_min_size.end());
-//            return found->second;
-//        }
-
-    // TODO QQQ
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//    // TODO new experimental thing that estimates how much "size" is required to
+//    // "terminate" a given FunctionDescription fd
+//    int minSizeToTerminateFunction(const std::string& function_name)
+//    {
+//        assert("Unknown function name" &&
+//               functions_.find(function_name) != functions_.end());
+//        FunctionDescription fd = functions_[function_name];
+//        return minSizeToTerminateFunction(fd);
+//    }
+//    int minSizeToTerminateFunction(const FunctionDescription& fd)
+//    {
+//        // We need 1 for the function name itself (or an ephemeral constant).
+//        int size = 1;
+//        // Then loop over all parameter types.
+//        for (auto& parameter_type : fd.parameter_types)
+//        {
+//            size += minSizeToTerminateType(parameter_type);
+//        }
+//        return size;
+//    }
+
+    // What is the minimum "size" required to terminate a program subtree with
+    // the fiven function at the root? At FunctionSet construction time, this
+    // computes the number which is then stored on the GpFunction instance.
+    //
     // TODO new experimental thing that estimates how much "size" is required to
     // "terminate" a given FunctionDescription fd
     int minSizeToTerminateFunction(const std::string& function_name)
     {
-        assert("Unknown function name" &&
-               functions_.find(function_name) != functions_.end());
-        FunctionDescription fd = functions_[function_name];
-        return minSizeToTerminateFunction(fd);
+        GpFunction& gp_function = *lookupGpFunctionByName(function_name);
+        return minSizeToTerminateFunction(gp_function);
     }
-    int minSizeToTerminateFunction(const FunctionDescription& fd)
+    int minSizeToTerminateFunction(const GpFunction& gp_function)
     {
         // We need 1 for the function name itself (or an ephemeral constant).
         int size = 1;
         // Then loop over all parameter types.
-        for (auto& parameter_type : fd.parameter_types)
+        for (auto& parameter_gp_type : gp_function.parameterTypes())
         {
-            size += minSizeToTerminateType(parameter_type);
+            size += parameter_gp_type->minSizeToTerminate();
         }
         return size;
     }
-    
+
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
     // Randomly select a function in this set that return the given type and can
     // be implemented in no more than max_size.
     std::string randomFunctionOfTypeInSize(int max_size,
@@ -506,7 +403,8 @@ public:
         assert(!fit_size.empty());
         return fit_size.at(rs_.nextInt() % fit_size.size());
     }
-    
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
     // Creates a random program (nested expression) using the "language" defined
     // in this FunctionSet. Parameter "max_size" is upper bound on the number of
     // nodes (function calls or constants) in the resulting program. The program
@@ -525,11 +423,38 @@ public:
             dp_prefix(); debugPrint(source_code);
             dp_prefix(); std::cout << std::endl;
         }
-        makeRandomProgramRoot(max_size,
-                              return_type,
-                              randomFunctionOfTypeInSize(max_size, return_type),
-                              output_actual_size,
-                              source_code);
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//        makeRandomProgramRoot(max_size,
+//                              return_type,
+//                              randomFunctionOfTypeInSize(max_size, return_type),
+//                              output_actual_size,
+//                              source_code);
+        
+        // TODO, this is left-over confusion from initial protype which did not
+        // differentiate well between types and functions, overloaded functions
+        // with ephemeral generators, and used strings as IDs for both. Trying
+        // to prototype a fix.
+        //
+        // TODO comment in DynaList: "can we handle the case where a `GpType`
+        // has an ephemeral generator **and** there is a non-recursive function
+        // that returns that type?" Here we give priority to EG if it exists.
+        //
+        GpType& return_gp_type = *lookupGpTypeByName(return_type);
+        if (return_gp_type.ephemeralGenerator())
+        {
+            output_actual_size++;
+            source_code += return_gp_type.ephemeralGenerator()();
+            // TODO -- to be removed -- here just to retain original random
+            // sequence to preserve test case reproducability
+            rs().frandom01();
+        }
+        else
+        {
+            std::string rf = randomFunctionOfTypeInSize(max_size, return_type);
+            makeRandomProgramRoot(max_size, return_type, rf,
+                                  output_actual_size, source_code);
+        }
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         if (dp)
         {
             dp_prefix();
