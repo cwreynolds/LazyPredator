@@ -31,11 +31,6 @@
 #include <limits>
 #include "Utilities.h"
 
-// TODO -- OBSOLETE
-// Types for function values and parameters within this FunctionSet
-// TODO for now I am using std::string name to "mock" a type
-typedef std::string FunctionType;
-
 // Class to represent types in "strongly typed genetic programming".
 class GpFunction;
 class GpType
@@ -259,9 +254,9 @@ public:
     // Creates a random program (nested expression) using the "language" defined
     // in this FunctionSet. Parameter "max_size" is upper bound on the number of
     // nodes (function calls or constants) in the resulting program. The program
-    // computes a value of "return_type".
+    // returns a value of "return_type" from its root.
     void makeRandomProgram(int max_size,
-                           const FunctionType& return_type,
+                           const GpType& return_type,
                            int& output_actual_size,
                            std::string& source_code)
     {
@@ -270,7 +265,7 @@ public:
             dp_prefix();
             std::cout << ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" << std::endl;
             dp_prefix(); debugPrint(max_size);
-            dp_prefix(); debugPrint(return_type);
+            dp_prefix(); debugPrint(return_type.name());
             dp_prefix(); debugPrint(source_code);
             dp_prefix(); std::cout << std::endl;
         }
@@ -283,18 +278,17 @@ public:
         // has an ephemeral generator **and** there is a non-recursive function
         // that returns that type?" Here we give priority to EG if it exists.
         //
-        GpType& return_gp_type = *lookupGpTypeByName(return_type);
-        if (return_gp_type.ephemeralGenerator())
+        if (return_type.ephemeralGenerator())
         {
             output_actual_size++;
-            source_code += return_gp_type.ephemeralGenerator()();
+            source_code += return_type.ephemeralGenerator()();
             // TODO -- to be removed -- here just to retain original random
             // sequence to preserve test case reproducability
             rs().frandom01();
         }
         else
         {
-            GpFunction& rf = randomFunctionOfTypeInSize(max_size, return_gp_type);
+            GpFunction& rf = randomFunctionOfTypeInSize(max_size, return_type);
             makeRandomProgramRoot(max_size, return_type, rf,
                                   output_actual_size, source_code);
         }
@@ -305,8 +299,20 @@ public:
         }
     }
 
+    // Overload to allow passing return_type_name as a string from top level.
+    void makeRandomProgram(int max_size,
+                           const std::string& return_type_name,
+                           int& output_actual_size,
+                           std::string& source_code)
+    {
+        makeRandomProgram(max_size,
+                          *lookupGpTypeByName(return_type_name),
+                          output_actual_size,
+                          source_code);
+    }
+
     void makeRandomProgramRoot(int max_size,
-                               const FunctionType& return_type,
+                               const GpType& return_type,
                                const GpFunction& root_function,
                                int& output_actual_size,
                                std::string& source_code)
@@ -314,7 +320,7 @@ public:
         if (dp)
         {
             dp_prefix(); debugPrint(max_size);
-            dp_prefix(); debugPrint(return_type);
+            dp_prefix(); debugPrint(return_type.name());
             dp_prefix(); debugPrint(root_function.name());
             dp_prefix(); debugPrint(root_function.parameterTypes().size());
         }
@@ -341,7 +347,7 @@ public:
             int subtree_actual_size = 0;
             std::string subtree_source;
             dp_depth++;
-            makeRandomProgram(subtree_max_size, parameter_type->name(),
+            makeRandomProgram(subtree_max_size, *parameter_type,
                               subtree_actual_size, subtree_source);
             dp_depth--;
             output_actual_size += subtree_actual_size;
