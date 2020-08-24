@@ -9,8 +9,8 @@
 #pragma once
 #include "FunctionSet.h"
 
-// Simple function set that mimics Texsyn.
-void make_tiny_texsyn_fs(FunctionSet& fs);
+// Simple function set that mimics a portion Texsyn.
+FunctionSet& tiny_texsyn();
 
-// Simple function set that covers the Texsyn namespace.
-void make_full_texsyn_fs(FunctionSet& fs);
+// Function set that covers the entire Texsyn API.
+FunctionSet& full_texsyn();

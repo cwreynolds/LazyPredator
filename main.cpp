@@ -212,25 +212,8 @@ int main(int argc, const char * argv[])
 */
     
     std::cout << std::endl << "FunctionSet foo:" << std::endl;
-
-    FunctionSet foo(
-    {
-        {"Float_01", [](){ return frandom01() < 0.5 ? "0" : "1"; }},
-        {"Texture"},
-        {"Vec2"}
-    },
-    {
-        {"Vec2", "Vec2",
-            {"Float_01", "Float_01"}},
-        {"Uniform", "Texture",
-            {"Float_01", "Float_01", "Float_01"}},
-        {"Spot", "Texture",
-            {"Vec2", "Float_01", "Texture", "Float_01", "Texture"}},
-        {"Add", "Texture", {"Texture", "Texture"}},
-        {"Blur", "Texture", {"Float_01", "Texture"}},
-        {"Affine", "Texture", {"Vec2", "Vec2", "Texture"}}
-
-    });
+    // FunctionSet& foo = tiny_texsyn();
+    FunctionSet& foo = full_texsyn();
     foo.printSet();
 
     for (int i = 0; i < 20; i++)
@@ -248,7 +231,6 @@ int main(int argc, const char * argv[])
     //      Affine(Vec2(0, 0), Vec2(0, 1),
     //      Spot(Vec2(1, 1), 1, Uniform(1, 0, 1), 1, Uniform(1, 0, 1)))))
     // size=50
-
 
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     return EXIT_SUCCESS;
