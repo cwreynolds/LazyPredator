@@ -1,5 +1,5 @@
 # LazyPredator
-Genetic programming, negative selection, genetic drift.
+**Genetic programming, negative selection, genetic drift.**
 
 LazyPredator is a framework for genetic programming—a type of genetic algorithm—with an emphasis on negative selection, genetic drift, and relative tournament-based fitness.
 
