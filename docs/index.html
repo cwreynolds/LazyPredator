@@ -70,11 +70,12 @@
       are removed from the population, and replaced by a new “offspring” of the
       tournament's higher fitness individuals. (The offspring is created from
       parents by “cross-over” and “mutation” as described <a href="https://en.wikipedia.org/wiki/Genetic_programming">here</a>.)
-      Negative selection implies that individuals below a certain fitness
-      threshold die off—while those above generally survive, regardless of rank
-      in the population. This is the opposite of “elitism” and related practices
-      in evolutionary computation where the focus is on identifying and
-      promoting the high fitness individuals. LazyPredator seeks to encourage
+      Negative selection implies that lower fitness individuals tend
+      to die off—while others tend to survive regardless of rank in the
+      population. Selection of participants in a tournament is “uniform” not
+      “fitness proportional.” This is the opposite of “elitism” and related
+      practices in evolutionary computation where the focus is on identifying
+      and promoting high fitness individuals. LazyPredator seeks to encourage
       “genetic drift”—while continuing to prune the low performing
       individuals—in order to gradually improve population fitness.</p>
     <p>The name “LazyPredator” refers to this type of negative selection in
@@ -104,6 +105,22 @@
       details of the implementation. On the other hand, I do want it to be more
       prose-like than the terse <code>git commit</code> messages.)</p>
     <br style="##########################################################################">
+    <div class="post" id="20200824"> <a href="#20200824" class="date">August
+        24, 2020</a>
+      <h1>Component types <code>GpType</code> and <code>GpFunction</code></h1>
+      <p>I rewrote the prototype <code>FunctionSet::makeRandomProgram()</code>
+        to be less ugly. Chiefly I made new abstractions, <code>GpType</code>
+        and <code>GpFunction</code>, to represent types and functions of the GP
+        <code>FunctionSet</code>. I added a new constructor for <code>FunctionSet</code>
+        which allows the whole set of types and functions to be defined in a
+        single expression. Before a lot of analysis of the function set (e.g.
+        which functions return a value of this type?) was repeated each time it
+        was needed. Now it all gets done once, in the new constructor, and
+        cached. Similarly a lot of looking up character string names in maps has
+        been replaced with direct pointers. </p>
+      <p>I also refactored the two pre-defined FunctionSets for testing: <code>tiny_texsyn</code>
+        and <code>full_texsyn</code>.</p>
+    </div>
     <div class="post" id="20200817"> <a href="#20200817" class="date">August
         17, 2020</a>
       <h1>Size control fixed for random programs</h1>
