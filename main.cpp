@@ -212,8 +212,8 @@ int main(int argc, const char * argv[])
 */
     
     std::cout << std::endl << "FunctionSet foo:" << std::endl;
-    // FunctionSet& foo = tiny_texsyn();
-    FunctionSet& foo = full_texsyn();
+    // FunctionSet& foo = TexSynFS::tiny();
+    FunctionSet& foo = TexSynFS::full();
     foo.printSet();
 
     for (int i = 0; i < 20; i++)
