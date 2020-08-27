@@ -141,6 +141,39 @@ inline void GpType::print()
     std::cout << "." << std::endl;
 }
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// GpTree: a "program tree", an "abstract syntax tree" ("AST"), to represent a
+// composition of GpFunction(s) and GpType(s). Each GpTree instance is a "node"
+// a "subtree root". It contains a vector of subtrees, each of type GpType.
+//
+// TODO PROTOTYPE
+//
+
+class GpTree
+{
+public:
+    GpTree(){}
+    
+    const std::vector<GpTree>& subtrees() const { return subtrees_; }
+    
+    GpTree& addSubtree()
+    {
+        subtrees_.push_back({});
+        return subtrees_.back();
+    }
+    
+    std::string id() const { return id_; }  // TODO for debugging
+    void setId(std::string s) { id_ = s; }  // TODO for debugging
+
+private:
+    std::vector<GpTree> subtrees_;
+    
+    std::string id_;  // TODO for debugging
+};
+
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 class FunctionSet
 {
 public:
@@ -174,14 +207,14 @@ public:
             // be used to terminate a subtree of that type. Record in GpType.
             if (!func.recursive())
             {
-                std::cout << "NOT recursive: " << func.returnTypeName();
+                // std::cout << "NOT recursive: " << func.returnTypeName();
                 GpType& rt = *lookupGpTypeByName(rtn);
                 // TODO this is "min size to terminate type" ASSUMING all
                 // parameters are ephemeral constants. Make more general.
                 int mstt = 1 + int(func.parameterTypeNames().size());
                 if (mstt < rt.minSizeToTerminate())
                     rt.setMinSizeToTerminate(mstt);
-                std::cout << " min size to terminate: " << mstt << std::endl;
+                // std::cout << " min size to terminate: " << mstt << std::endl;
             }
             // Copy once more into name-to-GpFunction-object map.
             addGpFunction(func);

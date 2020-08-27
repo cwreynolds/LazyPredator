@@ -173,65 +173,71 @@ int main(int argc, const char * argv[])
     
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     
-    // Generalizing FunctionSet::minSizeToTerminateType().
-    std::cout << "August 18, 2020" << std::endl;
-    std::string path = "/Users/cwr/Desktop/TexSyn_temp/20200818_";
+//    // Generalizing FunctionSet::minSizeToTerminateType().
+//    std::cout << "August 18, 2020" << std::endl;
+//    std::string path = "/Users/cwr/Desktop/TexSyn_temp/20200818_";
+//
+//    /*
+//    FunctionSet tiny_texsyn_fs;
+//    make_tiny_texsyn_fs(tiny_texsyn_fs);
+//    std::cout << std::endl;
+//    FunctionSet full_texsyn_fs;
+//    make_full_texsyn_fs(full_texsyn_fs);
+//    debugPrint(full_texsyn_fs.minSizeToTerminateFunction("LotsOfSpots"))
+//    debugPrint(full_texsyn_fs.minSizeToTerminateFunction("ColorNoise"))
+//    debugPrint(full_texsyn_fs.minSizeToTerminateFunction("Grating"))
+//
+//    for (int i = 0; i < 20; i++)
+//    {
+//        int actual_size = 0;
+//        std::string source_code;
+//        full_texsyn_fs.dp_depth = 0;
+//        full_texsyn_fs.makeRandomProgram(50, "Texture", actual_size, source_code);
+//        std::cout << std::endl << std::endl << source_code << std::endl;
+//        std::cout << "size=" << actual_size << std::endl;
+//    }
+//
+//    std::set<FunctionType> set_of_function_types;
+//    full_texsyn_fs.fillInSetOfTypes(set_of_function_types);
+//    std::cout << "set_of_function_types={ ";
+//    for (auto& type : set_of_function_types) std::cout << type << " ";
+//    std::cout << "}" << std::endl << std::endl;
+//
+//    for (auto& type : set_of_function_types)
+//    {
+//        std::vector<std::string> functions;
+//        full_texsyn_fs.findAllFunctionReturningType(type, functions);
+//        std::cout << type << " " << functions.size() << std::endl;
+//    }
+//    */
+//
+//    std::cout << std::endl << "FunctionSet foo:" << std::endl;
+//    // FunctionSet& foo = TexSynFS::tiny();
+//    FunctionSet& foo = TexSynFS::full();
+//    foo.printSet();
+//
+//    for (int i = 0; i < 20; i++)
+//    {
+//        int actual_size = 0;
+//        std::string source_code;
+//        foo.makeRandomProgram(50, "Texture", actual_size, source_code);
+//        std::cout << std::endl << std::endl << source_code << std::endl;
+//        std::cout << "size=" << actual_size << std::endl;
+//    }
+//
+//    // TODO (recorded Aug 22) should end with:
+//    // Spot(Vec2(1, 1), 0, Uniform(1, 0, 0), 0, Add(Affine(Vec2(1, 0),
+//    //      Vec2(1, 0), Add(Uniform(1, 1, 1), Blur(1, Uniform(0, 0, 0)))),
+//    //      Affine(Vec2(0, 0), Vec2(0, 1),
+//    //      Spot(Vec2(1, 1), 1, Uniform(1, 0, 1), 1, Uniform(1, 0, 1)))))
+//    // size=50
+
+    //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     
-/*
-    FunctionSet tiny_texsyn_fs;
-    make_tiny_texsyn_fs(tiny_texsyn_fs);
-    std::cout << std::endl;
-    FunctionSet full_texsyn_fs;
-    make_full_texsyn_fs(full_texsyn_fs);
-    debugPrint(full_texsyn_fs.minSizeToTerminateFunction("LotsOfSpots"))
-    debugPrint(full_texsyn_fs.minSizeToTerminateFunction("ColorNoise"))
-    debugPrint(full_texsyn_fs.minSizeToTerminateFunction("Grating"))
- 
-    for (int i = 0; i < 20; i++)
-    {
-        int actual_size = 0;
-        std::string source_code;
-        full_texsyn_fs.dp_depth = 0;
-        full_texsyn_fs.makeRandomProgram(50, "Texture", actual_size, source_code);
-        std::cout << std::endl << std::endl << source_code << std::endl;
-        std::cout << "size=" << actual_size << std::endl;
-    }
-
-    std::set<FunctionType> set_of_function_types;
-    full_texsyn_fs.fillInSetOfTypes(set_of_function_types);
-    std::cout << "set_of_function_types={ ";
-    for (auto& type : set_of_function_types) std::cout << type << " ";
-    std::cout << "}" << std::endl << std::endl;
+    // Prototyping GpTree
+    std::cout << "August 26, 2020" << std::endl;
+    std::string path = "/Users/cwr/Desktop/TexSyn_temp/20200826_";
     
-    for (auto& type : set_of_function_types)
-    {
-        std::vector<std::string> functions;
-        full_texsyn_fs.findAllFunctionReturningType(type, functions);
-        std::cout << type << " " << functions.size() << std::endl;
-    }
-*/
-    
-    std::cout << std::endl << "FunctionSet foo:" << std::endl;
-    // FunctionSet& foo = TexSynFS::tiny();
-    FunctionSet& foo = TexSynFS::full();
-    foo.printSet();
-
-    for (int i = 0; i < 20; i++)
-    {
-        int actual_size = 0;
-        std::string source_code;
-        foo.makeRandomProgram(50, "Texture", actual_size, source_code);
-        std::cout << std::endl << std::endl << source_code << std::endl;
-        std::cout << "size=" << actual_size << std::endl;
-    }
-
-    // TODO (recorded Aug 22) should end with:
-    // Spot(Vec2(1, 1), 0, Uniform(1, 0, 0), 0, Add(Affine(Vec2(1, 0),
-    //      Vec2(1, 0), Add(Uniform(1, 1, 1), Blur(1, Uniform(0, 0, 0)))),
-    //      Affine(Vec2(0, 0), Vec2(0, 1),
-    //      Spot(Vec2(1, 1), 1, Uniform(1, 0, 1), 1, Uniform(1, 0, 1)))))
-    // size=50
-
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     return EXIT_SUCCESS;
 }
