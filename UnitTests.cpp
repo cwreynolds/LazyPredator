@@ -88,39 +88,22 @@ bool random_program_size_limit()
 bool test_gp_tree_construction()
 {
     GpTree root;
-    root.setId("r");
     bool created_empty = st(root.subtrees().empty());
-    
-    GpTree& subtree_1 = root.addSubtree();
-    bool count_1 = st(root.subtrees().size() == 1);
-    subtree_1.setId("1");
-    
-    GpTree& subtree_2 = root.addSubtree();
-    bool count_2 = st(root.subtrees().size() == 2);
-    subtree_2.setId("2");
-    
-    GpTree& subtree_2a = subtree_2.addSubtree();
-    subtree_2a.setId("2a");
+    root.addSubtree();                   // r.0
+    root.addSubtree();                   // r.1
+    root.subtrees().at(1).addSubtree();  // r.1.a
 
-    debugPrint(root.id());
-    debugPrint(subtree_1.id());
-    debugPrint(subtree_2.id());
-    debugPrint(subtree_2a.id());
-    
-    debugPrint(&root);
-    debugPrint(&subtree_1);
-    debugPrint(&subtree_2);
-    debugPrint(&subtree_2a);
+    root.setId("r");
+    root.subtrees().at(0).setId("r.0");
+    root.subtrees().at(1).setId("r.1");
+    root.subtrees().at(1).subtrees().at(0).setId("r.1.a");
 
     return (created_empty &&
-            count_1 &&
-            count_2 &&
-            
+            st(root.subtrees().size() == 2) &&
             st(root.id() == "r") &&
-            st(subtree_1.id() == "1") &&
-            st(subtree_2.id() == "2") &&
-            st(subtree_2a.id() == "2a") &&
-
+            st(root.subtrees().at(0).id() == "r.0") &&
+            st(root.subtrees().at(1).id() == "r.1") &&
+            st(root.subtrees().at(1).subtrees().at(0).id() == "r.1.a") &&
             true);
 }
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -238,6 +238,8 @@ int main(int argc, const char * argv[])
     std::cout << "August 26, 2020" << std::endl;
     std::string path = "/Users/cwr/Desktop/TexSyn_temp/20200826_";
     
+    debugPrint(__cplusplus);    
+    
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     return EXIT_SUCCESS;
 }

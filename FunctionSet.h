@@ -147,31 +147,21 @@ inline void GpType::print()
 // a "subtree root". It contains a vector of subtrees, each of type GpType.
 //
 // TODO PROTOTYPE
-//
 
 class GpTree
 {
 public:
     GpTree(){}
     
+    std::vector<GpTree>& subtrees() { return subtrees_; }
     const std::vector<GpTree>& subtrees() const { return subtrees_; }
-    
-    GpTree& addSubtree()
-    {
-        subtrees_.push_back({});
-        return subtrees_.back();
-    }
-    
+    void addSubtree() { subtrees_.push_back({}); }
     std::string id() const { return id_; }  // TODO for debugging
     void setId(std::string s) { id_ = s; }  // TODO for debugging
-
 private:
     std::vector<GpTree> subtrees_;
-    
     std::string id_;  // TODO for debugging
 };
-
-
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 class FunctionSet
