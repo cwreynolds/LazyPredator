@@ -62,8 +62,11 @@ bool random_program_size_limit()
         GpTree gp_tree;
         fs.makeRandomProgram(max_size, "Texture",
                              actual_size, source_code, gp_tree);
-        if (!st(gp_tree.size() <= max_size)) all_ok = false;
-        if (!st(actual_size <= max_size)) all_ok = false;
+        bool ok = (st(actual_size <= max_size) &&
+                   st(gp_tree.size() <= max_size)) &&
+                   st(actual_size == gp_tree.size()) &&
+                   st(source_code == gp_tree.to_string());
+        if (!ok) all_ok = false;
     }
     return all_ok;
 }

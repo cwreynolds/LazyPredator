@@ -156,12 +156,11 @@ public:
     // Get reference to i-th subtree. Like: subtrees().at(i)
     GpTree& getSubtree(int i) { return subtrees().at(i); }
     const GpTree& getSubtree(int i) const { return subtrees().at(i); }
-    // Set root function in given GpTree object
-    void setFunction(const GpFunction& root_function)
-    {
-        root_function_ = &root_function;
-    }
-    // Add (allocate) "count" new subtrees.
+    // Get/set reference to GpFunction object at root of this tree.
+    const GpFunction& getFunction() const { return *root_function_; }
+    void setFunction(const GpFunction& function) { root_function_ = &function; }
+    // Add (allocate) "count" new subtrees. Should only be called once.
+    // TODO maybe instead of "add" call it "declare" or "init"?
     void addSubtrees(size_t count)
     {
         assert("call addSubtrees() only once" && subtrees().size() == 0);
@@ -174,12 +173,41 @@ public:
         for (auto& subtree : subtrees()) count += subtree.size();
         return count;
     }
+    // Get/set leaf value, an instantiated "ephemeral constant"
+    // TODO use of string is just a "mock" until types are templated.
+    const std::string& getLeafValue() const { return leaf_value_; }
+    void setLeafValue(const std::string& value) { leaf_value_ = value; }
+    // Convert this GpTree to "source code" format as, a string. It is either a
+    // single constant "leaf" value, or a function name then a parenthesized,
+    // comma separated list of parameter trees.
+    std::string to_string() const
+    {
+        std::string s;
+        if (root_function_)
+        {
+            s += getFunction().name() + "(";
+            bool comma = false;
+            for (auto& subtree : subtrees())
+            {
+                if (comma) s += ", "; else comma = true;
+                s += subtree.to_string();
+            }
+            s += ")";
+        }
+        else
+        {
+            s += getLeafValue();
+        }
+        return s;
+    }
     std::string id() const { return id_; }      // TODO for debugging only.
     void setId(std::string s) { id_ = s; }      // TODO for debugging only.
 private:
     // Add (allocate) one subtree. addSubtrees() is external API.
     void addSubtree() { subtrees_.push_back({}); }
+    // Each GpTree (sub)root will have a function object or a leaf value.
     const GpFunction* root_function_ = nullptr;
+    std::string leaf_value_;  // TODO mocked as string until templates.
     std::vector<GpTree> subtrees_;
     std::string id_;                            // TODO for debugging only.
 };
@@ -325,10 +353,12 @@ public:
         if (return_type.ephemeralGenerator())
         {
             output_actual_size++;
-            source_code += return_type.ephemeralGenerator()();
-            // TODO -- to be removed -- here just to retain original random
-            // sequence to preserve test case reproducability
-            rs().frandom01();
+            // TODO IMPORTANT recall this use of strings is just a "mock"
+            //      until I get around to templating to the actual c++ type.
+            // TODO should pass rs() into the generator for repeatability.
+            std::string constant = return_type.ephemeralGenerator()();
+            source_code += constant;
+            gp_tree.setLeafValue(constant);
         }
         else
         {
