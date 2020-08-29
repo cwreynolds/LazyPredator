@@ -141,28 +141,48 @@ inline void GpType::print()
     std::cout << "." << std::endl;
 }
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // GpTree: a "program tree", an "abstract syntax tree" ("AST"), to represent a
-// composition of GpFunction(s) and GpType(s). Each GpTree instance is a "node"
-// a "subtree root". It contains a vector of subtrees, each of type GpType.
-//
-// TODO PROTOTYPE
-
+// composition of GpFunction(s) and GpType(s). Each GpTree instance contains a
+// vector of subtrees, for each parameter of the function at the root, and so
+// on recursively, so as to contain the whole tree.
 class GpTree
 {
 public:
+    // Default costructor.
     GpTree(){}
-    
+    // Reference to vector of subtrees, const or not.
     std::vector<GpTree>& subtrees() { return subtrees_; }
     const std::vector<GpTree>& subtrees() const { return subtrees_; }
-    void addSubtree() { subtrees_.push_back({}); }
-    std::string id() const { return id_; }  // TODO for debugging
-    void setId(std::string s) { id_ = s; }  // TODO for debugging
+    // Get reference to i-th subtree. Like: subtrees().at(i)
+    GpTree& getSubtree(int i) { return subtrees().at(i); }
+    const GpTree& getSubtree(int i) const { return subtrees().at(i); }
+    // Set root function in given GpTree object
+    void setFunction(const GpFunction& root_function)
+    {
+        root_function_ = &root_function;
+    }
+    // Add (allocate) "count" new subtrees.
+    void addSubtrees(size_t count)
+    {
+        assert("call addSubtrees() only once" && subtrees().size() == 0);
+        for (int i = 0; i < count; i++) addSubtree();
+    }
+    // Count tokens in tree (functions or leaves/constants).
+    int size() const
+    {
+        int count = 1;
+        for (auto& subtree : subtrees()) count += subtree.size();
+        return count;
+    }
+    std::string id() const { return id_; }      // TODO for debugging only.
+    void setId(std::string s) { id_ = s; }      // TODO for debugging only.
 private:
+    // Add (allocate) one subtree. addSubtrees() is external API.
+    void addSubtree() { subtrees_.push_back({}); }
+    const GpFunction* root_function_ = nullptr;
     std::vector<GpTree> subtrees_;
-    std::string id_;  // TODO for debugging
+    std::string id_;                            // TODO for debugging only.
 };
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 class FunctionSet
 {
@@ -281,7 +301,8 @@ public:
     void makeRandomProgram(int max_size,
                            const GpType& return_type,
                            int& output_actual_size,
-                           std::string& source_code)
+                           std::string& source_code,
+                           GpTree& gp_tree)
     {
         if (dp)
         {
@@ -313,7 +334,7 @@ public:
         {
             GpFunction& rf = randomFunctionOfTypeInSize(max_size, return_type);
             makeRandomProgramRoot(max_size, return_type, rf,
-                                  output_actual_size, source_code);
+                                  output_actual_size, source_code, gp_tree);
         }
         if (dp)
         {
@@ -326,19 +347,22 @@ public:
     void makeRandomProgram(int max_size,
                            const std::string& return_type_name,
                            int& output_actual_size,
-                           std::string& source_code)
+                           std::string& source_code,
+                           GpTree& gp_tree)
     {
         makeRandomProgram(max_size,
                           *lookupGpTypeByName(return_type_name),
                           output_actual_size,
-                          source_code);
+                          source_code,
+                          gp_tree);
     }
 
     void makeRandomProgramRoot(int max_size,
                                const GpType& return_type,
                                const GpFunction& root_function,
                                int& output_actual_size,
-                               std::string& source_code)
+                           std::string& source_code,
+                           GpTree& gp_tree)
     {
         if (dp)
         {
@@ -352,6 +376,13 @@ public:
         int count = int(root_function.parameterTypes().size());
         source_code += root_function.name() + "(";  // TODO log
         bool first = true;   // TODO log
+        // Set root function in given GpTree object
+        gp_tree.setFunction(root_function);
+        // For each parameter of root, add/allocate a subtree in the GpTree.
+        // Important this happen first so no iterators are invalidated later.
+        gp_tree.addSubtrees(root_function.parameterTypes().size());
+        // TODO do this in a cleaner way after it is working
+        int subtree_index = 0;
         // Loop over each parameter of "function_name" generating a subtree.
         for (auto& parameter_type : root_function.parameterTypes())
         {
@@ -371,7 +402,10 @@ public:
             std::string subtree_source;
             dp_depth++;
             makeRandomProgram(subtree_max_size, *parameter_type,
-                              subtree_actual_size, subtree_source);
+                              subtree_actual_size, subtree_source,
+                              gp_tree.subtrees().at(subtree_index));
+            // TODO do this in a cleaner way after it is working
+            subtree_index++;
             dp_depth--;
             output_actual_size += subtree_actual_size;
             size_used += subtree_actual_size;

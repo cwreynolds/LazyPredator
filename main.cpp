@@ -235,10 +235,31 @@ int main(int argc, const char * argv[])
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     
     // Prototyping GpTree
-    std::cout << "August 26, 2020" << std::endl;
-    std::string path = "/Users/cwr/Desktop/TexSyn_temp/20200826_";
+    std::cout << "August 28, 2020" << std::endl;
+    std::string path = "/Users/cwr/Desktop/TexSyn_temp/20200828_";
     
-    debugPrint(__cplusplus);    
+    debugPrint(__cplusplus);
+    FunctionSet& fs = TexSynFS::full();
+
+    for (int i = 0; i < 1; i++)
+    {
+        int actual_size = 0;
+        std::string source_code;
+        
+        GpTree gp_tree;
+        fs.makeRandomProgram(50, "Texture", actual_size, source_code, gp_tree);
+        
+        std::cout << std::endl << std::endl << source_code << std::endl;
+        std::cout << "size=" << actual_size << std::endl;
+        debugPrint(gp_tree.size());
+    }
+
+    // Hmm this isn't matching end of day Friday, but I did make changes to
+    // UnitTests, so sequence might be off from when I record this earlier?
+    /*
+    Ring(4.638507, Vec2(4.394670, 1.221711), Vec2(3.301481, -1.996337), Blur(0.255947, Colorize(Vec2(2.071771, 0.246918), Vec2(-0.048487, -4.911816), Hyperbolic(Vec2(-2.895018, 3.438483), 5.581370, 6.095272, 3.242264, Uniform(0.273231, 0.186754, 0.774368), Uniform(0.808660, 0.145623, 0.479601)), Min(AdjustHue(0.648172, AdjustHue(0.823067, Uniform(0.292994, 0.357870, 0.713751))), Multiply(Uniform(0.009821, 0.054191, 0.788432), Uniform(0.175616, 0.581249, 0.055102))))))
+    size=50
+     */
     
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     return EXIT_SUCCESS;
