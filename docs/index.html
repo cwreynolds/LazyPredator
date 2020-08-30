@@ -70,14 +70,14 @@
       are removed from the population, and replaced by a new “offspring” of the
       tournament's higher fitness individuals. (The offspring is created from
       parents by “cross-over” and “mutation” as described <a href="https://en.wikipedia.org/wiki/Genetic_programming">here</a>.)
-      Negative selection implies that lower fitness individuals tend
-      to die off—while others tend to survive regardless of rank in the
-      population. Selection of participants in a tournament is “uniform” not
-      “fitness proportional.” This is the opposite of “elitism” and related
-      practices in evolutionary computation where the focus is on identifying
-      and promoting high fitness individuals. LazyPredator seeks to encourage
-      “genetic drift”—while continuing to prune the low performing
-      individuals—in order to gradually improve population fitness.</p>
+      Negative selection implies that lower fitness individuals tend to die
+      off—while others tend to survive regardless of rank in the population.
+      Selection of participants in a tournament is “uniform” not “fitness
+      proportional.” This is the opposite of “elitism” and related practices in
+      evolutionary computation where the focus is on identifying and promoting
+      high fitness individuals. LazyPredator seeks to encourage “genetic
+      drift”—while continuing to prune the low performing individuals—in order
+      to gradually improve population fitness.</p>
     <p>The name “LazyPredator” refers to this type of negative selection in
       nature. A lioness may be capable of running down a healthy adult antelope.
       But given the opportunity, she would rather find easier prey (the young,
@@ -105,6 +105,48 @@
       details of the implementation. On the other hand, I do want it to be more
       prose-like than the terse <code>git commit</code> messages.)</p>
     <br style="##########################################################################">
+    <div class="post" id="20200829"> <a href="#20200829" class="date">August
+        29, 2020</a>
+      <h1>Progress on <code>GpTree</code></h1>
+      <p>A dirty little secret of <code>FunctionSet::makeRandomProgram()</code>
+        was that it did not <em>actually</em> “make” a program. It had been
+        just going through the motions, and printing out a textual
+        representation of the program it <em>would</em> be making, if only
+        there was an internal representation of programs. Now there is <code>GpTree</code>
+        which I have been building out for a few days. A <code>FunctionSet</code>
+        is defined as a grammar in terms of <code>GpType</code> and <code>GpFunction</code>.
+        Now <code>FunctionSet::makeRandomProgram()</code> stores its result in
+        a given <code>GpTree</code> object. I provided tool for building and
+        accessing them. They have a <code>GpTree::size()</code> function which
+        had previously been handled by <code>makeRandomProgram()</code>.
+        Similarly <code>GpTree::to_string()</code> does a translation back to
+        “source code” as an <code>std::string</code>, mostly for debugging and
+        logging.</p>
+      <p>The <code>FunctionSet</code> for TexSyn is particularly simple: all
+        function returns <code>Texture</code>, except <code>Vec2</code>, and
+        the only other component is <code>float</code> constants. I had not
+        initially handled the case where a <code>GpType</code> can be supplied
+        by either a “leaf” constant <strong>or</strong> a subtree of functions.
+        So I defined a little <code> FunctionSet</code> that had that issue:</p>
+      <pre>FunctionSet fs = {
+                     {
+                         {"Int", [](){ return rand() % 10; }}  // GpType plus “ephemeral generator”
+                     },
+                     {
+                         {"Ant", "Int", {"Int", "Int"}},       // GpFunction, returns Int, takes two Int parameters.
+                         {"Bat", "Int", {"Int", "Int"}},       // GpFunction, returns Int, takes two Int parameters.
+                         {"Cat", "Int", {"Int"}}               // GpFunction, returns Int, takes one Int parameter.
+                     }
+                 };</pre>
+      <p>Initially all random programs generated from this set consisted of
+        exactly one <code>Int</code> constant. After making the fix to allow a
+        type to be return by both functions and “ephemeral constants”, it
+        produced trees of the given size (here 50):</p>
+      <pre>Cat(Cat(Cat(Ant(Cat(Cat(Bat(Bat(Ant(4, Cat(7)), Ant(Cat(4), Cat(4))),
+                            Cat(Cat(Bat(Bat(4, 8), Cat(Cat(Cat(8))))))))),
+                Cat(Bat(Ant(Ant(1, Cat(7)), Ant(Cat(3), Cat(2))),
+                        Ant(Bat(Cat(0), Cat(9)), Cat(Bat(7, Cat(4))))))))))</pre>
+    </div>
     <div class="post" id="20200824"> <a href="#20200824" class="date">August
         24, 2020</a>
       <h1>Component types <code>GpType</code> and <code>GpFunction</code></h1>
