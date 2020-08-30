@@ -303,23 +303,23 @@ public:
     }
 
     // Randomly select a function in this set that returns the given type and
-    // can be implemented in a subtree no larger than max_size.
-    GpFunction& randomFunctionOfTypeInSize(int max_size,
+    // can be implemented in a subtree no larger than max_size. Returns nullptr
+    // if none found.
+    GpFunction* randomFunctionOfTypeInSize(int max_size,
                                            const GpType& return_type)
     {
-        std::vector<GpFunction*> fit_size;
+        std::vector<GpFunction*> ok;
         for (auto& gp_function : return_type.functionsReturningThisType())
         {
             int ms = gp_function->minSizeToTerminate();
-            if (max_size >= ms) { fit_size.push_back(gp_function); }
+            if (max_size >= ms) { ok.push_back(gp_function); }
         }
-        if (fit_size.empty() && dp)
+        if (ok.empty() && dp)
         {
             dp_prefix(); debugPrint(max_size);
             dp_prefix(); debugPrint(return_type.name());
         }
-        assert(!fit_size.empty());
-        return *(fit_size.at(rs_.nextInt() % fit_size.size()));
+        return (ok.empty() ? nullptr : ok.at(rs_.nextInt() % ok.size()));
     }
 
     // Creates a random program (nested expression) using the "language" defined
@@ -341,17 +341,19 @@ public:
             dp_prefix(); debugPrint(source_code);
             dp_prefix(); std::cout << std::endl;
         }
-        // TODO, this is left-over confusion from initial protype which did not
-        // differentiate well between types and functions, overloaded functions
-        // with ephemeral generators, and used strings as IDs for both. Trying
-        // to prototype a fix.
-        //
-        // TODO comment in DynaList: "can we handle the case where a `GpType`
-        // has an ephemeral generator **and** there is a non-recursive function
-        // that returns that type?" Here we give priority to EG if it exists.
-        //
-        if (return_type.ephemeralGenerator())
+        // Find all function whose value is return_type, for which a subtree can
+        // be constructed in max_size or fewer nodes, and select on randomly.
+        GpFunction* rf = randomFunctionOfTypeInSize(max_size, return_type);
+        if (rf)
         {
+            // If found, recurse on a subtree with that function at the root.
+            makeRandomProgramRoot(max_size, return_type, *rf,
+                                  output_actual_size, source_code, gp_tree);
+        }
+        else if (return_type.ephemeralGenerator())
+        {
+            // If no function found, but this type has an ephemeral generator,
+            // use it to generate a leaf constant, ending recursion.
             output_actual_size++;
             // TODO IMPORTANT recall this use of strings is just a "mock"
             //      until I get around to templating to the actual c++ type.
@@ -362,9 +364,11 @@ public:
         }
         else
         {
-            GpFunction& rf = randomFunctionOfTypeInSize(max_size, return_type);
-            makeRandomProgramRoot(max_size, return_type, rf,
-                                  output_actual_size, source_code, gp_tree);
+            // TODO better way to signal this FunctionSet specification error?
+            std::cout << "No function or epheneral constant found for GpType ";
+            std::cout << return_type.name() << " remaining size: " << max_size;
+            std::cout << std::endl;
+            exit(EXIT_FAILURE);
         }
         if (dp)
         {
