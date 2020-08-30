@@ -58,6 +58,19 @@ public:
                 (!functionsReturningThisType().empty()) &&
                 (minSizeToTerminate() < std::numeric_limits<int>::max()));
     }
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//    virtual void vuux() { name_ = ""; }
+//    template<typename T> virtual void vuux() { name_ = ""; }
+    
+//    virtual bool hasEphemeralGenerator() const
+//    {
+//        return bool(ephemeral_generator_);
+//    }
+
+//    template<typename T>
+//    virtual T generateEphemeralConstant() const { return ephemeral_generator_(); }
+
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 private:
     std::string name_;
     // This should be templated to the c++ type
@@ -140,6 +153,41 @@ inline void GpType::print()
     }
     std::cout << "." << std::endl;
 }
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+//    GpType(){}
+//    GpType(const std::string& name) : name_(name) {}
+//    GpType(const std::string& name,
+//           std::function<std::string()> ephemeral_generator)
+//      : name_(name), ephemeral_generator_(ephemeral_generator){}
+
+// Need to add virtual member functions to GpType, make these overrides.
+
+//template<typename T = void>
+template<typename T>
+class TestGpType : public GpType
+{
+public:
+    TestGpType(){}
+    TestGpType(const std::string& name) : GpType(name){}
+    TestGpType(const std::string& name, std::function<T()> ephemeral_generator)
+      : GpType(name), ephemeral_generator_(ephemeral_generator){}
+
+    bool hasEphemeralGenerator() const { return bool(ephemeral_generator_); }
+
+//    bool hasEphemeralGenerator() const override
+//    {
+//        return bool(ephemeral_generator_);
+//    }
+
+    T generateEphemeralConstant() const { return ephemeral_generator_(); }
+
+private:
+    std::function<T()> ephemeral_generator_ = nullptr;
+};
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 // GpTree: a "program tree", an "abstract syntax tree" ("AST"), to represent a
 // composition of GpFunction(s) and GpType(s). Each GpTree instance contains a

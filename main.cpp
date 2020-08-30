@@ -264,46 +264,77 @@ int main(int argc, const char * argv[])
     
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     
-    // Prototyping GpTree::to_string(). Testing case where a type is returned
-    // by some functions and also has an ephemeral generator. (TexSyn has none)
-    std::cout << "August 29, 2020" << std::endl;
-    std::string path = "/Users/cwr/Desktop/TexSyn_temp/20200829_";
+//    // Prototyping GpTree::to_string(). Testing case where a type is returned
+//    // by some functions and also has an ephemeral generator. (TexSyn has none)
+//    std::cout << "August 29, 2020" << std::endl;
+//    std::string path = "/Users/cwr/Desktop/TexSyn_temp/20200829_";
+//
+//    debugPrint(__cplusplus);
+//
+//    // std::string root_type = "Texture";
+//    // FunctionSet& fs = TexSynFS::full();
+//
+//    std::string root_type = "Int";
+//    FunctionSet fs =
+//    {
+//        {
+//            {"Int", [](){ return std::to_string(rand() % 10); }}
+//        },
+//        {
+//            {"Ant", "Int", {"Int", "Int"}},
+//            {"Bat", "Int", {"Int", "Int"}},
+//            {"Cat", "Int", {"Int"}}
+//        }
+//    };
+//
+//    for (int i = 0; i < 10; i++)
+//    {
+//        int actual_size = 0;
+//        std::string source_code;
+//        GpTree gp_tree;
+//        fs.makeRandomProgram(50, root_type, actual_size, source_code, gp_tree);
+//        std::cout << std::endl << std::endl << source_code << std::endl;
+//        std::cout << "size=" << actual_size << std::endl;
+//        debugPrint(gp_tree.size());
+//        debugPrint(gp_tree.to_string());
+//    }
+//
+//    /*
+//     Cat(Cat(Cat(Ant(Cat(Cat(Bat(Bat(Ant(4, Cat(7)), Ant(Cat(4), Cat(4))), Cat(Cat(Bat(Bat(4, 8), Cat(Cat(Cat(8))))))))), Cat(Bat(Ant(Ant(1, Cat(7)), Ant(Cat(3), Cat(2))), Ant(Bat(Cat(0), Cat(9)), Cat(Bat(7, Cat(4))))))))))
+//     size=50
+//     */
+    
+    //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    
+    // Prototyping templated version of GpType
+    std::cout << "August 30, 2020" << std::endl;
+    std::string path = "/Users/cwr/Desktop/TexSyn_temp/20200830_";
     
     debugPrint(__cplusplus);
+
+    TestGpType<float> foo("foo", [](){ return frandom01(); });
+    TestGpType<int> bar("bar");
+//    debugPrint(foo.hasEphemeralGenerator());
+//    debugPrint(bar.hasEphemeralGenerator());
+
+//    std::vector<GpType*> q;
+//    q.push_back(&foo);
+//    q.push_back(&bar);
     
-    // std::string root_type = "Texture";
-    // FunctionSet& fs = TexSynFS::full();
+//    std::vector<TestGpType<>*> v;
     
-    std::string root_type = "Int";
-    FunctionSet fs =
-    {
-        {
-            {"Int", [](){ return std::to_string(rand() % 10); }}
-        },
-        {
-            {"Ant", "Int", {"Int", "Int"}},
-            {"Bat", "Int", {"Int", "Int"}},
-            {"Cat", "Int", {"Int"}}
-        }
-    };
+    std::vector<GpType*> gp_types = {&foo, &bar};
+//    for (auto& t : vector_of_GpTypes) debugPrint(t->hasEphemeralGenerator());
+
     
-    for (int i = 0; i < 10; i++)
-    {
-        int actual_size = 0;
-        std::string source_code;
-        GpTree gp_tree;
-        fs.makeRandomProgram(50, root_type, actual_size, source_code, gp_tree);
-        std::cout << std::endl << std::endl << source_code << std::endl;
-        std::cout << "size=" << actual_size << std::endl;
-        debugPrint(gp_tree.size());
-        debugPrint(gp_tree.to_string());
-    }
-    
-    /*
-     Cat(Cat(Cat(Ant(Cat(Cat(Bat(Bat(Ant(4, Cat(7)), Ant(Cat(4), Cat(4))), Cat(Cat(Bat(Bat(4, 8), Cat(Cat(Cat(8))))))))), Cat(Bat(Ant(Ant(1, Cat(7)), Ant(Cat(3), Cat(2))), Ant(Bat(Cat(0), Cat(9)), Cat(Bat(7, Cat(4))))))))))
-     size=50
-     */
-        
+//    dynamic_cast<TestGpType<float>*>(gp_types.at(0))->hasEphemeralGenerator();
+    debugPrint(foo.hasEphemeralGenerator());
+    debugPrint(bar.hasEphemeralGenerator());
+
+    debugPrint(foo.generateEphemeralConstant());
+    debugPrint(foo.generateEphemeralConstant());
+    debugPrint(foo.generateEphemeralConstant());
+
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     return EXIT_SUCCESS;
 }

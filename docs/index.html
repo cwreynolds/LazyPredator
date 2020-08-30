@@ -113,13 +113,12 @@
         just going through the motions, and printing out a textual
         representation of the program it <em>would</em> be making, if only
         there was an internal representation of programs. Now there is <code>GpTree</code>
-        which I have been building out for a few days. A <code>FunctionSet</code>
-        is defined as a grammar in terms of <code>GpType</code> and <code>GpFunction</code>.
-        Now <code>FunctionSet::makeRandomProgram()</code> stores its result in
-        a given <code>GpTree</code> object. I provided tool for building and
-        accessing them. They have a <code>GpTree::size()</code> function which
-        had previously been handled by <code>makeRandomProgram()</code>.
-        Similarly <code>GpTree::to_string()</code> does a translation back to
+        which I have been building out for a few days, adding tools for building
+        and accessing them. A <code>FunctionSet</code> is defined as a grammar
+        in terms of <code>GpType</code> and <code>GpFunction</code>. Now <code>FunctionSet::makeRandomProgram()</code>
+        stores its result in a <code>GpTree</code> object. They have a <code>GpTree::size()</code>
+        function which had previously been handled by <code>makeRandomProgram()</code>.
+        Similarly <code>GpTree::to_string()</code> does a translation to
         “source code” as an <code>std::string</code>, mostly for debugging and
         logging.</p>
       <p>The <code>FunctionSet</code> for TexSyn is particularly simple: all
@@ -130,12 +129,12 @@
         So I defined a little <code> FunctionSet</code> that had that issue:</p>
       <pre>FunctionSet fs = {
                      {
-                         {"Int", [](){ return rand() % 10; }}  // GpType plus “ephemeral generator”
+                         {"Int", [](){ return rand() % 10; }}  // GpType "Int" with "ephemeral generator".
                      },
                      {
-                         {"Ant", "Int", {"Int", "Int"}},       // GpFunction, returns Int, takes two Int parameters.
-                         {"Bat", "Int", {"Int", "Int"}},       // GpFunction, returns Int, takes two Int parameters.
-                         {"Cat", "Int", {"Int"}}               // GpFunction, returns Int, takes one Int parameter.
+                         {"Ant", "Int", {"Int", "Int"}},       // GpFunction "Ant", returns Int, takes two Int parameters.
+                         {"Bat", "Int", {"Int", "Int"}},       // GpFunction "Bat", returns Int, takes two Int parameters.
+                         {"Cat", "Int", {"Int"}}               // GpFunction "Cat", returns Int, takes one Int parameter.
                      }
                  };</pre>
       <p>Initially all random programs generated from this set consisted of
