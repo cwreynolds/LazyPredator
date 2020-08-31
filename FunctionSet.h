@@ -367,7 +367,7 @@ public:
             dp_prefix(); debugPrint(max_size);
             dp_prefix(); debugPrint(return_type.name());
         }
-        return (ok.empty() ? nullptr : ok.at(rs_.nextInt() % ok.size()));
+        return (ok.empty() ? nullptr : ok.at(rs().randomN(ok.size())));
     }
 
     // Creates a random program (nested expression) using the "language" defined
