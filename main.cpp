@@ -306,34 +306,55 @@ int main(int argc, const char * argv[])
     
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     
+//    // Prototyping templated version of GpType
+//    std::cout << "August 30, 2020" << std::endl;
+//    std::string path = "/Users/cwr/Desktop/TexSyn_temp/20200830_";
+//
+//    debugPrint(__cplusplus);
+//
+//    TestGpType<float> foo("foo", [](){ return frandom01(); });
+//    TestGpType<int> bar("bar");
+//    //    debugPrint(foo.hasEphemeralGenerator());
+//    //    debugPrint(bar.hasEphemeralGenerator());
+//
+//    //    std::vector<GpType*> q;
+//    //    q.push_back(&foo);
+//    //    q.push_back(&bar);
+//
+//    //    std::vector<TestGpType<>*> v;
+//
+//    std::vector<GpType*> gp_types = {&foo, &bar};
+//    //    for (auto& t : vector_of_GpTypes) debugPrint(t->hasEphemeralGenerator());
+//
+//
+//    //dynamic_cast<TestGpType<float>*>(gp_types.at(0))->hasEphemeralGenerator();
+//    debugPrint(foo.hasEphemeralGenerator());
+//    debugPrint(bar.hasEphemeralGenerator());
+//
+//    debugPrint(foo.generateEphemeralConstant());
+//    debugPrint(foo.generateEphemeralConstant());
+//    debugPrint(foo.generateEphemeralConstant());
+
+    //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    
     // Prototyping templated version of GpType
     std::cout << "August 30, 2020" << std::endl;
     std::string path = "/Users/cwr/Desktop/TexSyn_temp/20200830_";
     
     debugPrint(__cplusplus);
-
+    
     TestGpType<float> foo("foo", [](){ return frandom01(); });
     TestGpType<int> bar("bar");
-//    debugPrint(foo.hasEphemeralGenerator());
-//    debugPrint(bar.hasEphemeralGenerator());
-
-//    std::vector<GpType*> q;
-//    q.push_back(&foo);
-//    q.push_back(&bar);
-    
-//    std::vector<TestGpType<>*> v;
-    
     std::vector<GpType*> gp_types = {&foo, &bar};
-//    for (auto& t : vector_of_GpTypes) debugPrint(t->hasEphemeralGenerator());
-
+    GpType& foo2 = static_cast<GpType&>(foo);
+    debugPrint(foo2.name());
     
-//    dynamic_cast<TestGpType<float>*>(gp_types.at(0))->hasEphemeralGenerator();
-    debugPrint(foo.hasEphemeralGenerator());
-    debugPrint(bar.hasEphemeralGenerator());
+    static_cast<TestGpType<float>&>(*gp_types.at(0)).hasEphemeralGenerator();
+    TestGpType<float>& types0 = static_cast<TestGpType<float>&>(*gp_types.at(0));
+    debugPrint(types0.name());
 
-    debugPrint(foo.generateEphemeralConstant());
-    debugPrint(foo.generateEphemeralConstant());
-    debugPrint(foo.generateEphemeralConstant());
+    TestTemplateGpType();
+    VeryTemporaryPrototyping();
 
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     return EXIT_SUCCESS;
