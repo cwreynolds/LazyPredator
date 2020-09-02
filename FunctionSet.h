@@ -115,14 +115,13 @@ public:
     void setMinSizeToTerminate(int s) { min_size_to_terminate_ = s; }
     void print()
     {
-        std::cout << "GpFunction: " << name() << ", return_type: " <<
-            returnTypeName() << "(" <<  returnType() << "), parameters: (";
+        std::cout << "GpFunction: " << name() << ", return_type: ";
+        std::cout << returnTypeName() << ", parameters: (";
         bool comma = false;
         for (int i = 0; i < parameterTypes().size(); i ++)
         {
             if (comma) std::cout << ", "; else comma = true;
-            std::cout << parameterTypeNames().at(i) << "(" <<
-                parameterTypes().at(i) << ")";
+            std::cout << parameterTypeNames().at(i);
         }
         std::cout << ")." << std::endl;
     }
@@ -140,7 +139,8 @@ inline void GpType::print()
 {
     std::cout << "GpType: " << name();
     std::cout << ", min size to terminate: " << minSizeToTerminate();
-    if (ephemeralGenerator()) std::cout << ", has ephemeral generator";
+    std::cout << ", " << (ephemeralGenerator() ? "has" : "no");
+    std::cout << " ephemeral generator";
     if (functions_returning_this_type_.size() > 0)
     {
         bool first = true;
@@ -306,17 +306,16 @@ public:
             addGpFunction(func);
         }
         // Build per-GpType collections of GpFunctions returning that type.
-        for (auto& pair : nameToGpFunctionMap())
+        for (auto& [name, gp_function] : nameToGpFunctionMap())
         {
-            GpFunction* f = &pair.second;
-            GpType* t = f->returnType();
-            t->addFunctionReturningThisType(f);
+            GpType& gp_type = *gp_function.returnType();
+            gp_type.addFunctionReturningThisType(&gp_function);
         }
         // Set minSizeToTerminate() for each GpFunction.
-        for (auto& pair : nameToGpFunctionMap())
+        for (auto& [name, gp_function] : nameToGpFunctionMap())
         {
-            GpFunction& f = pair.second;
-            f.setMinSizeToTerminate(minSizeToTerminateFunction(f));
+            int min_size = minSizeToTerminateFunction(gp_function);
+            gp_function.setMinSizeToTerminate(min_size);
         }
     }
 
@@ -508,29 +507,10 @@ public:
         source_code += ")";
     }
 
-    void printSet()
+    void print()
     {
-        for (auto& pair : nameToGpTypeMap())
-        {
-            GpType& gp_type = pair.second;
-            std::cout << "type: " << gp_type.name() << " " << &gp_type;
-            std::cout << std::endl;
-        }
-        for (auto& pair : nameToGpFunctionMap())
-        {
-            bool first = true;
-            GpFunction& gp_function = pair.second;
-            std::cout << "function: " << gp_function.name() << ", returns: ";
-            std::cout << gp_function.returnTypeName() << ", parameters: (";
-            for (auto& pt : gp_function.parameterTypeNames())
-            {
-                if (first) first = false; else std::cout << ", ";
-                std::cout << pt;
-            }
-            std::cout << ")" << std::endl;
-        }
-        for (auto& pair : nameToGpTypeMap()) pair.second.print();
-        for (auto& pair : nameToGpFunctionMap()) pair.second.print();
+        for (auto& [n, t] : nameToGpTypeMap()) t.print();
+        for (auto& [n, f] : nameToGpFunctionMap()) f.print();
     }
     
     // Accessor for RandomSequence, perhaps only needed for testing?
