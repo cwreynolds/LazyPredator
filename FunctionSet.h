@@ -31,6 +31,98 @@
 #include <limits>
 #include "Utilities.h"
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// TODO experimental September  3, 2020
+// New model assuming types and functions are user-defined classes
+// This also seems to be leaning toward a soup of zillions of small heap-
+//     allocated instances strung together with shared_ptr<>
+
+// TODO experimental
+// Base type for all GP components
+class NewGpObjectBase
+{
+public:
+    NewGpObjectBase() {}
+    NewGpObjectBase(const std::string& name) : name_(name) {}
+    virtual ~NewGpObjectBase() {}
+    const std::string& name() const { return name_; }
+private:
+    std::string name_;
+};
+
+// TODO experimental
+// Base type for all GpType, so for example a collection of user-defined classes
+// derived from GpType could be pointers to this base class.
+class NewGpTypeBase : public NewGpObjectBase
+{
+public:
+    NewGpTypeBase(){}
+    NewGpTypeBase(const std::string& name) : NewGpObjectBase(name) {}
+private:
+};
+
+// TODO experimental
+// Base type for all GpFunction, so for example a collection of user-defined
+// classes derived from GpFunction could be pointers to this base class.
+class NewGpFunctionBase : public NewGpObjectBase
+{
+public:
+    NewGpFunctionBase(){}
+    NewGpFunctionBase(const std::string& name) : NewGpObjectBase(name) {}
+private:
+};
+
+// TODO experimental
+// Base type (or is it just "the type"?) for all GpValue wrappers
+// TODO no way to set value yet.
+class NewGpValue/*Base*/ : public NewGpObjectBase
+{
+public:
+    NewGpValue(){}
+    virtual ~NewGpValue() {}
+    template<typename T> T get() const { return static_cast<T>(thing_); }
+    // TODO just guessing here:
+    template<typename T> void set(T s) { thing_ = static_cast<void*>(s); }
+private:
+    void* thing_;
+};
+
+//~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+
+// TODO experimental, purely an example
+
+class MyIntType : public NewGpTypeBase
+{
+public:
+    MyIntType(){}
+    MyIntType(const std::string& name) : NewGpTypeBase(name) {}
+    // int generateEphemeralConstant() { return rs_.randomN(90) + 10; }
+    NewGpValue generateEphemeralConstant()
+    {
+        NewGpValue v;
+        int* i = new(int);                    // TODO memory leak
+        *i = rs_.randomN(90) + 10;
+        v.set<int*>(i);
+        return v;
+    }
+private:
+    RandomSequence rs_;
+};
+
+class MyIntFuncAdd : public NewGpFunctionBase
+{
+public:
+    MyIntFuncAdd(){}
+    MyIntFuncAdd(const std::string& name) : NewGpFunctionBase(name) {}
+    // int eval(int i, int j) const { return i + j; }
+    int eval() const { return *a.get<int*>() + *b.get<int*>(); }
+private:
+    NewGpValue a;
+    NewGpValue b;
+};
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 // Class to represent types in "strongly typed genetic programming".
 class GpFunction;
 class GpType
@@ -58,19 +150,6 @@ public:
                 (!functionsReturningThisType().empty()) &&
                 (minSizeToTerminate() < std::numeric_limits<int>::max()));
     }
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//    virtual void vuux() { name_ = ""; }
-//    template<typename T> virtual void vuux() { name_ = ""; }
-    
-//    virtual bool hasEphemeralGenerator() const
-//    {
-//        return bool(ephemeral_generator_);
-//    }
-
-//    template<typename T>
-//    virtual T generateEphemeralConstant() const { return ephemeral_generator_(); }
-
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 private:
     std::string name_;
     // This should be templated to the c++ type
@@ -155,16 +234,7 @@ inline void GpType::print()
 }
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-//    GpType(){}
-//    GpType(const std::string& name) : name_(name) {}
-//    GpType(const std::string& name,
-//           std::function<std::string()> ephemeral_generator)
-//      : name_(name), ephemeral_generator_(ephemeral_generator){}
-
-// Need to add virtual member functions to GpType, make these overrides.
-
-//template<typename T = void>
+// TODO experimental August 30, 2020
 template<typename T>
 class TestGpType : public GpType
 {
@@ -173,20 +243,11 @@ public:
     TestGpType(const std::string& name) : GpType(name){}
     TestGpType(const std::string& name, std::function<T()> ephemeral_generator)
       : GpType(name), ephemeral_generator_(ephemeral_generator){}
-
     bool hasEphemeralGenerator() const { return bool(ephemeral_generator_); }
-
-//    bool hasEphemeralGenerator() const override
-//    {
-//        return bool(ephemeral_generator_);
-//    }
-
     T generateEphemeralConstant() const { return ephemeral_generator_(); }
-
 private:
     std::function<T()> ephemeral_generator_ = nullptr;
 };
-
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 // GpTree: a "program tree", an "abstract syntax tree" ("AST"), to represent a

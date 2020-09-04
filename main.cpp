@@ -337,24 +337,35 @@ int main(int argc, const char * argv[])
 
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     
-    // Prototyping templated version of GpType
-    std::cout << "August 30, 2020" << std::endl;
-    std::string path = "/Users/cwr/Desktop/TexSyn_temp/20200830_";
-    
-    debugPrint(__cplusplus);
-    
-    TestGpType<float> foo("foo", [](){ return frandom01(); });
-    TestGpType<int> bar("bar");
-    std::vector<GpType*> gp_types = {&foo, &bar};
-    GpType& foo2 = static_cast<GpType&>(foo);
-    debugPrint(foo2.name());
-    
-    static_cast<TestGpType<float>&>(*gp_types.at(0)).hasEphemeralGenerator();
-    TestGpType<float>& types0 = static_cast<TestGpType<float>&>(*gp_types.at(0));
-    debugPrint(types0.name());
+//    // Prototyping templated version of GpType
+//    std::cout << "August 30, 2020" << std::endl;
+//    std::string path = "/Users/cwr/Desktop/TexSyn_temp/20200830_";
+//
+//    debugPrint(__cplusplus);
+//
+//    TestGpType<float> foo("foo", [](){ return frandom01(); });
+//    TestGpType<int> bar("bar");
+//    std::vector<GpType*> gp_types = {&foo, &bar};
+//    GpType& foo2 = static_cast<GpType&>(foo);
+//    debugPrint(foo2.name());
+//
+//    static_cast<TestGpType<float>&>(*gp_types.at(0)).hasEphemeralGenerator();
+//    TestGpType<float>& types0 = static_cast<TestGpType<float>&>(*gp_types.at(0));
+//    debugPrint(types0.name());
+//
+//    TestTemplateGpType();
+//    VeryTemporaryPrototyping();
 
-    TestTemplateGpType();
-    VeryTemporaryPrototyping();
+    //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    
+    // New model assuming types and functions are user-defined classes
+    std::cout << "September  3, 2020" << std::endl;
+    std::string path = "/Users/cwr/Desktop/TexSyn_temp/20200903_";
+    
+    MyIntType my_int_type("Int");
+    debugPrint(*(my_int_type.generateEphemeralConstant().get<int*>()));
+    debugPrint(*(my_int_type.generateEphemeralConstant().get<int*>()));
+    debugPrint(*(my_int_type.generateEphemeralConstant().get<int*>()));
 
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     return EXIT_SUCCESS;
