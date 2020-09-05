@@ -51,6 +51,35 @@ private:
 };
 
 // TODO experimental
+// Base type (or is it just "the type"?) for all GpValue wrappers
+//
+// TODO maybe store some indication (pointer to instance?, ID number?)
+//      so we can ensure it was cast from and to the same type?
+//
+class NewGpValue/*Base*/ : public NewGpObjectBase
+{
+public:
+    NewGpValue(){}
+    // virtual ~NewGpValue() {}
+//    template<typename T> T get() const { return static_cast<T>(thing_); }
+    template<typename T> std::shared_ptr<T> get() //const
+    {
+//        return static_cast<std::shared_ptr<T>>(thing_);
+//        return static_cast<T>(thing_);
+        return std::static_pointer_cast<T>(thing_);
+    }
+    // TODO just guessing here:
+//    template<typename T> void set(T s) { thing_ = static_cast<void*>(s); }
+    template<typename T> void set(T s)
+    {
+        thing_ = static_cast<std::shared_ptr<void>>(s);
+    }
+private:
+//    void* thing_;
+    std::shared_ptr<void> thing_;
+};
+
+// TODO experimental
 // Base type for all GpType, so for example a collection of user-defined classes
 // derived from GpType could be pointers to this base class.
 class NewGpTypeBase : public NewGpObjectBase
@@ -58,6 +87,17 @@ class NewGpTypeBase : public NewGpObjectBase
 public:
     NewGpTypeBase(){}
     NewGpTypeBase(const std::string& name) : NewGpObjectBase(name) {}
+    
+    // TODO Sep 4 make these virtual functions
+    // Does this type have an ephemeral generator? Default is no. Can be
+    // overridden by derived classes.
+    virtual bool hasEphemeralGenerator() const { return false; }
+    virtual NewGpValue generateEphemeralConstant()
+    {
+        assert(hasEphemeralGenerator());
+        return NewGpValue();
+    }
+
 private:
 };
 
@@ -72,54 +112,66 @@ public:
 private:
 };
 
-// TODO experimental
-// Base type (or is it just "the type"?) for all GpValue wrappers
-// TODO no way to set value yet.
-class NewGpValue/*Base*/ : public NewGpObjectBase
-{
-public:
-    NewGpValue(){}
-    virtual ~NewGpValue() {}
-    template<typename T> T get() const { return static_cast<T>(thing_); }
-    // TODO just guessing here:
-    template<typename T> void set(T s) { thing_ = static_cast<void*>(s); }
-private:
-    void* thing_;
-};
-
 //~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 
 // TODO experimental, purely an example
 
-class MyIntType : public NewGpTypeBase
+//class MyIntType : public NewGpTypeBase
+//{
+//public:
+//    MyIntType(){}
+//    MyIntType(const std::string& name) : NewGpTypeBase(name) {}
+//    NewGpValue generateEphemeralConstant() override
+//    {
+//        NewGpValue v;
+//        int* i = new(int);                    // TODO memory leak
+//        *i = rs_.randomN(90) + 10;
+//        v.set<int*>(i);
+//        return v;
+//    }
+//private:
+//    RandomSequence rs_;
+//};
+//
+//class MyIntFuncAdd : public NewGpFunctionBase
+//{
+//public:
+//    MyIntFuncAdd(){}
+//    MyIntFuncAdd(const std::string& name) : NewGpFunctionBase(name) {}
+//    // int eval(int i, int j) const { return i + j; }
+//    int eval() const { return *a.get<int*>() + *b.get<int*>(); }
+//private:
+//    NewGpValue a;
+//    NewGpValue b;
+//};
+
+class MyFloat01Type : public NewGpTypeBase
 {
 public:
-    MyIntType(){}
-    MyIntType(const std::string& name) : NewGpTypeBase(name) {}
-    // int generateEphemeralConstant() { return rs_.randomN(90) + 10; }
-    NewGpValue generateEphemeralConstant()
+    typedef std::shared_ptr<float> SharedPointerToFloat;
+    MyFloat01Type(){}
+    MyFloat01Type(const std::string& name) : NewGpTypeBase(name) {}
+    NewGpValue generateEphemeralConstant() override
     {
         NewGpValue v;
-        int* i = new(int);                    // TODO memory leak
-        *i = rs_.randomN(90) + 10;
-        v.set<int*>(i);
+
+        auto f = std::make_shared<float>();
+        *f = rs_.frandom01();
+        
+        auto q = static_cast<std::shared_ptr<void>>(f);
+        
+        v.set<std::shared_ptr<float>>(f);
+        
         return v;
+    }
+    float get(NewGpValue v)
+    {
+        return **(v.get<SharedPointerToFloat>());
     }
 private:
     RandomSequence rs_;
 };
 
-class MyIntFuncAdd : public NewGpFunctionBase
-{
-public:
-    MyIntFuncAdd(){}
-    MyIntFuncAdd(const std::string& name) : NewGpFunctionBase(name) {}
-    // int eval(int i, int j) const { return i + j; }
-    int eval() const { return *a.get<int*>() + *b.get<int*>(); }
-private:
-    NewGpValue a;
-    NewGpValue b;
-};
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

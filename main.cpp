@@ -8,6 +8,9 @@
 
 #include "LazyPredator.h"
 #include "TexSynTemp.h"
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#include <any>
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 int main(int argc, const char * argv[])
 {
@@ -359,13 +362,27 @@ int main(int argc, const char * argv[])
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     
     // New model assuming types and functions are user-defined classes
-    std::cout << "September  3, 2020" << std::endl;
-    std::string path = "/Users/cwr/Desktop/TexSyn_temp/20200903_";
+    std::cout << "September 4, 2020" << std::endl;
+    std::string path = "/Users/cwr/Desktop/TexSyn_temp/20200904_";
     
-    MyIntType my_int_type("Int");
-    debugPrint(*(my_int_type.generateEphemeralConstant().get<int*>()));
-    debugPrint(*(my_int_type.generateEphemeralConstant().get<int*>()));
-    debugPrint(*(my_int_type.generateEphemeralConstant().get<int*>()));
+//    MyIntType my_int_type("Int");
+//    debugPrint(*(my_int_type.generateEphemeralConstant().get<int*>()));
+//    debugPrint(*(my_int_type.generateEphemeralConstant().get<int*>()));
+//    debugPrint(*(my_int_type.generateEphemeralConstant().get<int*>()));
+    
+    MyFloat01Type mft("Float01");
+    
+    
+//    debugPrint(mft.get(mft.generateEphemeralConstant()));
+    
+    
+    const float d = 1.2;
+    std::any var = d;
+    debugPrint(std::any_cast<float>(var));
+    const std::string str = "Hello World";
+    var = str;
+    debugPrint(std::any_cast<std::string>(var));
+
 
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     return EXIT_SUCCESS;
