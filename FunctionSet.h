@@ -28,6 +28,9 @@
 
 #pragma once
 #include <map>
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#include <any>
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #include <limits>
 #include "Utilities.h"
 
@@ -188,6 +191,22 @@ public:
     const std::string& name() const { return name_; }
     const std::function<std::string()> ephemeralGenerator() const
         { return ephemeral_generator_; }
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // TODO temporary experiments with std::any
+    
+    GpType(const std::string& name,
+           std::function<std::string()> ephemeral_generator,
+           std::function<std::any()> eg)
+    : name_(name), ephemeral_generator_(ephemeral_generator), eg_(eg) {}
+
+    bool hasEG() const { return bool(eg_); }
+    std::any gEC() const { return eg_(); } // can this be non-const for rs()?
+    
+//    T generateEphemeralConstant() const { return ephemeral_generator_(); }
+private:
+    std::function<std::any()> eg_ = nullptr;
+public:
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     const std::vector<GpFunction*>& functionsReturningThisType() const
         { return functions_returning_this_type_; }
     void addFunctionReturningThisType(GpFunction* gp_function_pointer)
@@ -199,6 +218,7 @@ public:
     bool valid() const
     {
         return ((!name().empty()) &&
+                // TODO may be wrong given later changes to ephemeral constants:
                 (!functionsReturningThisType().empty()) &&
                 (minSizeToTerminate() < std::numeric_limits<int>::max()));
     }
@@ -336,8 +356,22 @@ public:
     }
     // Get/set leaf value, an instantiated "ephemeral constant"
     // TODO use of string is just a "mock" until types are templated.
-    const std::string& getLeafValue() const { return leaf_value_; }
-    void setLeafValue(const std::string& value) { leaf_value_ = value; }
+    
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // TODO temporary experiments with std::any
+    //            bool hasEG() const { return bool(eg_); }
+    //            std::any gEC() { return eg_(); }
+
+//    const std::string& getLeafValue() const { return leaf_value_; }
+//    void setLeafValue(const std::string& value) { leaf_value_ = value; }
+    
+    std::string getLeafValueAsString() const
+    {
+        return std::to_string(std::any_cast<int>(leaf_value_));
+    }
+    void setLeafValue(std::any value) { leaf_value_ = value; }
+
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Convert this GpTree to "source code" format as, a string. It is either a
     // single constant "leaf" value, or a function name then a parenthesized,
     // comma separated list of parameter trees.
@@ -357,7 +391,10 @@ public:
         }
         else
         {
-            s += getLeafValue();
+            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//            s += getLeafValue();
+            s += getLeafValueAsString();
+            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         }
         return s;
     }
@@ -368,7 +405,11 @@ private:
     void addSubtree() { subtrees_.push_back({}); }
     // Each GpTree (sub)root will have a function object or a leaf value.
     const GpFunction* root_function_ = nullptr;
-    std::string leaf_value_;  // TODO mocked as string until templates.
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // TODO temporary experiments with std::any
+//    std::string leaf_value_;  // TODO mocked as string until templates.
+    std::any leaf_value_;
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     std::vector<GpTree> subtrees_;
     std::string id_;                            // TODO for debugging only.
 };
@@ -388,6 +429,10 @@ public:
             // If ephemeral generator provided, type terminates with size 1.
             auto& eg = gp_type.ephemeralGenerator();
             if (eg) gp_type.setMinSizeToTerminate(1);
+            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            // TODO temporary experiments with std::any
+            if (gp_type.hasEG()) gp_type.setMinSizeToTerminate(1);
+            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             // Insert updated GpType into by-name map. (Copied again into map.)
             addGpType(gp_type);
         }
@@ -522,6 +567,28 @@ public:
             source_code += constant;
             gp_tree.setLeafValue(constant);
         }
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // TODO temporary experiments with std::any
+        //            bool hasEG() const { return bool(eg_); }
+        //            std::any gEC() { return eg_(); }
+        
+        else if (return_type.hasEG())
+        {
+            // If no function found, but this type has an ephemeral generator,
+            // use it to generate a leaf constant, ending recursion.
+            output_actual_size++;
+            // TODO IMPORTANT recall this use of strings is just a "mock"
+            //      until I get around to templating to the actual c++ type.
+            // TODO should pass rs() into the generator for repeatability.
+            
+//            std::string constant = return_type.ephemeralGenerator()();
+//            source_code += constant;
+            std::any leaf_value = return_type.gEC();
+            source_code += std::any_cast<int>(leaf_value);
+            gp_tree.setLeafValue(leaf_value);
+        }
+
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         else
         {
             // TODO better way to signal this FunctionSet specification error?

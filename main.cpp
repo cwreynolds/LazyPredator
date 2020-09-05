@@ -8,13 +8,15 @@
 
 #include "LazyPredator.h"
 #include "TexSynTemp.h"
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#include <any>
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 int main(int argc, const char * argv[])
 {
-    UnitTests::allTestsOK();
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // TODO temporary experiments with std::any
+    // UnitTests::allTestsOK();
+    std::cout << "WARNING UnitTests disabled!!" << std::endl;
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //    // Testing instance counter for Individual.
 //    std::cout << "August 7, 2020" << std::endl;
@@ -361,28 +363,65 @@ int main(int argc, const char * argv[])
 
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     
-    // New model assuming types and functions are user-defined classes
-    std::cout << "September 4, 2020" << std::endl;
-    std::string path = "/Users/cwr/Desktop/TexSyn_temp/20200904_";
+//    // New model assuming types and functions are user-defined classes
+//    std::cout << "September 4, 2020" << std::endl;
+//    std::string path = "/Users/cwr/Desktop/TexSyn_temp/20200904_";
+//
+//    //    MyIntType my_int_type("Int");
+//    //    debugPrint(*(my_int_type.generateEphemeralConstant().get<int*>()));
+//    //    debugPrint(*(my_int_type.generateEphemeralConstant().get<int*>()));
+//    //    debugPrint(*(my_int_type.generateEphemeralConstant().get<int*>()));
+//
+//    MyFloat01Type mft("Float01");
+//    //    debugPrint(mft.get(mft.generateEphemeralConstant()));
+//
+//
+//    const float d = 1.2;
+//    std::any var = d;
+//    debugPrint(std::any_cast<float>(var));
+//    const std::string str = "Hello World";
+//    var = str;
+//    debugPrint(std::any_cast<std::string>(var));
     
-//    MyIntType my_int_type("Int");
-//    debugPrint(*(my_int_type.generateEphemeralConstant().get<int*>()));
-//    debugPrint(*(my_int_type.generateEphemeralConstant().get<int*>()));
-//    debugPrint(*(my_int_type.generateEphemeralConstant().get<int*>()));
+    //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     
-    MyFloat01Type mft("Float01");
-    
-    
-//    debugPrint(mft.get(mft.generateEphemeralConstant()));
+    // Experimenting with std::any
+    std::cout << "September 5, 2020" << std::endl;
+    std::string path = "/Users/cwr/Desktop/TexSyn_temp/20200905_";
     
     
-    const float d = 1.2;
-    std::any var = d;
-    debugPrint(std::any_cast<float>(var));
-    const std::string str = "Hello World";
-    var = str;
-    debugPrint(std::any_cast<std::string>(var));
-
+    std::string root_type = "Int";
+    FunctionSet fs =
+    {
+        {
+//            {"Int", [](){ return std::to_string(rand() % 10); }}
+            {
+                "Int",
+                nullptr,
+                []()
+                {
+                    return std::any(int(rand() % 10));
+                }
+            }
+        },
+        {
+            {"Ant", "Int", {"Int", "Int"}},
+            {"Bat", "Int", {"Int", "Int"}},
+            {"Cat", "Int", {"Int"}}
+        }
+    };
+    
+    for (int i = 0; i < 10; i++)
+    {
+        int actual_size = 0;
+        std::string source_code;
+        GpTree gp_tree;
+        fs.makeRandomProgram(50, root_type, actual_size, source_code, gp_tree);
+        std::cout << std::endl << std::endl << source_code << std::endl;
+        std::cout << "size=" << actual_size << std::endl;
+        debugPrint(gp_tree.size());
+        debugPrint(gp_tree.to_string());
+    }
 
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     return EXIT_SUCCESS;
