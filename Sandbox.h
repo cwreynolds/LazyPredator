@@ -49,8 +49,8 @@ public:
     Sep5GpObjectBase(const std::string& name) : name_(name) {}
     virtual ~Sep5GpObjectBase() {}
     const std::string& name() const { return name_; }
-    // TODO thinking there might be a handful of these (static? global?):
-    float anyToFloat(std::any a) { return std::any_cast<float>(a); }
+    // Just a shorthand convenience function. (Could even be to<int>(a))
+    template<typename T> T anyTo(std::any a) const {return std::any_cast<T>(a);}
 private:
     std::string name_;
 };
@@ -125,7 +125,7 @@ public:
     // TODO late Sep 5, virtual for changing a leaf value to std::string.
     std::string to_string(std::any a) override
     {
-        return std::to_string(anyToFloat(a));
+        return std::to_string(anyTo<float>(a));
     }
 };
 
@@ -160,6 +160,8 @@ private:
 
 inline std::any dummyTreeNodeSubtree(int i) { return std::any(); }
 
+// TODO -- OH! shouldn't we supply "return_type_name" and "parameter_type_names"
+//         as inline constants like "name"?
 class Sep5Vec2Function : public Sep5GpFunctionBase
 {
 public:
@@ -170,9 +172,132 @@ public:
     // TODO just trying to rough out how an actual function call would look.
     std::any evalTreeNode(/* GpTree */) override
     {
-        return std::any(dummyVec2(anyToFloat(dummyTreeNodeSubtree(0)),
-                                  anyToFloat(dummyTreeNodeSubtree(1))));
+        return std::any(dummyVec2(anyTo<float>(dummyTreeNodeSubtree(0)),
+                                  anyTo<float>(dummyTreeNodeSubtree(1))));
     }
 };
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// TODO Sep 6 temporary experiments with std::any
+//
+// Corresponds to this, in main.cpp
+//
+//        // lets call this FunctionSet test_tree_eval
+//        std::string root_type = "Float";
+//        FunctionSet fs =
+//        {
+//            {
+//                {"Int", [](){ return std::to_string(int(rand() % 10)); }},
+//                {"Float", [](){ return std::to_string(frandom01()); }}
+//            },
+//            {
+//                {"AddInt", "Int", {"Int", "Int"}},
+//                {"AddFloat", "Float", {"Float", "Float"}},
+//                {"Floor", "Int", {"Float"}},
+//                {"Sqrt", "Float", {"Int"}},
+//                {"Mult", "Float", {"Float", "Int"}}
+//            }
+//        };
+
+// TODO if this is how we end up doing it, this could be a macro taking three
+// parameters: class name, string name, and a function body.
+
+// TODO -- OH! shouldn't we supply "return_type_name" and "parameter_type_names"
+//         as inline constants like "name"?
+
+class Sep5AddIntFunction : public Sep5GpFunctionBase
+{
+public:
+    Sep5AddIntFunction() : Sep5GpFunctionBase("AddInt",
+                                              "Int",
+                                              {"Int", "Int"}) {}
+    // TODO just trying to rough out how an actual function call would look.
+    std::any evalTreeNode(/* GpTree */) override
+    {
+        return std::any(anyTo<int>(dummyTreeNodeSubtree(0)) +
+                        anyTo<int>(dummyTreeNodeSubtree(1)));
+    }
+};
+
+class Sep5AddFloatFunction : public Sep5GpFunctionBase
+{
+public:
+    Sep5AddFloatFunction() :
+        Sep5GpFunctionBase("AddFloat", "Float", {"Float", "Float"}) {}
+    // TODO just trying to rough out how an actual function call would look.
+    std::any evalTreeNode(/* GpTree */) override
+    {
+        return std::any(anyTo<float>(dummyTreeNodeSubtree(0)) +
+                        anyTo<float>(dummyTreeNodeSubtree(1)));
+    }
+};
+
+class Sep5FloorFunction : public Sep5GpFunctionBase
+{
+public:
+    Sep5FloorFunction() : Sep5GpFunctionBase("Floor", "Int", {"Float"}) {}
+    // TODO just trying to rough out how an actual function call would look.
+    std::any evalTreeNode(/* GpTree */) override
+    {
+        return std::any(std::floor(anyTo<float>(dummyTreeNodeSubtree(0))));
+    }
+};
+
+class Sep5SqrtFunction : public Sep5GpFunctionBase
+{
+public:
+    Sep5SqrtFunction() : Sep5GpFunctionBase("Sqrt", "Float", {"Int"}) {}
+    // TODO just trying to rough out how an actual function call would look.
+    std::any evalTreeNode(/* GpTree */) override
+    {
+        return std::any(std::sqrt(anyTo<float>(dummyTreeNodeSubtree(0))));
+    }
+};
+
+class Sep5MultFunction : public Sep5GpFunctionBase
+{
+public:
+    Sep5MultFunction() :
+        Sep5GpFunctionBase("Mult", "Float", {"Float", "Int"}) {}
+    // TODO just trying to rough out how an actual function call would look.
+    std::any evalTreeNode(/* GpTree */) override
+    {
+        return std::any(anyTo<float>(dummyTreeNodeSubtree(0)) *
+                        anyTo<int>(dummyTreeNodeSubtree(1)));
+    }
+};
+
+class Sep5IntType : public Sep5GpTypeBase
+{
+public:
+    Sep5IntType() : Sep5GpTypeBase("Int") {}
+    bool hasEphemeralGenerator() const override { return true; }
+    std::any generateEphemeralConstant() override
+    {
+        return std::any(int(rand() % 10));
+    }
+    // TODO late Sep 5, virtual for changing a leaf value to std::string.
+    std::string to_string(std::any a) override
+    {
+        return std::to_string(anyTo<int>(a));
+    }
+};
+
+class Sep5FloatType : public Sep5GpTypeBase
+{
+public:
+    Sep5FloatType() : Sep5GpTypeBase("Float") {}
+    bool hasEphemeralGenerator() const override { return true; }
+    std::any generateEphemeralConstant() override
+    {
+        return std::any(frandom01());
+    }
+    // TODO late Sep 5, virtual for changing a leaf value to std::string.
+    std::string to_string(std::any a) override
+    {
+        return std::to_string(anyTo<float>(a));
+    }
+};
+
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

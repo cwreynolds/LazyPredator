@@ -454,6 +454,7 @@ int main(int argc, const char * argv[])
     // TODO Sep 6 temporary experiments with std::any
 #ifdef USE_STD_ANY
 #else  // USE_STD_ANY
+    // lets call this FunctionSet test_tree_eval 
     std::string root_type = "Float";
     FunctionSet fs =
     {
@@ -463,8 +464,8 @@ int main(int argc, const char * argv[])
         },
         {
             {"AddInt", "Int", {"Int", "Int"}},
-            {"Floor", "Int", {"Float"}},
             {"AddFloat", "Float", {"Float", "Float"}},
+            {"Floor", "Int", {"Float"}},
             {"Sqrt", "Float", {"Int"}},
             {"Mult", "Float", {"Float", "Int"}}
         }
