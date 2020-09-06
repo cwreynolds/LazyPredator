@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		8458EECE2504600C0079DF1D /* Sandbox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8458EECC2504600C0079DF1D /* Sandbox.cpp */; };
 		8480AF1F24E70BF2006151A5 /* TexSynTemp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8480AF1D24E70BF2006151A5 /* TexSynTemp.cpp */; };
 		849C0FF524DB689400590B1D /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 849C0FF424DB689400590B1D /* main.cpp */; };
 		84F2452824DCA87E00001C0A /* Population.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 84F2452624DCA87E00001C0A /* Population.cpp */; };
@@ -29,6 +30,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		8458EECC2504600C0079DF1D /* Sandbox.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Sandbox.cpp; sourceTree = "<group>"; };
+		8458EECD2504600C0079DF1D /* Sandbox.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Sandbox.h; sourceTree = "<group>"; };
 		8480AF1D24E70BF2006151A5 /* TexSynTemp.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = TexSynTemp.cpp; sourceTree = "<group>"; };
 		8480AF1E24E70BF2006151A5 /* TexSynTemp.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TexSynTemp.h; sourceTree = "<group>"; };
 		849C0FF124DB689400590B1D /* LazyPredator */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = LazyPredator; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -68,6 +71,8 @@
 				849C0FF424DB689400590B1D /* main.cpp */,
 				84F2452724DCA87E00001C0A /* Population.h */,
 				84F2452624DCA87E00001C0A /* Population.cpp */,
+				8458EECD2504600C0079DF1D /* Sandbox.h */,
+				8458EECC2504600C0079DF1D /* Sandbox.cpp */,
 				8480AF1E24E70BF2006151A5 /* TexSynTemp.h */,
 				8480AF1D24E70BF2006151A5 /* TexSynTemp.cpp */,
 				84F2452D24DCA8C200001C0A /* UnitTests.h */,
@@ -146,6 +151,7 @@
 				84F2453824E072FB00001C0A /* FunctionSet.cpp in Sources */,
 				84F2452824DCA87E00001C0A /* Population.cpp in Sources */,
 				84F2452E24DCA8C200001C0A /* UnitTests.cpp in Sources */,
+				8458EECE2504600C0079DF1D /* Sandbox.cpp in Sources */,
 				8480AF1F24E70BF2006151A5 /* TexSynTemp.cpp in Sources */,
 				849C0FF524DB689400590B1D /* main.cpp in Sources */,
 				84F2452B24DCA8A300001C0A /* Individual.cpp in Sources */,

@@ -8,6 +8,9 @@
 
 #include "LazyPredator.h"
 #include "TexSynTemp.h"
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#include <variant>
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 int main(int argc, const char * argv[])
 {
@@ -422,6 +425,34 @@ int main(int argc, const char * argv[])
         debugPrint(gp_tree.size());
         debugPrint(gp_tree.to_string());
     }
+
+    
+    std::variant<int, float> v;
+    v = 5;
+    debugPrint(std::get<int>(v));
+    debugPrint(std::get<0>(v));
+    //debugPrint(std::get<1>(v));
+    
+    class Foo
+    {
+    public:
+        Foo(){};
+        Foo(int i) : i_(i) {};
+        int getI() const { return i_; }
+    private:
+        int i_ = 0;
+    };
+
+    std::variant<int, float, Foo> u;
+    
+    u = Foo(2);
+    debugPrint(std::get<Foo>(u).getI());
+    debugPrint(std::get<2>(u).getI());
+    constexpr int j = 2;
+    debugPrint(std::get<j>(u).getI());
+    //size_t k = 2;
+    //debugPrint(std::get<k>(u).getI());
+
 
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     return EXIT_SUCCESS;
