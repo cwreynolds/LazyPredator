@@ -34,6 +34,13 @@
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #include <limits>
 #include "Utilities.h"
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// TODO Sep 6 temporary experiments with std::any
+#ifdef USE_STD_ANY
+#include "Sandbox.h"
+#else  // USE_STD_ANY
+#endif // USE_STD_ANY
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // TODO experimental September  3, 2020
@@ -180,6 +187,16 @@
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// TODO Sep 6 temporary experiments with std::any
+#ifdef USE_STD_ANY
+
+typedef Sep5GpTypeBase GpType;
+typedef Sep5GpFunctionBase GpFunction;
+
+#else  // USE_STD_ANY
+
 // Class to represent types in "strongly typed genetic programming".
 class GpFunction;
 class GpType
@@ -306,6 +323,10 @@ inline void GpType::print()
     }
     std::cout << "." << std::endl;
 }
+
+#endif // USE_STD_ANY
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //    // TODO experimental August 30, 2020
@@ -434,18 +455,25 @@ public:
         // Process each GpType specifications, make local copy to modify.
         for (GpType gp_type : type_specs)
         {
-            // If ephemeral generator provided, type terminates with size 1.
-            auto& eg = gp_type.ephemeralGenerator();
-            if (eg) gp_type.setMinSizeToTerminate(1);
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             // TODO Sep 6 temporary experiments with std::any
 #ifdef USE_STD_ANY
-            if (gp_type.hasEG()) gp_type.setMinSizeToTerminate(1);
+//            if (gp_type.hasEG()) gp_type.setMinSizeToTerminate(1);
+            bool has_eg = gp_type.hasEphemeralGenerator();
+            if (has_eg) gp_type.setMinSizeToTerminate(1);
 #else  // USE_STD_ANY
+            // If ephemeral generator provided, type terminates with size 1.
+            auto& eg = gp_type.ephemeralGenerator();
+            if (eg) gp_type.setMinSizeToTerminate(1);
 #endif // USE_STD_ANY
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             // Insert updated GpType into by-name map. (Copied again into map.)
             addGpType(gp_type);
+            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            std::cout << "in FunctionSet constructor:" << std::endl;
+            gp_type.print();
+            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
         }
         // Process each of the GpFunction specifications (copy then modify)
         for (GpFunction func : function_specs)
@@ -566,6 +594,28 @@ public:
             makeRandomProgramRoot(max_size, return_type, *rf,
                                   output_actual_size, source_code, gp_tree);
         }
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // TODO Sep 6 temporary experiments with std::any
+#ifdef USE_STD_ANY
+//        else if (return_type.hasEG())
+        else if (return_type.hasEphemeralGenerator())
+        {
+            // If no function found, but this type has an ephemeral generator,
+            // use it to generate a leaf constant, ending recursion.
+            output_actual_size++;
+            // TODO IMPORTANT recall this use of strings is just a "mock"
+            //      until I get around to templating to the actual c++ type.
+            // TODO should pass rs() into the generator for repeatability.
+            
+//            std::string constant = return_type.ephemeralGenerator()();
+//            source_code += constant;
+//            std::any leaf_value = return_type.gEC();
+            std::any leaf_value = return_type.generateEphemeralConstant();
+//            source_code += std::any_cast<int>(leaf_value);
+            source_code += return_type.to_string(leaf_value);
+            gp_tree.setLeafValue(leaf_value);
+        }
+#else  // USE_STD_ANY
         else if (return_type.ephemeralGenerator())
         {
             // If no function found, but this type has an ephemeral generator,
@@ -578,25 +628,6 @@ public:
             source_code += constant;
             gp_tree.setLeafValue(constant);
         }
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // TODO Sep 6 temporary experiments with std::any
-#ifdef USE_STD_ANY
-        else if (return_type.hasEG())
-        {
-            // If no function found, but this type has an ephemeral generator,
-            // use it to generate a leaf constant, ending recursion.
-            output_actual_size++;
-            // TODO IMPORTANT recall this use of strings is just a "mock"
-            //      until I get around to templating to the actual c++ type.
-            // TODO should pass rs() into the generator for repeatability.
-            
-//            std::string constant = return_type.ephemeralGenerator()();
-//            source_code += constant;
-            std::any leaf_value = return_type.gEC();
-            source_code += std::any_cast<int>(leaf_value);
-            gp_tree.setLeafValue(leaf_value);
-        }
-#else  // USE_STD_ANY
 #endif // USE_STD_ANY
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         else

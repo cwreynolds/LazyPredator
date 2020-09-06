@@ -13,6 +13,28 @@
 //     TexSynFS::tiny() -- tiny subset of TexSyn API.
 //     TexSynFS::full() -- covers "most" of TexSyn API.
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// TODO Sep 6 temporary experiments with std::any
+#ifdef USE_STD_ANY
+
+class TexSynFS
+{
+public:
+    static FunctionSet& tiny()
+    {
+        static FunctionSet tiny;
+        return tiny;
+    }
+    static FunctionSet& full()
+    {
+        static FunctionSet full;
+        return full;
+    }
+};
+
+
+#else  // USE_STD_ANY
+
 class TexSynFS
 {
 public:
@@ -142,6 +164,9 @@ public:
         return full;
     }
 };
+
+#endif // USE_STD_ANY
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // TODO experimental prototyping

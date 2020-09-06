@@ -16,8 +16,8 @@ int main(int argc, const char * argv[])
 {
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // TODO temporary experiments with std::any
-    UnitTests::allTestsOK();
-    // std::cout << "WARNING UnitTests disabled!!" << std::endl;
+    //UnitTests::allTestsOK();
+    std::cout << "WARNING UnitTests disabled!!" << std::endl;
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -453,6 +453,25 @@ int main(int argc, const char * argv[])
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // TODO Sep 6 temporary experiments with std::any
 #ifdef USE_STD_ANY
+    
+    // lets call this FunctionSet test_tree_eval
+    std::string root_type = "Float";
+    FunctionSet fs =
+    {
+        {
+            Sep5IntType(),
+            Sep5FloatType()
+        },
+        {
+            Sep5AddIntFunction(),
+            Sep5AddFloatFunction(),
+            Sep5FloorFunction(),
+            Sep5SqrtFunction(),
+            Sep5MultFunction()
+        }
+    };
+
+    
 #else  // USE_STD_ANY
     // lets call this FunctionSet test_tree_eval 
     std::string root_type = "Float";

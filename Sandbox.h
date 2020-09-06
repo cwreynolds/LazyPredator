@@ -58,6 +58,7 @@ private:
 // TODO experimental
 // Base type for all GpType, so for example a collection of user-defined classes
 // derived from GpType could be pointers to this base class.
+class Sep5GpFunctionBase;
 class Sep5GpTypeBase : public Sep5GpObjectBase
 {
 public:
@@ -67,18 +68,38 @@ public:
     // Does this type have an ephemeral generator? Default is no. Can be
     // overridden by derived classes.
     virtual bool hasEphemeralGenerator() const { return false; }
-    virtual std::any generateEphemeralConstant()
+//    virtual std::any generateEphemeralConstant()
+    virtual std::any generateEphemeralConstant() const
     {
         assert(hasEphemeralGenerator());
         return std::any();
     }
     
     // TODO late Sep 5, virtual for changing a leaf value to string
-    virtual std::string to_string(std::any a) { return "..."; }
+    virtual std::string to_string(std::any a) const { return "..."; }
+
+    int minSizeToTerminate() const { return min_size_to_terminate_; }
+    void setMinSizeToTerminate(int s) { min_size_to_terminate_ = s; }
     
+    const std::vector<Sep5GpFunctionBase*>& functionsReturningThisType() const
+        { return functions_returning_this_type_; }
+    void addFunctionReturningThisType(Sep5GpFunctionBase* gp_function_pointer)
+        { functions_returning_this_type_.push_back(gp_function_pointer); }
+
+    void print();
+
     RandomSequence& rs() { return rs_; }
 private:
     RandomSequence rs_;
+    
+    // TODO copying these over from GpType. Which are needed?
+    // TODO right now it is the type name as a string.
+    std::function<std::string()> ephemeral_generator_ = nullptr;
+    // Collection of pointers to GpFunctions which return this type.
+    std::vector<Sep5GpFunctionBase*> functions_returning_this_type_;
+    // Minimum "size" of tree returning this type from root;
+    int min_size_to_terminate_ = std::numeric_limits<int>::max();
+
 };
 
 // TODO experimental
@@ -98,16 +119,73 @@ public:
         parameter_type_names_(parameter_type_names) {}
 
     virtual std::any evalTreeNode(/* GpTree */) { return std::any(); }
+    
+    const std::string& returnTypeName() const { return return_type_name_; }
+    Sep5GpTypeBase* returnType() const { return return_type_; }
+    const std::vector<Sep5GpTypeBase*>& parameterTypes() const
+        { return parameter_types_; }
+    const std::vector<std::string>& parameterTypeNames() const
+        { return parameter_type_names_; }
+    void setReturnTypePointer(Sep5GpTypeBase* rtp) { return_type_ = rtp; }
+    void setParameterTypePointers(const std::vector<Sep5GpTypeBase*>& vec_ptype_ptrs)
+        { parameter_types_ = vec_ptype_ptrs; }
+
+    // Does this function have parameter of its return type? (Can call itself?)
+    bool recursive() const
+    {
+        bool r = false;
+        for (auto& n : parameterTypeNames()) if(n == returnTypeName()) r = true;
+        return r;
+    }
+    // Minimum "size" required to terminate subtree with this function at root.
+    int minSizeToTerminate() const { return min_size_to_terminate_; }
+    void setMinSizeToTerminate(int s) { min_size_to_terminate_ = s; }
+
+    void print()
+    {
+        std::cout << "GpFunction: " << name() << ", return_type: ";
+        std::cout << returnTypeName() << ", parameters: (";
+        bool comma = false;
+        for (int i = 0; i < parameterTypes().size(); i ++)
+        {
+            if (comma) std::cout << ", "; else comma = true;
+            std::cout << parameterTypeNames().at(i);
+        }
+        std::cout << ")." << std::endl;
+    }
 
 private:
     std::string name_;
     std::string return_type_name_;
     // GpType* return_type_ = nullptr;
+    Sep5GpTypeBase* return_type_ = nullptr;
     std::vector<std::string> parameter_type_names_;
-    // std::vector<GpType*> parameter_types_;
+    std::vector<Sep5GpTypeBase*> parameter_types_;
     int min_size_to_terminate_ = std::numeric_limits<int>::max();
 };
 
+// Down here because it requires both GpType and GpFunction to be defined.
+//inline void GpType::print()
+inline void Sep5GpTypeBase::print()
+{
+//    std::cout << "GpType: " << name();
+    std::cout << "Sep5GpTypeBase: " << name();
+    std::cout << ", min size to terminate: " << minSizeToTerminate();
+//    std::cout << ", " << (ephemeralGenerator() ? "has" : "no");
+    std::cout << ", " << (hasEphemeralGenerator() ? "has" : "no");
+    std::cout << " ephemeral generator";
+    if (functions_returning_this_type_.size() > 0)
+    {
+        bool first = true;
+        std::cout << ", functions returning this type: ";
+        for (auto& f : functions_returning_this_type_)
+        {
+            if (first) first = false; else std::cout << ", ";
+            std::cout << f->name();
+        }
+    }
+    std::cout << "." << std::endl;
+}
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -118,12 +196,15 @@ public:
 //    Sep5Float01Type(const std::string& name) : Sep5GpTypeBase(name) {}
     Sep5Float01Type() : Sep5GpTypeBase("Float01") {}
     bool hasEphemeralGenerator() const override { return true; }
-    std::any generateEphemeralConstant() override
+//    std::any generateEphemeralConstant() override
+    std::any generateEphemeralConstant() const override
     {
-        return std::any(rs().frandom01());
+        // TODO figure out mutating RS versus repeatable random numbers
+//        return std::any(rs().frandom01());
+        return std::any(frandom01());
     }
     // TODO late Sep 5, virtual for changing a leaf value to std::string.
-    std::string to_string(std::any a) override
+    std::string to_string(std::any a) const override
     {
         return std::to_string(anyTo<float>(a));
     }
@@ -270,14 +351,19 @@ public:
 class Sep5IntType : public Sep5GpTypeBase
 {
 public:
-    Sep5IntType() : Sep5GpTypeBase("Int") {}
+//    Sep5IntType() : Sep5GpTypeBase("Int") {}
+    Sep5IntType() : Sep5GpTypeBase("Int")
+    {
+        std::cout << "in Sep5IntType constructor:" << std::endl;
+        print();
+    }
     bool hasEphemeralGenerator() const override { return true; }
-    std::any generateEphemeralConstant() override
+    std::any generateEphemeralConstant() const override
     {
         return std::any(int(rand() % 10));
     }
     // TODO late Sep 5, virtual for changing a leaf value to std::string.
-    std::string to_string(std::any a) override
+    std::string to_string(std::any a) const override
     {
         return std::to_string(anyTo<int>(a));
     }
@@ -288,12 +374,12 @@ class Sep5FloatType : public Sep5GpTypeBase
 public:
     Sep5FloatType() : Sep5GpTypeBase("Float") {}
     bool hasEphemeralGenerator() const override { return true; }
-    std::any generateEphemeralConstant() override
+    std::any generateEphemeralConstant() const override
     {
         return std::any(frandom01());
     }
     // TODO late Sep 5, virtual for changing a leaf value to std::string.
-    std::string to_string(std::any a) override
+    std::string to_string(std::any a) const override
     {
         return std::to_string(anyTo<float>(a));
     }
