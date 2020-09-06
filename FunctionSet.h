@@ -29,6 +29,7 @@
 #pragma once
 #include <map>
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// TODO Sep 5 temporary experiments with std::any
 #include <any>
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #include <limits>
@@ -40,140 +41,141 @@
 // This also seems to be leaning toward a soup of zillions of small heap-
 //     allocated instances strung together with shared_ptr<>
 
-// TODO experimental
-// Base type for all GP components
-class NewGpObjectBase
-{
-public:
-    NewGpObjectBase() {}
-    NewGpObjectBase(const std::string& name) : name_(name) {}
-    virtual ~NewGpObjectBase() {}
-    const std::string& name() const { return name_; }
-private:
-    std::string name_;
-};
-
-// TODO experimental
-// Base type (or is it just "the type"?) for all GpValue wrappers
+ 
+//    // TODO experimental
+//    // Base type for all GP components
+//    class NewGpObjectBase
+//    {
+//    public:
+//        NewGpObjectBase() {}
+//        NewGpObjectBase(const std::string& name) : name_(name) {}
+//        virtual ~NewGpObjectBase() {}
+//        const std::string& name() const { return name_; }
+//    private:
+//        std::string name_;
+//    };
 //
-// TODO maybe store some indication (pointer to instance?, ID number?)
-//      so we can ensure it was cast from and to the same type?
+//    // TODO experimental
+//    // Base type (or is it just "the type"?) for all GpValue wrappers
+//    //
+//    // TODO maybe store some indication (pointer to instance?, ID number?)
+//    //      so we can ensure it was cast from and to the same type?
+//    //
+//    class NewGpValue/*Base*/ : public NewGpObjectBase
+//    {
+//    public:
+//        NewGpValue(){}
+//        // virtual ~NewGpValue() {}
+//    //    template<typename T> T get() const { return static_cast<T>(thing_); }
+//        template<typename T> std::shared_ptr<T> get() //const
+//        {
+//    //        return static_cast<std::shared_ptr<T>>(thing_);
+//    //        return static_cast<T>(thing_);
+//            return std::static_pointer_cast<T>(thing_);
+//        }
+//        // TODO just guessing here:
+//    //    template<typename T> void set(T s) { thing_ = static_cast<void*>(s); }
+//        template<typename T> void set(T s)
+//        {
+//            thing_ = static_cast<std::shared_ptr<void>>(s);
+//        }
+//    private:
+//    //    void* thing_;
+//        std::shared_ptr<void> thing_;
+//    };
 //
-class NewGpValue/*Base*/ : public NewGpObjectBase
-{
-public:
-    NewGpValue(){}
-    // virtual ~NewGpValue() {}
-//    template<typename T> T get() const { return static_cast<T>(thing_); }
-    template<typename T> std::shared_ptr<T> get() //const
-    {
-//        return static_cast<std::shared_ptr<T>>(thing_);
-//        return static_cast<T>(thing_);
-        return std::static_pointer_cast<T>(thing_);
-    }
-    // TODO just guessing here:
-//    template<typename T> void set(T s) { thing_ = static_cast<void*>(s); }
-    template<typename T> void set(T s)
-    {
-        thing_ = static_cast<std::shared_ptr<void>>(s);
-    }
-private:
-//    void* thing_;
-    std::shared_ptr<void> thing_;
-};
-
-// TODO experimental
-// Base type for all GpType, so for example a collection of user-defined classes
-// derived from GpType could be pointers to this base class.
-class NewGpTypeBase : public NewGpObjectBase
-{
-public:
-    NewGpTypeBase(){}
-    NewGpTypeBase(const std::string& name) : NewGpObjectBase(name) {}
-    
-    // TODO Sep 4 make these virtual functions
-    // Does this type have an ephemeral generator? Default is no. Can be
-    // overridden by derived classes.
-    virtual bool hasEphemeralGenerator() const { return false; }
-    virtual NewGpValue generateEphemeralConstant()
-    {
-        assert(hasEphemeralGenerator());
-        return NewGpValue();
-    }
-
-private:
-};
-
-// TODO experimental
-// Base type for all GpFunction, so for example a collection of user-defined
-// classes derived from GpFunction could be pointers to this base class.
-class NewGpFunctionBase : public NewGpObjectBase
-{
-public:
-    NewGpFunctionBase(){}
-    NewGpFunctionBase(const std::string& name) : NewGpObjectBase(name) {}
-private:
-};
+//    // TODO experimental
+//    // Base type for all GpType, so for example a collection of user-defined classes
+//    // derived from GpType could be pointers to this base class.
+//    class NewGpTypeBase : public NewGpObjectBase
+//    {
+//    public:
+//        NewGpTypeBase(){}
+//        NewGpTypeBase(const std::string& name) : NewGpObjectBase(name) {}
+//
+//        // TODO Sep 4 make these virtual functions
+//        // Does this type have an ephemeral generator? Default is no. Can be
+//        // overridden by derived classes.
+//        virtual bool hasEphemeralGenerator() const { return false; }
+//        virtual NewGpValue generateEphemeralConstant()
+//        {
+//            assert(hasEphemeralGenerator());
+//            return NewGpValue();
+//        }
+//
+//    private:
+//    };
+//
+//    // TODO experimental
+//    // Base type for all GpFunction, so for example a collection of user-defined
+//    // classes derived from GpFunction could be pointers to this base class.
+//    class NewGpFunctionBase : public NewGpObjectBase
+//    {
+//    public:
+//        NewGpFunctionBase(){}
+//        NewGpFunctionBase(const std::string& name) : NewGpObjectBase(name) {}
+//    private:
+//    };
 
 //~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 
 // TODO experimental, purely an example
 
-//class MyIntType : public NewGpTypeBase
-//{
-//public:
-//    MyIntType(){}
-//    MyIntType(const std::string& name) : NewGpTypeBase(name) {}
-//    NewGpValue generateEphemeralConstant() override
-//    {
-//        NewGpValue v;
-//        int* i = new(int);                    // TODO memory leak
-//        *i = rs_.randomN(90) + 10;
-//        v.set<int*>(i);
-//        return v;
-//    }
-//private:
-//    RandomSequence rs_;
-//};
+//    //class MyIntType : public NewGpTypeBase
+//    //{
+//    //public:
+//    //    MyIntType(){}
+//    //    MyIntType(const std::string& name) : NewGpTypeBase(name) {}
+//    //    NewGpValue generateEphemeralConstant() override
+//    //    {
+//    //        NewGpValue v;
+//    //        int* i = new(int);                    // TODO memory leak
+//    //        *i = rs_.randomN(90) + 10;
+//    //        v.set<int*>(i);
+//    //        return v;
+//    //    }
+//    //private:
+//    //    RandomSequence rs_;
+//    //};
+//    //
+//    //class MyIntFuncAdd : public NewGpFunctionBase
+//    //{
+//    //public:
+//    //    MyIntFuncAdd(){}
+//    //    MyIntFuncAdd(const std::string& name) : NewGpFunctionBase(name) {}
+//    //    // int eval(int i, int j) const { return i + j; }
+//    //    int eval() const { return *a.get<int*>() + *b.get<int*>(); }
+//    //private:
+//    //    NewGpValue a;
+//    //    NewGpValue b;
+//    //};
 //
-//class MyIntFuncAdd : public NewGpFunctionBase
-//{
-//public:
-//    MyIntFuncAdd(){}
-//    MyIntFuncAdd(const std::string& name) : NewGpFunctionBase(name) {}
-//    // int eval(int i, int j) const { return i + j; }
-//    int eval() const { return *a.get<int*>() + *b.get<int*>(); }
-//private:
-//    NewGpValue a;
-//    NewGpValue b;
-//};
-
-class MyFloat01Type : public NewGpTypeBase
-{
-public:
-    typedef std::shared_ptr<float> SharedPointerToFloat;
-    MyFloat01Type(){}
-    MyFloat01Type(const std::string& name) : NewGpTypeBase(name) {}
-    NewGpValue generateEphemeralConstant() override
-    {
-        NewGpValue v;
-
-        auto f = std::make_shared<float>();
-        *f = rs_.frandom01();
-        
-        auto q = static_cast<std::shared_ptr<void>>(f);
-        
-        v.set<std::shared_ptr<float>>(f);
-        
-        return v;
-    }
-    float get(NewGpValue v)
-    {
-        return **(v.get<SharedPointerToFloat>());
-    }
-private:
-    RandomSequence rs_;
-};
+//    class MyFloat01Type : public NewGpTypeBase
+//    {
+//    public:
+//        typedef std::shared_ptr<float> SharedPointerToFloat;
+//        MyFloat01Type(){}
+//        MyFloat01Type(const std::string& name) : NewGpTypeBase(name) {}
+//        NewGpValue generateEphemeralConstant() override
+//        {
+//            NewGpValue v;
+//
+//            auto f = std::make_shared<float>();
+//            *f = rs_.frandom01();
+//
+//            auto q = static_cast<std::shared_ptr<void>>(f);
+//
+//            v.set<std::shared_ptr<float>>(f);
+//
+//            return v;
+//        }
+//        float get(NewGpValue v)
+//        {
+//            return **(v.get<SharedPointerToFloat>());
+//        }
+//    private:
+//        RandomSequence rs_;
+//    };
 
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -192,20 +194,20 @@ public:
     const std::function<std::string()> ephemeralGenerator() const
         { return ephemeral_generator_; }
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // TODO temporary experiments with std::any
-    
+    // TODO Sep 6 temporary experiments with std::any
+#ifdef USE_STD_ANY
+    // TODO Sep 5 temporary experiments with std::any
     GpType(const std::string& name,
-           std::function<std::string()> ephemeral_generator,
+//           std::function<std::string()> ephemeral_generator,
            std::function<std::any()> eg)
     : name_(name), ephemeral_generator_(ephemeral_generator), eg_(eg) {}
-
     bool hasEG() const { return bool(eg_); }
     std::any gEC() const { return eg_(); } // can this be non-const for rs()?
-    
-//    T generateEphemeralConstant() const { return ephemeral_generator_(); }
 private:
     std::function<std::any()> eg_ = nullptr;
 public:
+#else  // USE_STD_ANY
+#endif // USE_STD_ANY
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     const std::vector<GpFunction*>& functionsReturningThisType() const
         { return functions_returning_this_type_; }
@@ -306,20 +308,20 @@ inline void GpType::print()
 }
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// TODO experimental August 30, 2020
-template<typename T>
-class TestGpType : public GpType
-{
-public:
-    TestGpType(){}
-    TestGpType(const std::string& name) : GpType(name){}
-    TestGpType(const std::string& name, std::function<T()> ephemeral_generator)
-      : GpType(name), ephemeral_generator_(ephemeral_generator){}
-    bool hasEphemeralGenerator() const { return bool(ephemeral_generator_); }
-    T generateEphemeralConstant() const { return ephemeral_generator_(); }
-private:
-    std::function<T()> ephemeral_generator_ = nullptr;
-};
+//    // TODO experimental August 30, 2020
+//    template<typename T>
+//    class TestGpType : public GpType
+//    {
+//    public:
+//        TestGpType(){}
+//        TestGpType(const std::string& name) : GpType(name){}
+//        TestGpType(const std::string& name, std::function<T()> ephemeral_generator)
+//          : GpType(name), ephemeral_generator_(ephemeral_generator){}
+//        bool hasEphemeralGenerator() const { return bool(ephemeral_generator_); }
+//        T generateEphemeralConstant() const { return ephemeral_generator_(); }
+//    private:
+//        std::function<T()> ephemeral_generator_ = nullptr;
+//    };
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 // GpTree: a "program tree", an "abstract syntax tree" ("AST"), to represent a
@@ -357,21 +359,20 @@ public:
     // Get/set leaf value, an instantiated "ephemeral constant"
     // TODO use of string is just a "mock" until types are templated.
     
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // TODO temporary experiments with std::any
-    //            bool hasEG() const { return bool(eg_); }
-    //            std::any gEC() { return eg_(); }
-
-//    const std::string& getLeafValue() const { return leaf_value_; }
-//    void setLeafValue(const std::string& value) { leaf_value_ = value; }
-    
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // TODO Sep 6 temporary experiments with std::any
+#ifdef USE_STD_ANY
     std::string getLeafValueAsString() const
     {
         return std::to_string(std::any_cast<int>(leaf_value_));
     }
     void setLeafValue(std::any value) { leaf_value_ = value; }
-
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#else  // USE_STD_ANY
+    const std::string& getLeafValue() const { return leaf_value_; }
+    void setLeafValue(const std::string& value) { leaf_value_ = value; }
+#endif // USE_STD_ANY
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    
     // Convert this GpTree to "source code" format as, a string. It is either a
     // single constant "leaf" value, or a function name then a parenthesized,
     // comma separated list of parameter trees.
@@ -392,8 +393,12 @@ public:
         else
         {
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//            s += getLeafValue();
+            // TODO Sep 6 temporary experiments with std::any
+#ifdef USE_STD_ANY
             s += getLeafValueAsString();
+#else  // USE_STD_ANY
+            s += getLeafValue();
+#endif // USE_STD_ANY
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         }
         return s;
@@ -405,11 +410,14 @@ private:
     void addSubtree() { subtrees_.push_back({}); }
     // Each GpTree (sub)root will have a function object or a leaf value.
     const GpFunction* root_function_ = nullptr;
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // TODO temporary experiments with std::any
-//    std::string leaf_value_;  // TODO mocked as string until templates.
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // TODO Sep 6 temporary experiments with std::any
+#ifdef USE_STD_ANY
     std::any leaf_value_;
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#else  // USE_STD_ANY
+    std::string leaf_value_;  // TODO mocked as string until templates.
+#endif // USE_STD_ANY
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     std::vector<GpTree> subtrees_;
     std::string id_;                            // TODO for debugging only.
 };
@@ -430,8 +438,11 @@ public:
             auto& eg = gp_type.ephemeralGenerator();
             if (eg) gp_type.setMinSizeToTerminate(1);
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            // TODO temporary experiments with std::any
+            // TODO Sep 6 temporary experiments with std::any
+#ifdef USE_STD_ANY
             if (gp_type.hasEG()) gp_type.setMinSizeToTerminate(1);
+#else  // USE_STD_ANY
+#endif // USE_STD_ANY
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             // Insert updated GpType into by-name map. (Copied again into map.)
             addGpType(gp_type);
@@ -567,11 +578,9 @@ public:
             source_code += constant;
             gp_tree.setLeafValue(constant);
         }
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // TODO temporary experiments with std::any
-        //            bool hasEG() const { return bool(eg_); }
-        //            std::any gEC() { return eg_(); }
-        
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // TODO Sep 6 temporary experiments with std::any
+#ifdef USE_STD_ANY
         else if (return_type.hasEG())
         {
             // If no function found, but this type has an ephemeral generator,
@@ -587,8 +596,9 @@ public:
             source_code += std::any_cast<int>(leaf_value);
             gp_tree.setLeafValue(leaf_value);
         }
-
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#else  // USE_STD_ANY
+#endif // USE_STD_ANY
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         else
         {
             // TODO better way to signal this FunctionSet specification error?

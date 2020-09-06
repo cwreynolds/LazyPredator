@@ -16,8 +16,8 @@ int main(int argc, const char * argv[])
 {
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // TODO temporary experiments with std::any
-    // UnitTests::allTestsOK();
-    std::cout << "WARNING UnitTests disabled!!" << std::endl;
+    UnitTests::allTestsOK();
+    // std::cout << "WARNING UnitTests disabled!!" << std::endl;
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -388,71 +388,104 @@ int main(int argc, const char * argv[])
     
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     
+//    // Experimenting with std::any
+//    std::cout << "September 5, 2020" << std::endl;
+//    std::string path = "/Users/cwr/Desktop/TexSyn_temp/20200905_";
+//
+//    std::string root_type = "Int";
+//    FunctionSet fs =
+//    {
+//        {
+////            {"Int", [](){ return std::to_string(rand() % 10); }}
+//            {"Int", nullptr, [](){ return std::any(int(rand() % 10)); }}
+//        },
+//        {
+//            {"Ant", "Int", {"Int", "Int"}},
+//            {"Bat", "Int", {"Int", "Int"}},
+//            {"Cat", "Int", {"Int"}}
+//        }
+//    };
+//
+//    for (int i = 0; i < 10; i++)
+//    {
+//        int actual_size = 0;
+//        std::string source_code;
+//        GpTree gp_tree;
+//        fs.makeRandomProgram(50, root_type, actual_size, source_code, gp_tree);
+//        std::cout << std::endl << std::endl << source_code << std::endl;
+//        std::cout << "size=" << actual_size << std::endl;
+//        debugPrint(gp_tree.size());
+//        debugPrint(gp_tree.to_string());
+//    }
+//
+//    std::variant<int, float> v;
+//    v = 5;
+//    debugPrint(std::get<int>(v));
+//    debugPrint(std::get<0>(v));
+//    //debugPrint(std::get<1>(v));
+//
+//    class Foo
+//    {
+//    public:
+//        Foo(){};
+//        Foo(int i) : i_(i) {};
+//        int getI() const { return i_; }
+//    private:
+//        int i_ = 0;
+//    };
+//
+//    std::variant<int, float, Foo> u;
+//
+//    u = Foo(2);
+//    debugPrint(std::get<Foo>(u).getI());
+//    debugPrint(std::get<2>(u).getI());
+//    constexpr int j = 2;
+//    debugPrint(std::get<j>(u).getI());
+//    //size_t k = 2;
+//    //debugPrint(std::get<k>(u).getI());
+
+    //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    
     // Experimenting with std::any
-    std::cout << "September 5, 2020" << std::endl;
-    std::string path = "/Users/cwr/Desktop/TexSyn_temp/20200905_";
+    std::cout << "September 6, 2020" << std::endl;
+    std::string path = "/Users/cwr/Desktop/TexSyn_temp/20200906_";
     
-    
-    std::string root_type = "Int";
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // TODO Sep 6 temporary experiments with std::any
+#ifdef USE_STD_ANY
+#else  // USE_STD_ANY
+    std::string root_type = "Float";
     FunctionSet fs =
     {
         {
-//            {"Int", [](){ return std::to_string(rand() % 10); }}
-            {
-                "Int",
-                nullptr,
-                []()
-                {
-                    return std::any(int(rand() % 10));
-                }
-            }
+            {"Int", [](){ return std::to_string(int(rand() % 10)); }},
+            {"Float", [](){ return std::to_string(frandom01()); }}
         },
         {
-            {"Ant", "Int", {"Int", "Int"}},
-            {"Bat", "Int", {"Int", "Int"}},
-            {"Cat", "Int", {"Int"}}
+            {"AddInt", "Int", {"Int", "Int"}},
+            {"Floor", "Int", {"Float"}},
+            {"AddFloat", "Float", {"Float", "Float"}},
+            {"Sqrt", "Float", {"Int"}},
+            {"Mult", "Float", {"Float", "Int"}}
         }
     };
-    
+#endif // USE_STD_ANY
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    fs.print();
+    std::cout << std::endl;
+
     for (int i = 0; i < 10; i++)
     {
         int actual_size = 0;
         std::string source_code;
         GpTree gp_tree;
-        fs.makeRandomProgram(50, root_type, actual_size, source_code, gp_tree);
-        std::cout << std::endl << std::endl << source_code << std::endl;
-        std::cout << "size=" << actual_size << std::endl;
-        debugPrint(gp_tree.size());
-        debugPrint(gp_tree.to_string());
+//        fs.makeRandomProgram(50, root_type, actual_size, source_code, gp_tree);
+        fs.makeRandomProgram(20, root_type, actual_size, source_code, gp_tree);
+        assert(actual_size == gp_tree.size());
+        std::cout << std::endl << gp_tree.to_string() << std::endl;
+        std::cout << "size=" << gp_tree.size() << std::endl;
     }
-
-    
-    std::variant<int, float> v;
-    v = 5;
-    debugPrint(std::get<int>(v));
-    debugPrint(std::get<0>(v));
-    //debugPrint(std::get<1>(v));
-    
-    class Foo
-    {
-    public:
-        Foo(){};
-        Foo(int i) : i_(i) {};
-        int getI() const { return i_; }
-    private:
-        int i_ = 0;
-    };
-
-    std::variant<int, float, Foo> u;
-    
-    u = Foo(2);
-    debugPrint(std::get<Foo>(u).getI());
-    debugPrint(std::get<2>(u).getI());
-    constexpr int j = 2;
-    debugPrint(std::get<j>(u).getI());
-    //size_t k = 2;
-    //debugPrint(std::get<k>(u).getI());
-
 
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     return EXIT_SUCCESS;

@@ -49,6 +49,7 @@ public:
     Sep5GpObjectBase(const std::string& name) : name_(name) {}
     virtual ~Sep5GpObjectBase() {}
     const std::string& name() const { return name_; }
+    // TODO thinking there might be a handful of these (static? global?):
     float anyToFloat(std::any a) { return std::any_cast<float>(a); }
 private:
     std::string name_;
@@ -71,6 +72,10 @@ public:
         assert(hasEphemeralGenerator());
         return std::any();
     }
+    
+    // TODO late Sep 5, virtual for changing a leaf value to string
+    virtual std::string to_string(std::any a) { return "..."; }
+    
     RandomSequence& rs() { return rs_; }
 private:
     RandomSequence rs_;
@@ -110,11 +115,17 @@ private:
 class Sep5Float01Type : public Sep5GpTypeBase
 {
 public:
-    Sep5Float01Type(const std::string& name) : Sep5GpTypeBase(name) {}
+//    Sep5Float01Type(const std::string& name) : Sep5GpTypeBase(name) {}
+    Sep5Float01Type() : Sep5GpTypeBase("Float01") {}
     bool hasEphemeralGenerator() const override { return true; }
     std::any generateEphemeralConstant() override
     {
         return std::any(rs().frandom01());
+    }
+    // TODO late Sep 5, virtual for changing a leaf value to std::string.
+    std::string to_string(std::any a) override
+    {
+        return std::to_string(anyToFloat(a));
     }
 };
 
