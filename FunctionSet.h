@@ -192,10 +192,14 @@
 // TODO Sep 6 temporary experiments with std::any
 #ifdef USE_STD_ANY
 
-typedef Sep5GpTypeBase GpType;
-typedef Sep5GpFunctionBase GpFunction;
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// TODO Sep 7 temporary experiments with std::any
+#ifdef USE_STD_ANY_WITH_OLD_CLASSES
 
-#else  // USE_STD_ANY
+// TODO Sep 6 temporary experiments with std::any
+// old GpType and GpFunction classes updated to use std::any etc.
+
+// TODO maybe add a GpObjectBase class for name(), etc.?
 
 // Class to represent types in "strongly typed genetic programming".
 class GpFunction;
@@ -204,32 +208,32 @@ class GpType
 public:
     GpType(){}
     GpType(const std::string& name) : name_(name) {}
+//        GpType(const std::string& name,
+//    //           std::function<std::string()> ephemeral_generator)
+//               std::function<std::any()> ephemeral_generator)
+//            : name_(name), ephemeral_generator_(ephemeral_generator){}
     GpType(const std::string& name,
-           std::function<std::string()> ephemeral_generator)
-      : name_(name), ephemeral_generator_(ephemeral_generator){}
+           std::function<std::any()> ephemeral_generator,
+           std::function<std::string(std::any a)> to_string)
+      : name_(name),
+        ephemeral_generator_(ephemeral_generator),
+        to_string_(to_string) {}
+    
     const std::string& name() const { return name_; }
-    const std::function<std::string()> ephemeralGenerator() const
-        { return ephemeral_generator_; }
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // TODO Sep 6 temporary experiments with std::any
-#ifdef USE_STD_ANY
-    // TODO Sep 5 temporary experiments with std::any
-    GpType(const std::string& name,
-//           std::function<std::string()> ephemeral_generator,
-           std::function<std::any()> eg)
-    : name_(name), ephemeral_generator_(ephemeral_generator), eg_(eg) {}
-    bool hasEG() const { return bool(eg_); }
-    std::any gEC() const { return eg_(); } // can this be non-const for rs()?
-private:
-    std::function<std::any()> eg_ = nullptr;
-public:
-#else  // USE_STD_ANY
-#endif // USE_STD_ANY
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    
+    // Does this type have an ephemeral generator?
+    bool hasEphemeralGenerator() const { return bool(ephemeral_generator_); }
+    // Generate an ephemeral constant.
+    std::any generateEphemeralConstant() const
+    {
+        assert(hasEphemeralGenerator());
+        return ephemeral_generator_();
+    }
+
     const std::vector<GpFunction*>& functionsReturningThisType() const
-        { return functions_returning_this_type_; }
+    { return functions_returning_this_type_; }
     void addFunctionReturningThisType(GpFunction* gp_function_pointer)
-        { functions_returning_this_type_.push_back(gp_function_pointer); }
+    { functions_returning_this_type_.push_back(gp_function_pointer); }
     // Minimum "size" of tree returning this type from root;
     int minSizeToTerminate() const { return min_size_to_terminate_; }
     void setMinSizeToTerminate(int s) { min_size_to_terminate_ = s; }
@@ -241,11 +245,21 @@ public:
                 (!functionsReturningThisType().empty()) &&
                 (minSizeToTerminate() < std::numeric_limits<int>::max()));
     }
+    
+    std::string to_string(std::any a) const { return to_string_(a); }
+
 private:
     std::string name_;
-    // This should be templated to the c++ type
-    // TODO right now it is the type name as a string.
-    std::function<std::string()> ephemeral_generator_ = nullptr;
+    
+//    // This should be templated to the c++ type
+//    // TODO right now it is the type name as a string.
+//    std::function<std::string()> ephemeral_generator_ = nullptr;
+    
+    std::function<std::any()> ephemeral_generator_ = nullptr;
+
+    std::function<std::string(std::any a)> to_string_ = nullptr;
+
+    
     // Collection of pointers to GpFunctions which return this type.
     std::vector<GpFunction*> functions_returning_this_type_;
     // Minimum "size" of tree returning this type from root;
@@ -309,8 +323,10 @@ inline void GpType::print()
 {
     std::cout << "GpType: " << name();
     std::cout << ", min size to terminate: " << minSizeToTerminate();
-    std::cout << ", " << (ephemeralGenerator() ? "has" : "no");
+    std::cout << ", " << (hasEphemeralGenerator() ? "has" : "no");
     std::cout << " ephemeral generator";
+    std::cout << ", " << (to_string_ ? "has" : "no");
+    std::cout << " to_string";
     if (functions_returning_this_type_.size() > 0)
     {
         bool first = true;
@@ -323,6 +339,142 @@ inline void GpType::print()
     }
     std::cout << "." << std::endl;
 }
+
+
+#else  // USE_STD_ANY_WITH_OLD_CLASSES
+typedef Sep5GpTypeBase GpType;
+typedef Sep5GpFunctionBase GpFunction;
+#endif // USE_STD_ANY_WITH_OLD_CLASSES
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#else  // USE_STD_ANY
+
+//    // Class to represent types in "strongly typed genetic programming".
+//    class GpFunction;
+//    class GpType
+//    {
+//    public:
+//        GpType(){}
+//        GpType(const std::string& name) : name_(name) {}
+//        GpType(const std::string& name,
+//               std::function<std::string()> ephemeral_generator)
+//          : name_(name), ephemeral_generator_(ephemeral_generator){}
+//        const std::string& name() const { return name_; }
+//        const std::function<std::string()> ephemeralGenerator() const
+//            { return ephemeral_generator_; }
+//        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//        // TODO Sep 6 temporary experiments with std::any
+//    #ifdef USE_STD_ANY
+//        // TODO Sep 5 temporary experiments with std::any
+//        GpType(const std::string& name,
+//    //           std::function<std::string()> ephemeral_generator,
+//               std::function<std::any()> eg)
+//        : name_(name), ephemeral_generator_(ephemeral_generator), eg_(eg) {}
+//        bool hasEG() const { return bool(eg_); }
+//        std::any gEC() const { return eg_(); } // can this be non-const for rs()?
+//    private:
+//        std::function<std::any()> eg_ = nullptr;
+//    public:
+//    #else  // USE_STD_ANY
+//    #endif // USE_STD_ANY
+//        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//        const std::vector<GpFunction*>& functionsReturningThisType() const
+//            { return functions_returning_this_type_; }
+//        void addFunctionReturningThisType(GpFunction* gp_function_pointer)
+//            { functions_returning_this_type_.push_back(gp_function_pointer); }
+//        // Minimum "size" of tree returning this type from root;
+//        int minSizeToTerminate() const { return min_size_to_terminate_; }
+//        void setMinSizeToTerminate(int s) { min_size_to_terminate_ = s; }
+//        void print();
+//        bool valid() const
+//        {
+//            return ((!name().empty()) &&
+//                    // TODO may be wrong given later changes to ephemeral constants:
+//                    (!functionsReturningThisType().empty()) &&
+//                    (minSizeToTerminate() < std::numeric_limits<int>::max()));
+//        }
+//    private:
+//        std::string name_;
+//        // This should be templated to the c++ type
+//        // TODO right now it is the type name as a string.
+//        std::function<std::string()> ephemeral_generator_ = nullptr;
+//        // Collection of pointers to GpFunctions which return this type.
+//        std::vector<GpFunction*> functions_returning_this_type_;
+//        // Minimum "size" of tree returning this type from root;
+//        int min_size_to_terminate_ = std::numeric_limits<int>::max();
+//    };
+//
+//    // Class to represent functions in "strongly typed genetic programming".
+//    class GpFunction
+//    {
+//    public:
+//        GpFunction(){}
+//        GpFunction(const std::string& name,
+//                   const std::string& return_type_name,
+//                   const std::vector<std::string>& parameter_type_names)
+//          : name_(name),
+//            return_type_name_(return_type_name),
+//            parameter_type_names_(parameter_type_names) {}
+//        const std::string& name() const { return name_; }
+//        const std::string& returnTypeName() const { return return_type_name_; }
+//        GpType* returnType() const { return return_type_; }
+//        const std::vector<GpType*>& parameterTypes() const
+//            { return parameter_types_; }
+//        const std::vector<std::string>& parameterTypeNames() const
+//            { return parameter_type_names_; }
+//        void setReturnTypePointer(GpType* rtp) { return_type_ = rtp; }
+//        void setParameterTypePointers(const std::vector<GpType*>& vec_ptype_ptrs)
+//            { parameter_types_ = vec_ptype_ptrs; }
+//        // Does this function have parameter of its return type? (Can call itself?)
+//        bool recursive() const
+//        {
+//            bool r = false;
+//            for (auto& n : parameterTypeNames()) if(n == returnTypeName()) r = true;
+//            return r;
+//        }
+//        // Minimum "size" required to terminate subtree with this function at root.
+//        int minSizeToTerminate() const { return min_size_to_terminate_; }
+//        void setMinSizeToTerminate(int s) { min_size_to_terminate_ = s; }
+//        void print()
+//        {
+//            std::cout << "GpFunction: " << name() << ", return_type: ";
+//            std::cout << returnTypeName() << ", parameters: (";
+//            bool comma = false;
+//            for (int i = 0; i < parameterTypes().size(); i ++)
+//            {
+//                if (comma) std::cout << ", "; else comma = true;
+//                std::cout << parameterTypeNames().at(i);
+//            }
+//            std::cout << ")." << std::endl;
+//        }
+//    private:
+//        std::string name_;
+//        std::string return_type_name_;
+//        GpType* return_type_ = nullptr;
+//        std::vector<std::string> parameter_type_names_;
+//        std::vector<GpType*> parameter_types_;
+//        int min_size_to_terminate_ = std::numeric_limits<int>::max();
+//    };
+//
+//    // Down here because it requires both GpType and GpFunction to be defined.
+//    inline void GpType::print()
+//    {
+//        std::cout << "GpType: " << name();
+//        std::cout << ", min size to terminate: " << minSizeToTerminate();
+//        std::cout << ", " << (ephemeralGenerator() ? "has" : "no");
+//        std::cout << " ephemeral generator";
+//        if (functions_returning_this_type_.size() > 0)
+//        {
+//            bool first = true;
+//            std::cout << ", functions returning this type: ";
+//            for (auto& f : functions_returning_this_type_)
+//            {
+//                if (first) first = false; else std::cout << ", ";
+//                std::cout << f->name();
+//            }
+//        }
+//        std::cout << "." << std::endl;
+//    }
 
 #endif // USE_STD_ANY
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -363,6 +515,14 @@ public:
     // Get/set reference to GpFunction object at root of this tree.
     const GpFunction& getFunction() const { return *root_function_; }
     void setFunction(const GpFunction& function) { root_function_ = &function; }
+    
+    // TODO Sep 7 temporary experiments with std::any
+#ifdef USE_STD_ANY_WITH_OLD_CLASSES
+    void setType(const GpType& gp_type) { root_type_ = &gp_type; }
+#else  // USE_STD_ANY_WITH_OLD_CLASSES
+#endif // USE_STD_ANY_WITH_OLD_CLASSES
+
+    
     // Add (allocate) "count" new subtrees. Should only be called once.
     // TODO maybe instead of "add" call it "declare" or "init"?
     void addSubtrees(size_t count)
@@ -383,10 +543,20 @@ public:
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // TODO Sep 6 temporary experiments with std::any
 #ifdef USE_STD_ANY
+    
+    // TODO Sep 7 temporary experiments with std::any
+#ifdef USE_STD_ANY_WITH_OLD_CLASSES
+    std::string getLeafValueAsString() const
+    {
+        return root_type_->to_string(leaf_value_);
+    }
+#else  // USE_STD_ANY_WITH_OLD_CLASSES
     std::string getLeafValueAsString() const
     {
         return std::to_string(std::any_cast<int>(leaf_value_));
     }
+#endif // USE_STD_ANY_WITH_OLD_CLASSES
+
     void setLeafValue(std::any value) { leaf_value_ = value; }
 #else  // USE_STD_ANY
     const std::string& getLeafValue() const { return leaf_value_; }
@@ -432,6 +602,13 @@ private:
     // Each GpTree (sub)root will have a function object or a leaf value.
     const GpFunction* root_function_ = nullptr;
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // TODO Sep 7 temporary experiments with std::any
+#ifdef USE_STD_ANY_WITH_OLD_CLASSES
+    const GpType* root_type_ = nullptr;
+#else  // USE_STD_ANY_WITH_OLD_CLASSES
+#endif // USE_STD_ANY_WITH_OLD_CLASSES
+
+    
     // TODO Sep 6 temporary experiments with std::any
 #ifdef USE_STD_ANY
     std::any leaf_value_;
@@ -469,11 +646,6 @@ public:
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             // Insert updated GpType into by-name map. (Copied again into map.)
             addGpType(gp_type);
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            std::cout << "in FunctionSet constructor:" << std::endl;
-            gp_type.print();
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
         }
         // Process each of the GpFunction specifications (copy then modify)
         for (GpFunction func : function_specs)
@@ -614,6 +786,13 @@ public:
 //            source_code += std::any_cast<int>(leaf_value);
             source_code += return_type.to_string(leaf_value);
             gp_tree.setLeafValue(leaf_value);
+            
+            // TODO Sep 7 temporary experiments with std::any
+#ifdef USE_STD_ANY_WITH_OLD_CLASSES
+            gp_tree.setType(return_type);
+#else  // USE_STD_ANY_WITH_OLD_CLASSES
+#endif // USE_STD_ANY_WITH_OLD_CLASSES
+
         }
 #else  // USE_STD_ANY
         else if (return_type.ephemeralGenerator())
@@ -680,6 +859,13 @@ public:
         bool first = true;   // TODO log
         // Set root function in given GpTree object
         gp_tree.setFunction(root_function);
+
+        // TODO Sep 7 temporary experiments with std::any
+#ifdef USE_STD_ANY_WITH_OLD_CLASSES
+        gp_tree.setType(return_type);
+#else  // USE_STD_ANY_WITH_OLD_CLASSES
+#endif // USE_STD_ANY_WITH_OLD_CLASSES
+
         // For each parameter of root, add/allocate a subtree in the GpTree.
         // Important this happen first so no iterators are invalidated later.
         gp_tree.addSubtrees(root_function.parameterTypes().size());

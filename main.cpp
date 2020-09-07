@@ -454,6 +454,38 @@ int main(int argc, const char * argv[])
     // TODO Sep 6 temporary experiments with std::any
 #ifdef USE_STD_ANY
     
+    // TODO Sep 7 temporary experiments with std::any
+#ifdef USE_STD_ANY_WITH_OLD_CLASSES
+    
+    
+    // lets call this FunctionSet test_tree_eval
+    std::string root_type = "Float";
+    FunctionSet fs =
+    {
+        {
+            {
+                "Int",
+                [](){ return std::any(int(rand() % 10)); },
+                [](std::any a) { return std::to_string(std::any_cast<int>(a)); }
+            },
+            {
+                "Float",
+                [](){ return std::any(frandom01()); },
+                [](std::any a){ return std::to_string(std::any_cast<float>(a)); }
+            }
+        },
+        {
+            {"AddInt", "Int", {"Int", "Int"}},
+            {"AddFloat", "Float", {"Float", "Float"}},
+            {"Floor", "Int", {"Float"}},
+            {"Sqrt", "Float", {"Int"}},
+            {"Mult", "Float", {"Float", "Int"}}
+        }
+    };
+
+#else  // USE_STD_ANY_WITH_OLD_CLASSES
+    
+    // TODO Sep 6 temporary experiments with std::any
     // lets call this FunctionSet test_tree_eval
     std::string root_type = "Float";
     FunctionSet fs =
@@ -470,6 +502,9 @@ int main(int argc, const char * argv[])
             Sep5MultFunction()
         }
     };
+
+#endif // USE_STD_ANY_WITH_OLD_CLASSES
+
 
     
 #else  // USE_STD_ANY
@@ -492,6 +527,7 @@ int main(int argc, const char * argv[])
 #endif // USE_STD_ANY
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+    std::cout << std::endl;
     fs.print();
     std::cout << std::endl;
 
