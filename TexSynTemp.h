@@ -15,6 +15,11 @@
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // TODO Sep 6 temporary experiments with std::any
+
+// TODO Sep 6 temporary experiments with std::any
+#define USE_STD_ANY 1
+
+
 #ifdef USE_STD_ANY
 
 class TexSynFS

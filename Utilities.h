@@ -8,30 +8,6 @@
 
 #pragma once
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// TODO Sep 6 temporary experiments with std::any
-#define USE_STD_ANY 1
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// TODO Sep 7 temporary experiments with std::any
-#define USE_STD_ANY_WITH_OLD_CLASSES 1
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// TODO Sep 7 temporary experiments with std::any
-#ifdef USE_STD_ANY_WITH_OLD_CLASSES
-#else  // USE_STD_ANY_WITH_OLD_CLASSES
-#endif // USE_STD_ANY_WITH_OLD_CLASSES
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// TODO Sep 6 temporary experiments with std::any
-#ifdef USE_STD_ANY
-#else  // USE_STD_ANY
-#endif // USE_STD_ANY
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 // TODO UTILITIES_NAMESPACES
 #include "../TexSyn/TexSyn.h"
 /* TODO temporarily share utilities with TexSyn

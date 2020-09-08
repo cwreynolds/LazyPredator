@@ -141,8 +141,8 @@ Int Floor(Float a) {…}
 Float Sqrt(Int a) {…}
 Float Mult(Float a, Int b) {…}</pre>
       <p>In the code, this is currently written like this. The <code>FunctionSet</code>
-        takes a collection of <code>GpTypes</code> and one of GpFunctions. Each
-        has lambdas (function pointers) that handle casting, generating
+        takes a collection of <code>GpType</code>s and one of <code>GpFunction</code>s.
+        Each has lambdas (function pointers) that handle casting, generating
         ephemeral constants and evaluating concrete functions:</p>
       <pre>FunctionSet test_tree_eval =
 {

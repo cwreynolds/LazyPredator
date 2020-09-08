@@ -16,8 +16,10 @@ int main(int argc, const char * argv[])
 {
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // TODO temporary experiments with std::any
-    //UnitTests::allTestsOK();
-    std::cout << "WARNING UnitTests disabled!!" << std::endl;
+    if ((false))
+        UnitTests::allTestsOK();
+    else
+        std::cout << "WARNING UnitTests disabled!!" << std::endl;
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -446,16 +448,9 @@ int main(int argc, const char * argv[])
 
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     
-    // Experimenting with std::any
-    std::cout << "September 6, 2020" << std::endl;
-    std::string path = "/Users/cwr/Desktop/TexSyn_temp/20200906_";
-    
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // TODO Sep 6 temporary experiments with std::any
-#ifdef USE_STD_ANY
-    
-    // TODO Sep 7 temporary experiments with std::any
-#ifdef USE_STD_ANY_WITH_OLD_CLASSES
+    // Experimenting with eval()
+    std::cout << "September 7, 2020" << std::endl;
+    std::string path = "/Users/cwr/Desktop/TexSyn_temp/20200907_";
     
     
     // lets call this FunctionSet test_tree_eval
@@ -466,99 +461,51 @@ int main(int argc, const char * argv[])
             {
                 "Int",
                 [](){ return std::any(int(rand() % 10)); },
-                [](std::any a) { return std::to_string(std::any_cast<int>(a)); }
+                any_to_string<int>
             },
             {
                 "Float",
                 [](){ return std::any(frandom01()); },
-                [](std::any a){ return std::to_string(std::any_cast<float>(a)); }
+                any_to_string<float>
             }
         },
         {
             {
                 "AddInt", "Int", {"Int", "Int"}, [](const GpTree& t)
                 {
-                    int s0 = std::any_cast<int>(t.evalSubtree(0));
-                    int s1 = std::any_cast<int>(t.evalSubtree(1));
-                    return std::any(s0 + s1);
+                    return std::any(t.evalSubtreeCast<int>(0) +
+                                    t.evalSubtreeCast<int>(1));
                 }
             },
             {
                 "AddFloat", "Float", {"Float", "Float"}, [](const GpTree& t)
                 {
-                    float s0 = std::any_cast<float>(t.evalSubtree(0));
-                    float s1 = std::any_cast<float>(t.evalSubtree(1));
-                    return std::any(s0 + s1);
+                    return std::any(t.evalSubtreeCast<float>(0) +
+                                    t.evalSubtreeCast<float>(1));
                 }
             },
             {
                 "Floor", "Int", {"Float"}, [](const GpTree& t)
                 {
-                    float s0 = std::any_cast<float>(t.evalSubtree(0));
-                    return std::any(int(std::floor(s0)));
+                    auto f = t.evalSubtreeCast<float>(0);
+                    return std::any(int(std::floor(f)));
                 }
             },
             {
                 "Sqrt", "Float", {"Int"}, [](const GpTree& t)
                 {
-                    int s0 = std::any_cast<int>(t.evalSubtree(0));
-                    return std::any(float(std::sqrt(s0)));
+                    return std::any(float(std::sqrt(t.evalSubtreeCast<int>(0))));
                 }
             },
             {
                 "Mult", "Float", {"Float", "Int"}, [](const GpTree& t)
                 {
-                    float s0 = std::any_cast<float>(t.evalSubtree(0));
-                    int s1 = std::any_cast<int>(t.evalSubtree(1));
-                    return std::any(s0 * s1);
+                    return std::any(t.evalSubtreeCast<float>(0) *
+                                    t.evalSubtreeCast<int>(1));
                 }
             }
         }
     };
-
-#else  // USE_STD_ANY_WITH_OLD_CLASSES
-    
-    // TODO Sep 6 temporary experiments with std::any
-    // lets call this FunctionSet test_tree_eval
-    std::string root_type = "Float";
-    FunctionSet fs =
-    {
-        {
-            Sep5IntType(),
-            Sep5FloatType()
-        },
-        {
-            Sep5AddIntFunction(),
-            Sep5AddFloatFunction(),
-            Sep5FloorFunction(),
-            Sep5SqrtFunction(),
-            Sep5MultFunction()
-        }
-    };
-
-#endif // USE_STD_ANY_WITH_OLD_CLASSES
-
-
-    
-#else  // USE_STD_ANY
-    // lets call this FunctionSet test_tree_eval 
-    std::string root_type = "Float";
-    FunctionSet fs =
-    {
-        {
-            {"Int", [](){ return std::to_string(int(rand() % 10)); }},
-            {"Float", [](){ return std::to_string(frandom01()); }}
-        },
-        {
-            {"AddInt", "Int", {"Int", "Int"}},
-            {"AddFloat", "Float", {"Float", "Float"}},
-            {"Floor", "Int", {"Float"}},
-            {"Sqrt", "Float", {"Int"}},
-            {"Mult", "Float", {"Float", "Int"}}
-        }
-    };
-#endif // USE_STD_ANY
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     std::cout << std::endl;
     fs.print();
@@ -569,15 +516,11 @@ int main(int argc, const char * argv[])
         int actual_size = 0;
         std::string source_code;
         GpTree gp_tree;
-//        fs.makeRandomProgram(50, root_type, actual_size, source_code, gp_tree);
-//        fs.makeRandomProgram(20, root_type, actual_size, source_code, gp_tree);
         fs.makeRandomProgram(100, root_type, actual_size, source_code, gp_tree);
         assert(actual_size == gp_tree.size());
         std::cout << std::endl << gp_tree.to_string() << std::endl;
         std::cout << "size=" << gp_tree.size() << std::endl;
-        
         std::cout << "eval=" << std::any_cast<float>(gp_tree.eval()) << std::endl;
-
     }
     
     // AAAAHA! first successful eval:
