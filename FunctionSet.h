@@ -202,6 +202,7 @@
 // TODO maybe add a GpObjectBase class for name(), etc.?
 
 // Class to represent types in "strongly typed genetic programming".
+class GpTree;
 class GpFunction;
 class GpType
 {
@@ -271,12 +272,22 @@ class GpFunction
 {
 public:
     GpFunction(){}
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//    GpFunction(const std::string& name,
+//               const std::string& return_type_name,
+//               const std::vector<std::string>& parameter_type_names)
+//      : name_(name),
+//        return_type_name_(return_type_name),
+//        parameter_type_names_(parameter_type_names) {}
     GpFunction(const std::string& name,
                const std::string& return_type_name,
-               const std::vector<std::string>& parameter_type_names)
+               const std::vector<std::string>& parameter_type_names,
+               std::function<std::any(const GpTree& t)> eval)
       : name_(name),
         return_type_name_(return_type_name),
-        parameter_type_names_(parameter_type_names) {}
+        parameter_type_names_(parameter_type_names),
+        eval_(eval) {}
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     const std::string& name() const { return name_; }
     const std::string& returnTypeName() const { return return_type_name_; }
     GpType* returnType() const { return return_type_; }
@@ -297,6 +308,12 @@ public:
     // Minimum "size" required to terminate subtree with this function at root.
     int minSizeToTerminate() const { return min_size_to_terminate_; }
     void setMinSizeToTerminate(int s) { min_size_to_terminate_ = s; }
+    
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    std::any eval(const GpTree& tree) const { return eval_(tree);  }
+
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    
     void print()
     {
         std::cout << "GpFunction: " << name() << ", return_type: ";
@@ -316,6 +333,9 @@ private:
     std::vector<std::string> parameter_type_names_;
     std::vector<GpType*> parameter_types_;
     int min_size_to_terminate_ = std::numeric_limits<int>::max();
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    std::function<std::any(const GpTree& t)> eval_ = nullptr;
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 };
 
 // Down here because it requires both GpType and GpFunction to be defined.
@@ -564,6 +584,36 @@ public:
 #endif // USE_STD_ANY
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // TODO Sep 7 temporary experiments with std::any
+#ifdef USE_STD_ANY_WITH_OLD_CLASSES
+    
+    // Evaluate this tree.
+    //
+    // TODO needs much clean up:
+    //      single return
+    //      accessor for root_function_, leaf_value_, ... ?
+    //
+    std::any eval() const
+    {
+        if (root_function_)
+        {
+            // Apply root function to eval() of subtrees.
+            return root_function_->eval(*this);
+        }
+        else
+        {
+            // no root function, return leaf terminal value.
+            return leaf_value_;
+        }
+    }
+    
+    std::any evalSubtree(int i) const { return getSubtree(i).eval(); }
+
+#else  // USE_STD_ANY_WITH_OLD_CLASSES
+#endif // USE_STD_ANY_WITH_OLD_CLASSES
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
     // Convert this GpTree to "source code" format as, a string. It is either a
     // single constant "leaf" value, or a function name then a parenthesized,
     // comma separated list of parameter trees.

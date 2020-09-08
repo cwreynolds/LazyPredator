@@ -475,11 +475,44 @@ int main(int argc, const char * argv[])
             }
         },
         {
-            {"AddInt", "Int", {"Int", "Int"}},
-            {"AddFloat", "Float", {"Float", "Float"}},
-            {"Floor", "Int", {"Float"}},
-            {"Sqrt", "Float", {"Int"}},
-            {"Mult", "Float", {"Float", "Int"}}
+            {
+                "AddInt", "Int", {"Int", "Int"}, [](const GpTree& t)
+                {
+                    int s0 = std::any_cast<int>(t.evalSubtree(0));
+                    int s1 = std::any_cast<int>(t.evalSubtree(1));
+                    return std::any(s0 + s1);
+                }
+            },
+            {
+                "AddFloat", "Float", {"Float", "Float"}, [](const GpTree& t)
+                {
+                    float s0 = std::any_cast<float>(t.evalSubtree(0));
+                    float s1 = std::any_cast<float>(t.evalSubtree(1));
+                    return std::any(s0 + s1);
+                }
+            },
+            {
+                "Floor", "Int", {"Float"}, [](const GpTree& t)
+                {
+                    float s0 = std::any_cast<float>(t.evalSubtree(0));
+                    return std::any(int(std::floor(s0)));
+                }
+            },
+            {
+                "Sqrt", "Float", {"Int"}, [](const GpTree& t)
+                {
+                    int s0 = std::any_cast<int>(t.evalSubtree(0));
+                    return std::any(float(std::sqrt(s0)));
+                }
+            },
+            {
+                "Mult", "Float", {"Float", "Int"}, [](const GpTree& t)
+                {
+                    float s0 = std::any_cast<float>(t.evalSubtree(0));
+                    int s1 = std::any_cast<int>(t.evalSubtree(1));
+                    return std::any(s0 * s1);
+                }
+            }
         }
     };
 
@@ -537,12 +570,40 @@ int main(int argc, const char * argv[])
         std::string source_code;
         GpTree gp_tree;
 //        fs.makeRandomProgram(50, root_type, actual_size, source_code, gp_tree);
-        fs.makeRandomProgram(20, root_type, actual_size, source_code, gp_tree);
+//        fs.makeRandomProgram(20, root_type, actual_size, source_code, gp_tree);
+        fs.makeRandomProgram(100, root_type, actual_size, source_code, gp_tree);
         assert(actual_size == gp_tree.size());
         std::cout << std::endl << gp_tree.to_string() << std::endl;
         std::cout << "size=" << gp_tree.size() << std::endl;
-    }
+        
+        std::cout << "eval=" << std::any_cast<float>(gp_tree.eval()) << std::endl;
 
+    }
+    
+    // AAAAHA! first successful eval:
+    //
+    //    AddFloat(AddFloat(0.072686, 0.631635),
+    //             AddFloat(0.884707,
+    //                      AddFloat(0.272710, 0.436411)))
+    //    size=9
+    //    eval=2.29815
+    //
+    // When I checked it with my calculator it was within roundoff!
+    
+    // Now with whole test_tree_eval FunctionSet:
+    //
+    //    Sqrt(AddInt(AddInt(6, Floor(0.262453)), AddInt(7, Floor(0.736082))))
+    //    size=10
+    //    eval=3.60555
+    //
+    // and indeed sqrt(6 + 7) = 3.60555
+
+    //AddFloat(Mult(Mult(AddFloat(AddFloat(Sqrt(4), Sqrt(0)), Sqrt(Floor(Mult(0.081061, 5)))),
+    //                   Floor(AddFloat(AddFloat(Sqrt(7), Sqrt(5)),
+    //                                  Mult(Sqrt(0), Floor(0.269215))))),
+    //              Floor(AddFloat(Mult(AddFloat(Sqrt(4), Sqrt(7)), Floor(AddFloat(0.776866, Sqrt(4)))), AddFloat(Sqrt(Floor(AddFloat(0.422460, 0.282156))), Sqrt(Floor(AddFloat(0.193967, 0.011316))))))), AddFloat(Sqrt(Floor(Mult(Mult(Mult(0.191824, Floor(0.983236)), Floor(AddFloat(0.244054, Sqrt(1)))), Floor(Mult(Sqrt(AddInt(8, 5)), AddInt(Floor(0.601010), Floor(0.176880))))))), AddFloat(Sqrt(AddInt(AddInt(Floor(0.828355), Floor(0.157731)), AddInt(Floor(0.987937), Floor(0.257169)))), Sqrt(Floor(AddFloat(Sqrt(Floor(Sqrt(7))), AddFloat(Sqrt(7), Sqrt(3))))))))
+    //size=100
+    //eval=74.2361
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     return EXIT_SUCCESS;
 }

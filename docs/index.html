@@ -105,6 +105,118 @@
       details of the implementation. On the other hand, I do want it to be more
       prose-like than the terse <code>git commit</code> messages.)</p>
     <br style="##########################################################################">
+    <div class="post" id="20200907"> <a href="#20200907" class="date">September
+        7, 2020</a>
+      <h1>Evaluating program trees</h1>
+      <p>Today I finally got past a roadblock which held me up for a week. The
+        code to generate a random program was working well, and the <code>GpTree</code>
+        containers were solid. But I had not yet connected my abstract <code>GpFunction</code>s
+        and <code>GpType</code>s to the “real world” of c++ types. This would
+        be required to support “evaluation”/“execution” of the <code>GpTree</code>.</p>
+      <p>Generally in c++ when you want to parameterize something by types, you
+        use a “template.” As I had been working along, I assumed I would derive
+        templated versions of <code> GpFunction</code>s and <code>GpType</code>s
+        to accommodate the concrete c++ types. There were problems with that,
+        chiefly that “template virtual functions” are <em>not a thing</em>. I
+        tried several refactorings but none allowed me to generalize over the
+        set of concrete types. I even considered “hiding” the types inside an
+        abstraction where they were stored as <code>void*</code> / <code>std::shared_ptr&lt;void&gt;</code>
+        pointers, with the required “casting” to concrete types on the way in
+        and out. Of course that is not “type safe” so a bug can lead to bizarre
+        “undefined behavior.”</p>
+      <p>While reading about that I discovered that the <code>c++17</code>
+        standard introduced a new “meta type” called <code>std::any</code>. It
+        is nearly identical to the <code>void*</code> trick, while keeping
+        track of the type of the data behind the blind pointer for error
+        checking, and being fully supported by the language and compiler. Yay!
+        So now the <code>GpTree</code> keeps track of values of arbitrary c++
+        types via type <code>std::any</code>. The <code> GpType</code>s and <code>GpFunction</code>s
+        “know” the concrete types, so provide the transformations via <code>std::any_cast&lt;T&gt;(A)</code>
+        which casts <code>A</code>, an <code>std::any</code>, to a value of
+        concrete type <code>T</code>. For a simple example, imagine a <code>FunctionSet</code>
+        consisting of two types and these five functions:</p>
+      <pre>Int AddInt(Int a, Int b) {…}
+Float AddFloat(Float a, Float b) {…}
+Int Floor(Float a) {…}
+Float Sqrt(Int a) {…}
+Float Mult(Float a, Int b) {…}</pre>
+      <p>In the code, this is currently written like this. The <code>FunctionSet</code>
+        takes a collection of <code>GpTypes</code> and one of GpFunctions. Each
+        has lambdas (function pointers) that handle casting, generating
+        ephemeral constants and evaluating concrete functions:</p>
+      <pre>FunctionSet test_tree_eval =
+{
+    <span class="comment">// GpTypes (with lambdas to generate ephemeral constants).</span>
+    {
+        {
+            "<strong>Int</strong>", [](){ return std::any(int(rand() % 10)); }
+        },
+        {
+            "<strong>Float</strong>", [](){ return std::any(frandom01()); }
+        }
+    },
+    <span class="comment">// GpFunctions (with lambdas to apply a function to a tree of parameter expressions)</span>
+    {
+        {
+            <strong>"AddInt"</strong>, "Int", {"Int", "Int"}, [](const GpTree&amp; t)
+            {
+                int s0 = std::any_cast&lt;int&gt;(t.evalSubtree(0));
+                int s1 = std::any_cast&lt;int&gt;(t.evalSubtree(1));
+                return std::any(s0 + s1);
+            }
+        },
+        {
+            <strong>"AddFloat"</strong>, "Float", {"Float", "Float"}, [](const GpTree&amp; t)
+            {
+                float s0 = std::any_cast&lt;float&gt;(t.evalSubtree(0));
+                float s1 = std::any_cast&lt;float&gt;(t.evalSubtree(1));
+                return std::any(s0 + s1);
+            }
+        },
+        {
+            "<strong>Floor</strong>", "Int", {"Float"}, [](const GpTree&amp; t)
+            {
+                float s0 = std::any_cast&lt;float&gt;(t.evalSubtree(0));
+                return std::any(int(std::floor(s0)));
+            }
+        },
+        {
+            "<strong>Sqrt</strong>", "Float", {"Int"}, [](const GpTree&amp; t)
+            {
+                int s0 = std::any_cast&lt;int&gt;(t.evalSubtree(0));
+                return std::any(float(std::sqrt(s0)));
+            }
+        },
+        {
+            "<strong>Mult</strong>", "Float", {"Float", "Int"}, [](const GpTree&amp; t)
+            {
+                float s0 = std::any_cast&lt;float&gt;(t.evalSubtree(0));
+                int s1 = std::any_cast&lt;int&gt;(t.evalSubtree(1));
+                return std::any(s0 * s1);
+            }
+        }
+    }
+}</pre>
+      <p>Using that <code>FunctionSet</code>, called <code>test_tree_eval</code>,
+        here is a random program of size 10, whose value is 3.60555: </p>
+      <p class="wrapping_code">Sqrt(AddInt(AddInt(6, Floor(0.262453)), AddInt(7,
+        Floor(0.736082))))</p>
+      <p>And here is a random program of size 100, whose value is 74.2361:</p>
+      <p class="wrapping_code">AddFloat(Mult(Mult(AddFloat(AddFloat(Sqrt(4),
+        Sqrt(0)), Sqrt(Floor(Mult(0.081061, 5)))),
+        Floor(AddFloat(AddFloat(Sqrt(7), Sqrt(5)), Mult(Sqrt(0),
+        Floor(0.269215))))), Floor(AddFloat(Mult(AddFloat(Sqrt(4), Sqrt(7)),
+        Floor(AddFloat(0.776866, Sqrt(4)))),
+        AddFloat(Sqrt(Floor(AddFloat(0.422460, 0.282156))),
+        Sqrt(Floor(AddFloat(0.193967, 0.011316))))))),
+        AddFloat(Sqrt(Floor(Mult(Mult(Mult(0.191824, Floor(0.983236)),
+        Floor(AddFloat(0.244054, Sqrt(1)))), Floor(Mult(Sqrt(AddInt(8, 5)),
+        AddInt(Floor(0.601010), Floor(0.176880))))))),
+        AddFloat(Sqrt(AddInt(AddInt(Floor(0.828355), Floor(0.157731)),
+        AddInt(Floor(0.987937), Floor(0.257169)))),
+        Sqrt(Floor(AddFloat(Sqrt(Floor(Sqrt(7))), AddFloat(Sqrt(7),
+        Sqrt(3))))))))</p>
+    </div>
     <div class="post" id="20200829"> <a href="#20200829" class="date">August
         29, 2020</a>
       <h1>Progress on <code>GpTree</code></h1>
