@@ -133,8 +133,11 @@
         types via type <code>std::any</code>. The <code> GpType</code>s and <code>GpFunction</code>s
         “know” the concrete types, so provide the transformations via <code>std::any_cast&lt;T&gt;(A)</code>
         which casts <code>A</code>, an <code>std::any</code>, to a value of
-        concrete type <code>T</code>. For a simple example, imagine a <code>FunctionSet</code>
-        consisting of two types and these five functions:</p>
+        concrete type <code>T</code>. One consequence of this is that
+        LazyPredator <em>requires</em> <code>c++17</code> (whereas before, <code>c++11</code>
+        was good enough).</p>
+      <p>For a simple example, imagine a <code>FunctionSet</code> consisting of
+        two types and these five functions:</p>
       <pre>Int AddInt(Int a, Int b) {…}
 Float AddFloat(Float a, Float b) {…}
 Int Floor(Float a) {…}
@@ -142,61 +145,61 @@ Float Sqrt(Int a) {…}
 Float Mult(Float a, Int b) {…}</pre>
       <p>In the code, this is currently written like this. The <code>FunctionSet</code>
         takes a collection of <code>GpType</code>s and one of <code>GpFunction</code>s.
-        Each has lambdas (function pointers) that handle casting, generating
-        ephemeral constants and evaluating concrete functions:</p>
-      <pre>FunctionSet test_tree_eval =
+        Each takes “helper functions” (lambdas, function pointers, callbacks)
+        that handle casting, generating ephemeral constants and evaluating
+        concrete functions. (So for example, <code>AddInt</code> is passed a
+        reference to some node in a <code>GpTree</code>, it evaluates the
+        subtrees corresponding to its parameters, casts those to concrete types,
+        applies its own underlying function to them, and returns the result as
+        an <code>std::any</code>):</p>
+      <pre>FunctionSet <strong>test_tree_eval</strong> =
 {
-    <span class="comment">// GpTypes (with lambdas to generate ephemeral constants).</span>
-    {
+    <span class="comment">// GpTypes (with ephemeral constant generatorss, and to_string handlers).<br></span>    {
         {
-            "<strong>Int</strong>", [](){ return std::any(int(rand() % 10)); }
+            "<strong>Int</strong>",
+            [](){ return std::any(int(rand() % 10)); },
+            any_to_string&lt;int&gt;
         },
         {
-            "<strong>Float</strong>", [](){ return std::any(frandom01()); }
+            "<strong>Float</strong>",
+            [](){ return std::any(frandom01()); },
+            any_to_string&lt;float&gt;
         }
-    },
-    <span class="comment">// GpFunctions (with lambdas to apply a function to a tree of parameter expressions)</span>
+    },<br>    <span class="comment">// GpFunctions (with a lambda</span><span class="comment"> to apply function to </span><span
+class="comment"><span class="comment">parameter via </span>a GpTree)</span>
     {
         {
-            <strong>"AddInt"</strong>, "Int", {"Int", "Int"}, [](const GpTree&amp; t)
+            "<strong>AddInt</strong>", "Int", {"Int", "Int"}, [](const GpTree&amp; t)
             {
-                int s0 = std::any_cast&lt;int&gt;(t.evalSubtree(0));
-                int s1 = std::any_cast&lt;int&gt;(t.evalSubtree(1));
-                return std::any(s0 + s1);
+                return std::any(t.evalSubtree&lt;int&gt;(0) + t.evalSubtree&lt;int&gt;(1));
             }
         },
         {
-            <strong>"AddFloat"</strong>, "Float", {"Float", "Float"}, [](const GpTree&amp; t)
+            "<strong>AddFloat</strong>", "Float", {"Float", "Float"}, [](const GpTree&amp; t)
             {
-                float s0 = std::any_cast&lt;float&gt;(t.evalSubtree(0));
-                float s1 = std::any_cast&lt;float&gt;(t.evalSubtree(1));
-                return std::any(s0 + s1);
+                return std::any(t.evalSubtree&lt;float&gt;(0) + t.evalSubtree&lt;float&gt;(1));
             }
         },
         {
             "<strong>Floor</strong>", "Int", {"Float"}, [](const GpTree&amp; t)
             {
-                float s0 = std::any_cast&lt;float&gt;(t.evalSubtree(0));
-                return std::any(int(std::floor(s0)));
+                return std::any(int(std::floor(t.evalSubtree&lt;float&gt;(0))));
             }
         },
         {
             "<strong>Sqrt</strong>", "Float", {"Int"}, [](const GpTree&amp; t)
             {
-                int s0 = std::any_cast&lt;int&gt;(t.evalSubtree(0));
-                return std::any(float(std::sqrt(s0)));
+                return std::any(float(std::sqrt(t.evalSubtree&lt;int&gt;(0))));
             }
         },
         {
             "<strong>Mult</strong>", "Float", {"Float", "Int"}, [](const GpTree&amp; t)
             {
-                float s0 = std::any_cast&lt;float&gt;(t.evalSubtree(0));
-                int s1 = std::any_cast&lt;int&gt;(t.evalSubtree(1));
-                return std::any(s0 * s1);
+                return std::any(t.evalSubtree&lt;float&gt;(0) * t.evalSubtree&lt;int&gt;(1));
             }
         }
     }
-}</pre>
+};</pre>
       <p>Using that <code>FunctionSet</code>, called <code>test_tree_eval</code>,
         here is a random program of size 10, whose value is 3.60555: </p>
       <p class="wrapping_code">Sqrt(AddInt(AddInt(6, Floor(0.262453)), AddInt(7,

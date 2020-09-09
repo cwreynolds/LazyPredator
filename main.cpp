@@ -473,35 +473,34 @@ int main(int argc, const char * argv[])
             {
                 "AddInt", "Int", {"Int", "Int"}, [](const GpTree& t)
                 {
-                    return std::any(t.evalSubtreeCast<int>(0) +
-                                    t.evalSubtreeCast<int>(1));
+                    return std::any(t.evalSubtree<int>(0) +
+                                    t.evalSubtree<int>(1));
                 }
             },
             {
                 "AddFloat", "Float", {"Float", "Float"}, [](const GpTree& t)
                 {
-                    return std::any(t.evalSubtreeCast<float>(0) +
-                                    t.evalSubtreeCast<float>(1));
+                    return std::any(t.evalSubtree<float>(0) +
+                                    t.evalSubtree<float>(1));
                 }
             },
             {
                 "Floor", "Int", {"Float"}, [](const GpTree& t)
                 {
-                    auto f = t.evalSubtreeCast<float>(0);
-                    return std::any(int(std::floor(f)));
+                    return std::any(int(std::floor(t.evalSubtree<float>(0))));
                 }
             },
             {
                 "Sqrt", "Float", {"Int"}, [](const GpTree& t)
                 {
-                    return std::any(float(std::sqrt(t.evalSubtreeCast<int>(0))));
+                    return std::any(float(std::sqrt(t.evalSubtree<int>(0))));
                 }
             },
             {
                 "Mult", "Float", {"Float", "Int"}, [](const GpTree& t)
                 {
-                    return std::any(t.evalSubtreeCast<float>(0) *
-                                    t.evalSubtreeCast<int>(1));
+                    return std::any(t.evalSubtree<float>(0) *
+                                    t.evalSubtree<int>(1));
                 }
             }
         }

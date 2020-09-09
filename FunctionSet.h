@@ -229,11 +229,9 @@ public:
     {
         return (isLeaf() ? getLeafValue() : getFunction().eval(*this));
     }
-    // Evaluate i-th subtree, corresponds to i-th parameter of root function.
-    std::any evalSubtree(int i) const { return getSubtree(i).eval(); }
     // Evaluate i-th subtree, corresponds to i-th parameter of root function,
     // then cast the resulting std::any to the given concrete type T.
-    template <typename T> T evalSubtreeCast(int i) const
+    template <typename T> T evalSubtree(int i) const
     {
         return std::any_cast<T>(getSubtree(i).eval());
     }
