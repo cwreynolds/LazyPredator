@@ -7,7 +7,7 @@
 //
 
 #include "LazyPredator.h"
-#include "TexSynTemp.h"
+#include "TestFS.h"
 
 // This "sub-test" wrapper macro just returns the value of the given expression
 // "e". If the value is NOT TRUE, the st() macro will also log the specific
@@ -52,7 +52,7 @@ bool random_program_size_limit()
     bool all_ok = true;
     int total_subtests = 1000;
     RandomSequence rs(77365918);
-    FunctionSet& fs = TexSynFS::full();
+    FunctionSet& fs = TestFS::fullTexSyn();
     for (int i = 0; i < total_subtests; i++)
     {
         int max_size = int(rs.frandom2(4, 100));

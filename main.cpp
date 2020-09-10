@@ -7,10 +7,7 @@
 //
 
 #include "LazyPredator.h"
-#include "TexSynTemp.h"
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#include <variant>
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#include "TestFS.h"
 
 int main(int argc, const char * argv[])
 {
