@@ -52,7 +52,8 @@ bool random_program_size_limit()
     bool all_ok = true;
     int total_subtests = 1000;
     RandomSequence rs(77365918);
-    FunctionSet& fs = TestFS::fullTexSyn();
+    // Ideally this should be just a reference to FS in TestFS. Copy for now.
+    FunctionSet fs = TestFS::testTreeEval();
     for (int i = 0; i < total_subtests; i++)
     {
         int max_size = int(rs.frandom2(4, 100));
@@ -60,7 +61,7 @@ bool random_program_size_limit()
         std::string source_code;
         fs.dp_depth = 0;
         GpTree gp_tree;
-        fs.makeRandomProgram(max_size, "Texture",
+        fs.makeRandomProgram(max_size, "Float",
                              actual_size, source_code, gp_tree);
         bool ok = (st(actual_size <= max_size) &&
                    st(gp_tree.size() <= max_size)) &&

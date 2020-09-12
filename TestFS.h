@@ -7,8 +7,6 @@
 //
 
 //  Sample FunctionSets for testing and as examples.
-//      TestFS::tinyTexSyn() -- subset of TexSyn API
-//      TestFS::fullTexSyn() -- covers "most" of TexSyn API.
 
 #pragma once
 #include "FunctionSet.h"
@@ -21,22 +19,89 @@
 //
 //      I think std::any(Vec2()) is fine, but for classes derived from Texture?
 //
-// TODO shouldn't these be const?
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 class TestFS
 {
 public:
+    // Simple test with only Float and Int types which can be evaluated.
+    static const FunctionSet& testTreeEval() { return test_tree_eval; }
+    
+    // Subset of TexSyn API
+    static const FunctionSet& tinyTexSyn() { return tiny_texsyn; }
+    // Covers "most" of TexSyn API.
+    static const FunctionSet& fullTexSyn() { return full_texsyn; }
+
+private:
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // Moved "Float" to top in case we want to use that convention.
+    // std::string root_type = "Float";
+    static inline const FunctionSet test_tree_eval =
+    {
+        {
+            {
+                "Float",
+                [](){ return std::any(frandom01()); },
+                any_to_string<float>
+            },
+            {
+                "Int",
+                [](){ return std::any(int(rand() % 10)); },
+                any_to_string<int>
+            }
+        },
+        {
+            {
+                "AddInt", "Int", {"Int", "Int"}, [](const GpTree& t)
+                {
+                    return std::any(t.evalSubtree<int>(0) +
+                                    t.evalSubtree<int>(1));
+                }
+            },
+            {
+                "AddFloat", "Float", {"Float", "Float"}, [](const GpTree& t)
+                {
+                    return std::any(t.evalSubtree<float>(0) +
+                                    t.evalSubtree<float>(1));
+                }
+            },
+            {
+                "Floor", "Int", {"Float"}, [](const GpTree& t)
+                {
+                    return std::any(int(std::floor(t.evalSubtree<float>(0))));
+                }
+            },
+            {
+                "Sqrt", "Float", {"Int"}, [](const GpTree& t)
+                {
+                    return std::any(float(std::sqrt(t.evalSubtree<int>(0))));
+                }
+            },
+            {
+                "Mult", "Float", {"Float", "Int"}, [](const GpTree& t)
+                {
+                    return std::any(t.evalSubtree<float>(0) *
+                                    t.evalSubtree<int>(1));
+                }
+            }
+        }
+    };
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    
+    
     static inline const FunctionSet tiny_texsyn =
     {
         {
+            {"Texture"},
+            {"Vec2"},
             {
                 "Float_01",
                 [](){ return std::any(int(frandom01() < 0.5 ? 0 : 1)); },
                 any_to_string<int>,
-            },
-            {"Texture"},
-            {"Vec2"}
+            }
+//            {"Texture"},
+//            {"Vec2"}
         },
         {
             {
@@ -66,15 +131,8 @@ public:
         }
     };
 
-    static const FunctionSet& tinyTexSyn() { return tiny_texsyn; }
-    
-    // TODO shouldn't these be const?
-//    static inline const FunctionSet full_texsyn;
-//    static const FunctionSet& fullTexSyn() { return full_texsyn; }
     static inline FunctionSet full_texsyn;
-    static FunctionSet& fullTexSyn() { return full_texsyn; }
 
-    
 //    static FunctionSet& full()
 //    {
 //        static FunctionSet full =
