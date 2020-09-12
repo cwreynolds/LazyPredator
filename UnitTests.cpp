@@ -72,6 +72,7 @@ bool random_program_size_limit()
     return all_ok;
 }
 
+// TODO GpTree::id() should be deprecated.
 bool test_gp_tree_construction()
 {
     GpTree root;
@@ -93,6 +94,46 @@ bool test_gp_tree_construction()
             true);
 }
 
+bool test_gp_tree_eval_pod()  // For simple case of "plain old data" types.
+{
+    FunctionSet fs = TestFS::testTreeEval();
+    
+    // Construct a tree for "AddInt(1, Floor(2.5))"
+    int leaf1 = 1;                        // Leaf value Int 1
+    float leaf25 = 2.5;                   // Leaf value Float 2.5
+    int expected = leaf1 + int(leaf25);   // Expected return value Int 3
+    GpType& gp_type_int = *fs.lookupGpTypeByName("Int");
+    // GpType& gp_type_float = *fs.lookupGpTypeByName("Float");
+    GpFunction& gp_func_addint = *fs.lookupGpFunctionByName("AddInt");
+    GpFunction& gp_func_floor = *fs.lookupGpFunctionByName("Floor");
+    GpTree gp_tree;                       // Make empty tree.
+    gp_tree.setFunction(gp_func_addint);  // Set root function to AddInt.
+    gp_tree.setType(gp_type_int);         // Set root type to Int.
+    gp_tree.addSubtrees(2);               // AddInt has two parameters.
+    
+    GpTree& st0 = gp_tree.getSubtree(0);  // Name for substree 0.
+    GpTree& st1 = gp_tree.getSubtree(1);  // Name for substree 1.
+    st1.addSubtrees(1);                   // "Floor" has one parameter.
+    GpTree& st10 = st1.getSubtree(0);     // Name for substree 0 of st1.
+    st0.setLeafValue(std::any(leaf1));    // Subtree 0 is leaf const Int 1.
+    st10.setLeafValue(std::any(leaf25));  // Subtree 1,0 is leaf Float 2.5.
+    st1.setFunction(gp_func_floor);       // Subtree 1 has function Floor.
+    // TODO when this incorrectly said gp_type_float, eval still worked
+    //      Noticed when I added st below to check st1.getType().
+    //      Should verify they match, or set both in setFunction().
+    st1.setType(gp_type_int);             // Subtree 1 has type Float.
+
+    return (st(gp_tree.subtrees().size() == 2) &&
+            st(st0.subtrees().size() == 0) &&
+            st(st1.subtrees().size() == 1) &&
+            st(st10.subtrees().size() == 0) &&
+            st(&gp_tree.getType() == &gp_type_int) &&
+            st(&gp_tree.getFunction() == &gp_func_addint) &&
+            st(&st1.getType() == &gp_type_int) &&
+            st(&st1.getFunction() == &gp_func_floor) &&
+            st(std::any_cast<int>(gp_tree.eval()) == expected));
+}
+
 bool UnitTests::allTestsOK()
 {
     Timer timer("Run time for unit test suite: ", "");
@@ -102,6 +143,7 @@ bool UnitTests::allTestsOK()
     logAndTally(population_allocation_of_individuals);
     logAndTally(random_program_size_limit);
     logAndTally(test_gp_tree_construction);
+    logAndTally(test_gp_tree_eval_pod);
 
     std::cout << std::endl;
     std::cout << (all_tests_passed ? "All tests PASS." : "Some tests FAIL.");

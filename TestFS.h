@@ -32,6 +32,16 @@ public:
     // Covers "most" of TexSyn API.
     static const FunctionSet& fullTexSyn() { return full_texsyn; }
 
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    class SampleOne
+    {
+        
+    };
+    class SampleTwo
+    {
+        
+    };
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 private:
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Moved "Float" to top in case we want to use that convention.
