@@ -258,9 +258,9 @@ public:
         }
         return s;
     }
-    // TODO should get rid of these but currenly used by unit tests.
-    std::string id() const { return id_; }      // TODO for debugging only.
-    void setId(std::string s) { id_ = s; }      // TODO for debugging only.
+//    // TODO should get rid of these but currenly used by unit tests.
+//    std::string id() const { return id_; }      // TODO for debugging only.
+//    void setId(std::string s) { id_ = s; }      // TODO for debugging only.
 private:
     // Add (allocate) one subtree. addSubtrees() is external API.
     void addSubtree() { subtrees_.push_back({}); }

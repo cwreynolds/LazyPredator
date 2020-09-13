@@ -31,8 +31,6 @@
     if (!_e_ok) all_tests_passed = false;    \
 }
 
-bool mock() { return true; }
-
 bool population_allocation_of_individuals()
 {
     bool start_with_none = st(Individual::getInstanceCount() == 0);
@@ -72,26 +70,30 @@ bool random_program_size_limit()
     return all_ok;
 }
 
-// TODO GpTree::id() should be deprecated.
 bool test_gp_tree_construction()
 {
-    GpTree root;
-    bool created_empty = st(root.subtrees().empty());
-    root.addSubtrees(2);                // add r.0 and r.1
-    root.getSubtree(1).addSubtrees(1);  // add r.1.a
-
-    root.setId("r");
-    root.getSubtree(0).setId("r.0");
-    root.getSubtree(1).setId("r.1");
-    root.getSubtree(1).getSubtree(0).setId("r.1.a");
-
+    GpTree root;                                      // make empty tree
+    bool created_empty = st(root.subtrees().empty()); // verify empty
+    root.addSubtrees(2);                              // add 2 subtrees under r
+    GpTree& st0 = root.getSubtree(0);                 // name for subtree r.0
+    GpTree& st1 = root.getSubtree(1);                 // name for subtree r.1
+    st1.addSubtrees(1);                               // add 1 subtree under r.1
+    GpTree& st10 = root.getSubtree(1).getSubtree(0);  // name for subtree r.1.a
+    // Set leaf values to names as character string.
+    root.setLeafValue(std::string("r"));
+    st0.setLeafValue(std::string("r.0"));
+    st1.setLeafValue(std::string("r.1"));
+    st10.setLeafValue(std::string("r.1.a"));
+    // Check for tree depth, breath, and labels.
     return (created_empty &&
             st(root.subtrees().size() == 2) &&
-            st(root.id() == "r") &&
-            st(root.getSubtree(0).id() == "r.0") &&
-            st(root.getSubtree(1).id() == "r.1") &&
-            st(root.getSubtree(1).getSubtree(0).id() == "r.1.a") &&
-            true);
+            st(st0.subtrees().size() == 0) &&
+            st(st1.subtrees().size() == 1) &&
+            st(st10.subtrees().size() == 0) &&
+            st(std::any_cast<std::string>(root.getLeafValue()) == "r") &&
+            st(std::any_cast<std::string>(st0.getLeafValue())  == "r.0") &&
+            st(std::any_cast<std::string>(st1.getLeafValue())  == "r.1") &&
+            st(std::any_cast<std::string>(st10.getLeafValue()) == "r.1.a"));
 }
 
 bool test_gp_tree_eval_pod()  // For simple case of "plain old data" types.
@@ -123,6 +125,7 @@ bool test_gp_tree_eval_pod()  // For simple case of "plain old data" types.
     //      Should verify they match, or set both in setFunction().
     st1.setType(gp_type_int);             // Subtree 1 has type Float.
 
+    // TODO FWIW, the first four subtests duplicate test_gp_tree_construction().
     return (st(gp_tree.subtrees().size() == 2) &&
             st(st0.subtrees().size() == 0) &&
             st(st1.subtrees().size() == 1) &&
@@ -139,7 +142,6 @@ bool UnitTests::allTestsOK()
     Timer timer("Run time for unit test suite: ", "");
     bool all_tests_passed = true;
     
-    logAndTally(mock);
     logAndTally(population_allocation_of_individuals);
     logAndTally(random_program_size_limit);
     logAndTally(test_gp_tree_construction);
