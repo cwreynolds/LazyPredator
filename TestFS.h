@@ -33,13 +33,42 @@ public:
     static const FunctionSet& fullTexSyn() { return full_texsyn; }
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    class SampleOne
+    class ClassC
     {
-        
+    public:
+        ClassC(int i, int j) : i_(i), j_(j) {}
+        std::string originStory() const
+        {
+            return ("[ClassC made from " + std::to_string(i_) +
+                    " and " + std::to_string(j_) + "]");
+        }
+    private:
+        int i_;
+        int j_;
     };
-    class SampleTwo
+    class ClassB
     {
-        
+    public:
+        ClassB(float f) : f_(f) {}
+        std::string originStory() const
+        {
+            return "[ClassB made from " + std::to_string(f_) + "]";
+        }
+    private:
+        float f_;
+    };
+    class ClassA
+    {
+    public:
+        ClassA(const ClassB& b, ClassC c) : b_(b), c_(c) {}
+        std::string originStory() const
+        {
+            return ("[ClassC made from " + b_.originStory() +
+                    " and " + c_.originStory() + "]");
+        }
+    private:
+        const ClassB& b_;
+        const ClassC c_;
     };
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 private:

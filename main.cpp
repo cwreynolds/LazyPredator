@@ -546,31 +546,43 @@ int main(int argc, const char * argv[])
     
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     
-    // Moving all test FunctionSets to TestFS.
-    std::cout << "September 11, 2020" << std::endl;
-    std::string path = "/Users/cwr/Desktop/TexSyn_temp/202009011_";
-    
-    // lets call this FunctionSet test_tree_eval
-    std::string root_type = "Float";
-    // Ideally this should be just a reference to FS in TestFS. Copy for now.
-    FunctionSet fs = TestFS::testTreeEval();
-    
-    std::cout << std::endl;
-    fs.print();
-    std::cout << std::endl;
+//    // Moving all test FunctionSets to TestFS.
+//    std::cout << "September 11, 2020" << std::endl;
+//    std::string path = "/Users/cwr/Desktop/TexSyn_temp/202009011_";
+//
+//    // lets call this FunctionSet test_tree_eval
+//    std::string root_type = "Float";
+//    // Ideally this should be just a reference to FS in TestFS. Copy for now.
+//    FunctionSet fs = TestFS::testTreeEval();
+//
+//    std::cout << std::endl;
+//    fs.print();
+//    std::cout << std::endl;
+//
+//    for (int i = 0; i < 10; i++)
+//    {
+//        int actual_size = 0;
+//        std::string source_code;
+//        GpTree gp_tree;
+//        fs.makeRandomProgram(100, root_type, actual_size, source_code, gp_tree);
+//        assert(actual_size == gp_tree.size());
+//        std::cout << std::endl << gp_tree.to_string() << std::endl;
+//        std::cout << "size=" << gp_tree.size() << std::endl;
+//        std::cout << "eval=" << std::any_cast<float>(gp_tree.eval()) << std::endl;
+//    }
 
-    for (int i = 0; i < 10; i++)
-    {
-        int actual_size = 0;
-        std::string source_code;
-        GpTree gp_tree;
-        fs.makeRandomProgram(100, root_type, actual_size, source_code, gp_tree);
-        assert(actual_size == gp_tree.size());
-        std::cout << std::endl << gp_tree.to_string() << std::endl;
-        std::cout << "size=" << gp_tree.size() << std::endl;
-        std::cout << "eval=" << std::any_cast<float>(gp_tree.eval()) << std::endl;
-    }
+    //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    
+    // Working on eval() when values involve class instances.
+    std::cout << "September 13, 2020" << std::endl;
+    std::string path = "/Users/cwr/Desktop/TexSyn_temp/202009013_";
+    
+    debugPrint(TestFS::ClassC(1, 2).originStory());
+    debugPrint(TestFS::ClassB(0.5).originStory());
+    debugPrint(TestFS::ClassA(TestFS::ClassB(0.5),
+                              TestFS::ClassC(1, 2)).originStory());
 
+    
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     //
