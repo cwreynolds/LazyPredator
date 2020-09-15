@@ -105,6 +105,70 @@
       details of the implementation. On the other hand, I do want it to be more
       prose-like than the terse <code>git commit</code> messages.)</p>
     <br style="##########################################################################">
+    <div class="post" id="20200915"> <a href="#20200915" class="date">September
+        15, 2020</a>
+      <h1>Tree evaluation to construct procedural models</h1>
+      <p>The <a href="#20200907">previous post</a> demonstrated evaluating GP
+        trees to produce a numeric result. This is easier when all tree nodes
+        have numeric values (or other POD “plain old data” types). It is more
+        complicated when the values in a tree represent data structures or
+        abstractions like class instances. It is trivial to copy (say) a numeric
+        value, but the cost of copying a composite object can be significantly
+        higher to handle the data and procedural state of an object. (As a
+        concrete example, during initialization, TexSyn's <em>LotsOfSpots</em>
+        texture operator builds a moderate sized data set and runs a relaxation
+        procedure on it.)</p>
+      <p>LazyPredator is being built to optimize TexSyn procedural texture
+        models. In this mode of use, GP programs are evaluated to <strong>construct</strong>
+        a secondary representation, here a tree of TexSyn texture operator
+        instances (plus 2d vectors and numbers). From a c++ point of view, the
+        GP tree represents a deeply nested expression consisting of class <strong>constructors</strong>.
+        Evaluating that expression builds the various texture operators, using
+        the supplied parameters, some of which are themselves newly constructed
+        texture operators. Once built these procedural texture models can be
+        used to render the texture for display or file output, or to place the
+        texture into evolutionary competition with other textures.</p>
+      <p>To test this capability I made a toy example (analogous to but separate
+        from TexSyn) based on these three classes:</p>
+      <pre>class ClassA
+{
+public:
+    ClassA(const ClassB&amp; b, ClassC c) : b_(b), c_(c) {}
+    ...
+private:
+    const ClassB&amp; b_;
+    const ClassC c_;
+};<br><br>class ClassB
+{
+public:
+    ClassB(float f) : f_(f) {}
+    ...
+private:
+    float f_;
+};
+
+class ClassC
+{
+public:
+    ClassC(int i, int j) : i_(i), j_(j) {}
+    ...
+private:
+    int i_;
+    int j_;
+};</pre>
+      <p>Note that <code>ClassA</code>'s first parameter is a <code>ClassB</code>
+        instance passed by <strong>reference</strong> and its second parameter
+        is a <code>ClassC</code> instance passed by <strong>value</strong>.
+        The new <code>UnitTests::gp_tree_eval_objects()</code> uses the <code>FunctionSet</code>
+        from <code>TestFS::treeEvalObjects()</code> to construct, then
+        evaluate, this tree:</p>
+      <pre>ClassA(ClassB(0.5), ClassC(1, 2))</pre>
+      <p>It then verifies that the <code>ClassA</code> instance constructed is
+        valid, contains valid <code>ClassB</code> and <code>ClassC</code>
+        instances, and all have the expected internal state.</p>
+      <p>New <code>UnitTests::gp_tree_eval_simple()</code> similarly tests
+        evaluation of <code>GpTree</code>s with numeric values.</p>
+    </div>
     <div class="post" id="20200907"> <a href="#20200907" class="date">September
         7, 2020</a>
       <h1>Evaluating program trees</h1>
