@@ -12,6 +12,17 @@
 #include "FunctionSet.h"
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// TODO reconsider, move to Utilities if kept.
+#include  <sstream>
+inline std::string float_to_string(float f)
+{
+    std::stringstream ss;
+    ss << f;
+    return ss.str();
+}
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // TODO do the class instance values returned from GpFunctions want to be:
 //      return std::any(Uniform(...));
 //      return std::any(new Uniform(...));
@@ -25,22 +36,22 @@ class TestFS
 {
 public:
     // Simple test with only Float and Int types which can be evaluated.
-    static const FunctionSet& testTreeEval() { return test_tree_eval; }
-    
+    static const FunctionSet& treeEval() { return tree_eval; }
+    // For testing tree eval for cases including construction class objects.
+    static const FunctionSet& treeEvalObjects() { return tree_eval_objects; }
     // Subset of TexSyn API
     static const FunctionSet& tinyTexSyn() { return tiny_texsyn; }
     // Covers "most" of TexSyn API.
     static const FunctionSet& fullTexSyn() { return full_texsyn; }
 
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     class ClassC
     {
     public:
         ClassC(int i, int j) : i_(i), j_(j) {}
-        std::string originStory() const
+        std::string to_string() const
         {
-            return ("[ClassC made from " + std::to_string(i_) +
-                    " and " + std::to_string(j_) + "]");
+            return ("ClassC(" + std::to_string(i_) +
+                    ", " + std::to_string(j_) + ")");
         }
     private:
         int i_;
@@ -50,9 +61,9 @@ public:
     {
     public:
         ClassB(float f) : f_(f) {}
-        std::string originStory() const
+        std::string to_string() const
         {
-            return "[ClassB made from " + std::to_string(f_) + "]";
+            return "ClassB(" + float_to_string(f_) + ")";
         }
     private:
         float f_;
@@ -61,21 +72,83 @@ public:
     {
     public:
         ClassA(const ClassB& b, ClassC c) : b_(b), c_(c) {}
-        std::string originStory() const
+        std::string to_string() const
         {
-            return ("[ClassC made from " + b_.originStory() +
-                    " and " + c_.originStory() + "]");
+            return ("ClassA(" + b_.to_string() + ", " + c_.to_string() + ")");
         }
     private:
         const ClassB& b_;
         const ClassC c_;
     };
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 private:
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    static inline const FunctionSet tree_eval_objects =
+    {
+        {
+            {
+                "Float",
+                [](){ return std::any(frandom01()); },
+                any_to_string<float>
+            },
+            {
+                "Int",
+                [](){ return std::any(int(rand() % 10)); },
+                any_to_string<int>
+            },
+            {
+                "ClassA",
+                nullptr,
+                [](std::any a)
+                {
+                    return std::any_cast<ClassA&>(a).to_string();
+                }
+            },
+            {
+                "ClassB",
+                nullptr,
+                [](std::any a)
+                {
+                    return std::any_cast<ClassB*>(a)->to_string();
+                }
+            },
+            {
+                "ClassC",
+                nullptr,
+                [](std::any a)
+                {
+                    return std::any_cast<ClassC>(a).to_string();
+                }
+            },
+        },
+        {
+            {
+                "ClassA", "ClassA", {"ClassB", "ClassC"},
+                [](const GpTree& t)
+                {
+                    return std::any(new ClassA(*t.evalSubtree<ClassB*>(0),
+                                               t.evalSubtree<ClassC>(1)));
+                }
+            },
+            {
+                "ClassB", "ClassB", {"Float"},
+                [](const GpTree& t)
+                {
+                    return std::any(new ClassB(t.evalSubtree<float>(0)));
+                }
+            },
+            {
+                "ClassC", "ClassC", {"Int", "Int"},
+                [](const GpTree& t)
+                {
+                    return std::any(ClassC(t.evalSubtree<int>(0),
+                                           t.evalSubtree<int>(1)));
+                }
+            }
+        }
+    };
+
     // Moved "Float" to top in case we want to use that convention.
     // std::string root_type = "Float";
-    static inline const FunctionSet test_tree_eval =
+    static inline const FunctionSet tree_eval =
     {
         {
             {
@@ -125,10 +198,6 @@ private:
             }
         }
     };
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    
-    
     static inline const FunctionSet tiny_texsyn =
     {
         {
@@ -139,8 +208,6 @@ private:
                 [](){ return std::any(int(frandom01() < 0.5 ? 0 : 1)); },
                 any_to_string<int>,
             }
-//            {"Texture"},
-//            {"Vec2"}
         },
         {
             {

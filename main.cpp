@@ -577,11 +577,10 @@ int main(int argc, const char * argv[])
     std::cout << "September 13, 2020" << std::endl;
     std::string path = "/Users/cwr/Desktop/TexSyn_temp/202009013_";
     
-    debugPrint(TestFS::ClassC(1, 2).originStory());
-    debugPrint(TestFS::ClassB(0.5).originStory());
-    debugPrint(TestFS::ClassA(TestFS::ClassB(0.5),
-                              TestFS::ClassC(1, 2)).originStory());
-
+    debugPrint(TestFS::ClassC(1, 2).to_string());
+    debugPrint(TestFS::ClassB(0.5).to_string());
+    debugPrint(TestFS::ClassA(TestFS::ClassB(0.5), TestFS::ClassC(1, 2))
+               .to_string());
     
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

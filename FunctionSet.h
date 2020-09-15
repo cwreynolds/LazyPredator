@@ -220,7 +220,10 @@ public:
     // Get/set the value of this GpTree with no subtrees. This "leaf value" of
     // the tree is typically a terminal constant or varible.
     std::any getLeafValue() const { return leaf_value_; }
+    // TODO deprecate this one arg version? Better to always set type too?
     void setLeafValue(std::any value) { leaf_value_ = value; }
+    void setLeafValue(std::any value, const GpType& gp_type)
+        { leaf_value_ = value; setType(gp_type);}
     // A GpTree is a "leaf node" if it has no GpFunction at its root.
     bool isLeaf() const { return !root_function_; }
     // Evaluate this tree. Run/evaluate the GpFunction at the root, recursively

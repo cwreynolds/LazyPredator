@@ -51,7 +51,7 @@ bool random_program_size_limit()
     int total_subtests = 1000;
     RandomSequence rs(77365918);
     // Ideally this should be just a reference to FS in TestFS. Copy for now.
-    FunctionSet fs = TestFS::testTreeEval();
+    FunctionSet fs = TestFS::treeEval();
     for (int i = 0; i < total_subtests; i++)
     {
         int max_size = int(rs.frandom2(4, 100));
@@ -70,7 +70,7 @@ bool random_program_size_limit()
     return all_ok;
 }
 
-bool test_gp_tree_construction()
+bool gp_tree_construction()
 {
     GpTree root;                                      // make empty tree
     bool created_empty = st(root.subtrees().empty()); // verify empty
@@ -96,14 +96,13 @@ bool test_gp_tree_construction()
             st(std::any_cast<std::string>(st10.getLeafValue()) == "r.1.a"));
 }
 
-bool test_gp_tree_eval_pod()  // For simple case of "plain old data" types.
+bool gp_tree_eval_simple()  // For simple case of "plain old data" types.
 {
-    FunctionSet fs = TestFS::testTreeEval();
-    
     // Construct a tree for "AddInt(1, Floor(2.5))"
     int leaf1 = 1;                        // Leaf value Int 1
     float leaf25 = 2.5;                   // Leaf value Float 2.5
     int expected = leaf1 + int(leaf25);   // Expected return value Int 3
+    FunctionSet fs = TestFS::treeEval();
     GpType& gp_type_int = *fs.lookupGpTypeByName("Int");
     // GpType& gp_type_float = *fs.lookupGpTypeByName("Float");
     GpFunction& gp_func_addint = *fs.lookupGpFunctionByName("AddInt");
@@ -125,16 +124,51 @@ bool test_gp_tree_eval_pod()  // For simple case of "plain old data" types.
     //      Should verify they match, or set both in setFunction().
     st1.setType(gp_type_int);             // Subtree 1 has type Float.
 
-    // TODO FWIW, the first four subtests duplicate test_gp_tree_construction().
-    return (st(gp_tree.subtrees().size() == 2) &&
-            st(st0.subtrees().size() == 0) &&
-            st(st1.subtrees().size() == 1) &&
-            st(st10.subtrees().size() == 0) &&
-            st(&gp_tree.getType() == &gp_type_int) &&
+    return (st(&gp_tree.getType() == &gp_type_int) &&
             st(&gp_tree.getFunction() == &gp_func_addint) &&
             st(&st1.getType() == &gp_type_int) &&
             st(&st1.getFunction() == &gp_func_floor) &&
             st(std::any_cast<int>(gp_tree.eval()) == expected));
+}
+
+bool gp_tree_eval_objects()
+{
+    // Construct a tree for "ClassA(ClassB(0.5), ClassC(1, 2)"
+    float leaf0_5 = 0.5;                  // Leaf value Float 0.5
+    int leaf1 = 1;                        // Leaf value Int 1
+    int leaf2 = 2;                        // Leaf value Int 2
+    FunctionSet fs = TestFS::treeEvalObjects();
+    GpType& type_int = *fs.lookupGpTypeByName("Int");
+    GpType& type_float = *fs.lookupGpTypeByName("Float");
+    GpType& type_class_a = *fs.lookupGpTypeByName("ClassA");
+    GpType& type_class_b = *fs.lookupGpTypeByName("ClassB");
+    GpType& type_class_c = *fs.lookupGpTypeByName("ClassC");
+    GpFunction& gp_func_class_a = *fs.lookupGpFunctionByName("ClassA");
+    GpFunction& gp_func_class_b = *fs.lookupGpFunctionByName("ClassB");
+    GpFunction& gp_func_class_c = *fs.lookupGpFunctionByName("ClassC");
+    GpTree gp_tree;                       // Make empty tree.
+    gp_tree.setFunction(gp_func_class_a); // Set root function to ClassA.
+    gp_tree.setType(type_class_a);        // Set root type to ClassA.
+    gp_tree.addSubtrees(2);               // ClassA has two parameters.
+    GpTree& st0 = gp_tree.getSubtree(0);  // Name for substree 0.
+    GpTree& st1 = gp_tree.getSubtree(1);  // Name for substree 1.
+    st0.addSubtrees(1);                   // "ClassB" has one parameter.
+    st1.addSubtrees(2);                   // "ClassC" has two parameters.
+    st0.setFunction(gp_func_class_b);     // Subtree 0 has function "ClassB".
+    st1.setFunction(gp_func_class_c);     // Subtree 1 has function "ClassC".
+    st0.setType(type_class_b);         // Subtree 0 has type "ClassB".
+    st1.setType(type_class_c);         // Subtree 1 has type "ClassC".
+    GpTree& st00 = st0.getSubtree(0);     // Name for substree 0 of st0.
+    GpTree& st10 = st1.getSubtree(0);     // Name for substree 0 of st1.
+    GpTree& st11 = st1.getSubtree(1);     // Name for substree 1 of st1.
+    st00.setLeafValue(leaf0_5, type_float); // Subtree 0,0 is leaf Float 0.5.
+    st10.setLeafValue(leaf1, type_int);     // Subtree 1,0 is leaf Int 1.
+    st11.setLeafValue(leaf2, type_int);     // Subtree 1,1 is leaf Int 2.
+
+    std::any result_as_any = gp_tree.eval();
+    TestFS::ClassA* result = std::any_cast<TestFS::ClassA*>(result_as_any);
+    std::string expected = "ClassA(ClassB(0.5), ClassC(1, 2))";
+    return st(expected == result->to_string());
 }
 
 bool UnitTests::allTestsOK()
@@ -144,8 +178,9 @@ bool UnitTests::allTestsOK()
     
     logAndTally(population_allocation_of_individuals);
     logAndTally(random_program_size_limit);
-    logAndTally(test_gp_tree_construction);
-    logAndTally(test_gp_tree_eval_pod);
+    logAndTally(gp_tree_construction);
+    logAndTally(gp_tree_eval_simple);
+    logAndTally(gp_tree_eval_objects);
 
     std::cout << std::endl;
     std::cout << (all_tests_passed ? "All tests PASS." : "Some tests FAIL.");
