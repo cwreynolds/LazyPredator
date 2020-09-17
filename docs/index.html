@@ -110,14 +110,17 @@
       <h1>Tree evaluation to construct procedural models</h1>
       <p>The <a href="#20200907">previous post</a> demonstrated evaluating GP
         trees to produce a numeric result. This is easier when all tree nodes
-        have numeric values (or other POD “plain old data” types). It is more
+        have numeric values (or other “plain old data” (POD) types). It is more
         complicated when the values in a tree represent data structures or
         abstractions like class instances. It is trivial to copy (say) a numeric
         value, but the cost of copying a composite object can be significantly
         higher to handle the data and procedural state of an object. (As a
         concrete example, during initialization, TexSyn's <em>LotsOfSpots</em>
-        texture operator builds a moderate sized data set and runs a relaxation
-        procedure on it.)</p>
+        texture operator builds a moderate-sized data set and runs a relaxation
+        procedure on it.) So generally, we need to be able to pass
+        “references”/“pointers” to these larger objects in addition to copying
+        “plain old data” types (and small instances: TexSyn routinely copies <em>Vec2</em>
+        objects whose entire state is just two floats).</p>
       <p>LazyPredator is being built to optimize TexSyn procedural texture
         models. In this mode of use, GP programs are evaluated to <strong>construct</strong>
         a secondary representation, here a tree of TexSyn texture operator
@@ -164,8 +167,9 @@ private:
         evaluate, this tree:</p>
       <pre>ClassA(ClassB(0.5), ClassC(1, 2))</pre>
       <p>It then verifies that the <code>ClassA</code> instance constructed is
-        valid, contains valid <code>ClassB</code> and <code>ClassC</code>
-        instances, and all have the expected internal state.</p>
+        valid, contains a reference to a valid instance of <code>ClassB</code>
+        and a copy of a valid <code>ClassC</code> instance, and all have the
+        expected internal state.</p>
       <p>New <code>UnitTests::gp_tree_eval_simple()</code> similarly tests
         evaluation of <code>GpTree</code>s with numeric values.</p>
     </div>
