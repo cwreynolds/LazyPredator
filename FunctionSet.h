@@ -38,8 +38,19 @@ template<typename T> std::string any_to_string(std::any a)
     return std::to_string(std::any_cast<T>(a));
 }
 
-class GpTree;
-class GpFunction;
+// TODO -- LPRS() temporary global RandomSequence used for both makeRandomTree
+//         and ephemeral generators. Move somewhere else? Redesign?
+class LP
+{
+public:
+    static RandomSequence& randomSequence() { return random_sequence; }
+private:
+    static inline RandomSequence random_sequence;
+};
+inline RandomSequence& LPRS() { return LP::randomSequence(); }
+
+class GpTree;      // Forward reference to class defined below.
+class GpFunction;  // Forward reference to class defined below.
 
 // Class to represent types in "strongly typed genetic programming".
 class GpType
@@ -72,7 +83,7 @@ public:
     // Minimum "size" of tree returning this type from root;
     int minSizeToTerminate() const { return min_size_to_terminate_; }
     void setMinSizeToTerminate(int s) { min_size_to_terminate_ = s; }
-    void print();
+    void print() const;
     bool valid() const
     {
         return ((!name().empty()) &&
@@ -138,7 +149,7 @@ public:
     // TODO probably should assert they match (this and tree root GpFunction)
     std::any eval(const GpTree& tree) const { return eval_(tree);  }
     // Print description of this GpFunction to std::cout.
-    void print()
+    void print() const
     {
         std::cout << "GpFunction: " << name() << ", return_type: ";
         std::cout << returnTypeName() << ", parameters: (";
@@ -161,7 +172,7 @@ private:
 };
 
 // Down here because it requires both GpType and GpFunction to be defined.
-inline void GpType::print()
+inline void GpType::print() const
 {
     std::cout << "GpType: " << name();
     std::cout << ", min size to terminate: " << minSizeToTerminate();
@@ -199,9 +210,12 @@ public:
     const GpTree& getSubtree(int i) const { return subtrees().at(i); }
     // Get/set reference to GpFunction object at root of this tree.
     const GpFunction& getFunction() const { return *root_function_; }
-    void setFunction(const GpFunction& function) { root_function_ = &function; }
-    // Get/set GpType returned by the root of the GpTree.
-    void setType(const GpType& gp_type) { root_type_ = &gp_type; }
+    void setFunction(const GpFunction& function)
+    {
+        root_function_ = &function;
+        root_type_ = function.returnType();
+    }
+    // Get GpType returned by the root of this GpTree.
     const GpType& getType() const { return *root_type_; }
     // Add (allocate) "count" new subtrees. Should only be called once.
     // TODO maybe instead of "add" call it "declare" or "init"?
@@ -218,12 +232,14 @@ public:
         return count;
     }
     // Get/set the value of this GpTree with no subtrees. This "leaf value" of
-    // the tree is typically a terminal constant or varible.
+    // the tree is typically a terminal constant or varible. Note that setting
+    // the value requires a GpType be specified.
     std::any getLeafValue() const { return leaf_value_; }
-    // TODO deprecate this one arg version? Better to always set type too?
-    void setLeafValue(std::any value) { leaf_value_ = value; }
     void setLeafValue(std::any value, const GpType& gp_type)
-        { leaf_value_ = value; setType(gp_type);}
+    {
+        leaf_value_ = value;
+        root_type_ = &gp_type;
+    }
     // A GpTree is a "leaf node" if it has no GpFunction at its root.
     bool isLeaf() const { return !root_function_; }
     // Evaluate this tree. Run/evaluate the GpFunction at the root, recursively
@@ -261,9 +277,6 @@ public:
         }
         return s;
     }
-//    // TODO should get rid of these but currenly used by unit tests.
-//    std::string id() const { return id_; }      // TODO for debugging only.
-//    void setId(std::string s) { id_ = s; }      // TODO for debugging only.
 private:
     // Add (allocate) one subtree. addSubtrees() is external API.
     void addSubtree() { subtrees_.push_back({}); }
@@ -338,11 +351,11 @@ public:
     }
 
     // TODO just for debugging
-    bool dp = false;
+    static inline bool dp = false;
     // TODO just for debugging
-    int dp_depth = 0;
+    static inline int dp_depth = 0;
     // TODO just for debugging
-    void dp_prefix()
+    void dp_prefix() const
     {
         if (dp)
         {
@@ -355,7 +368,7 @@ public:
     // What is the minimum "size" required to terminate a program subtree with
     // the given function at the root? At FunctionSet construction time, this
     // computes the number which is then stored on each GpFunction instance.
-    int minSizeToTerminateFunction(const GpFunction& gp_function)
+    int minSizeToTerminateFunction(const GpFunction& gp_function) const
     {
         // We need 1 for the function name itself (or an ephemeral constant).
         int size = 1;
@@ -371,7 +384,7 @@ public:
     // can be implemented in a subtree no larger than max_size. Returns nullptr
     // if none found.
     GpFunction* randomFunctionOfTypeInSize(int max_size,
-                                           const GpType& return_type)
+                                           const GpType& return_type) const
     {
         std::vector<GpFunction*> ok;
         for (auto& gp_function : return_type.functionsReturningThisType())
@@ -384,7 +397,7 @@ public:
             dp_prefix(); debugPrint(max_size);
             dp_prefix(); debugPrint(return_type.name());
         }
-        return (ok.empty() ? nullptr : ok.at(rs().randomN(ok.size())));
+        return (ok.empty() ? nullptr : ok.at(LPRS().randomN(ok.size())));
     }
 
     // Creates a random program (nested expression) using the "language" defined
@@ -395,7 +408,7 @@ public:
                            const GpType& return_type,
                            int& output_actual_size,
                            std::string& source_code,
-                           GpTree& gp_tree)
+                           GpTree& gp_tree) const
     {
         if (dp)
         {
@@ -423,8 +436,7 @@ public:
             // TODO should pass rs() into the generator for repeatability.
             std::any leaf_value = return_type.generateEphemeralConstant();
             source_code += return_type.to_string(leaf_value);
-            gp_tree.setLeafValue(leaf_value);
-            gp_tree.setType(return_type);
+            gp_tree.setLeafValue(leaf_value, return_type);
         }
         else
         {
@@ -446,7 +458,7 @@ public:
                            const std::string& return_type_name,
                            int& output_actual_size,
                            std::string& source_code,
-                           GpTree& gp_tree)
+                           GpTree& gp_tree) const
     {
         makeRandomProgram(max_size,
                           *lookupGpTypeByName(return_type_name),
@@ -459,8 +471,8 @@ public:
                                const GpType& return_type,
                                const GpFunction& root_function,
                                int& output_actual_size,
-                           std::string& source_code,
-                           GpTree& gp_tree)
+                               std::string& source_code,
+                               GpTree& gp_tree) const
     {
         if (dp)
         {
@@ -476,7 +488,6 @@ public:
         bool first = true;   // TODO log
         // Set root function in given GpTree object
         gp_tree.setFunction(root_function);
-        gp_tree.setType(return_type);
         // For each parameter of root, add/allocate a subtree in the GpTree.
         // Important this happen first so no iterators are invalidated later.
         gp_tree.addSubtrees(root_function.parameterTypes().size());
@@ -525,44 +536,60 @@ public:
         source_code += ")";
     }
 
-    void print()
+    void print() const
     {
         for (auto& [n, t] : nameToGpTypeMap()) t.print();
         for (auto& [n, f] : nameToGpFunctionMap()) f.print();
     }
     
-    // Accessor for RandomSequence, perhaps only needed for testing?
-    RandomSequence& rs() { return rs_; }
-    
-    // TODO maybe there should be const versions of these for "observers" like
-    // UnitTests.
-    // TODO should these be private?
-    // TODO better to return pointer or reference?
-    // Lookup pointer to GpType/GpFunction object.
-    GpType* lookupGpTypeByName(const std::string& name) //const
+    // Map from string names to (pointers to) GpTypes and GpFunction objects,
+    // for both const (read only) and non-const (writable, for internal use only
+    // during constructor)
+    // TODO should the non-const versions be PRIVATE?  TODO TODO TODO TODO TODO
+private:
+    GpType* lookupGpTypeByName(const std::string& name)
     {
         auto it = name_to_gp_type_.find(name);
         assert("unknown type" && (it != name_to_gp_type_.end()));
         return &(it->second);
     }
-    GpFunction* lookupGpFunctionByName(const std::string& name) //const
+public:
+    const GpType* lookupGpTypeByName(const std::string& name) const
+    {
+        auto it = name_to_gp_type_.find(name);
+        assert("unknown type" && (it != name_to_gp_type_.end()));
+        return &(it->second);
+    }
+private:
+    GpFunction* lookupGpFunctionByName(const std::string& name)
     {
         auto it = name_to_gp_function_.find(name);
         assert("unknown function" && (it != name_to_gp_function_.end()));
         return &(it->second);
     }
+public:
+    const GpFunction* lookupGpFunctionByName(const std::string& name) const
+    {
+        auto it = name_to_gp_function_.find(name);
+        assert("unknown function" && (it != name_to_gp_function_.end()));
+        return &(it->second);
+    }
+
     // Add new GpType/GpFunction to FunctionSet, stored in a name-to-object map.
     void addGpType(GpType& type) { name_to_gp_type_[type.name()] = type; }
     void addGpFunction(GpFunction& f) { name_to_gp_function_[f.name()] = f; }
     // Get reference to name-to-object maps of all GpType/GpFunction objects
     std::map<std::string, GpType>& nameToGpTypeMap()
         { return name_to_gp_type_; }
+    const std::map<std::string, GpType>& nameToGpTypeMap() const
+        { return name_to_gp_type_; }
     std::map<std::string, GpFunction>& nameToGpFunctionMap()
+        { return name_to_gp_function_; }
+    const std::map<std::string, GpFunction>& nameToGpFunctionMap() const
         { return name_to_gp_function_; }
 private:
     // These maps are used both to store the GpType and GpFunction objects,
     // plus to look up those objects from their character string names.
     std::map<std::string, GpType> name_to_gp_type_;
     std::map<std::string, GpFunction> name_to_gp_function_;
-    RandomSequence rs_;
 };

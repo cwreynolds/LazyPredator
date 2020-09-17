@@ -573,15 +573,57 @@ int main(int argc, const char * argv[])
 
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     
-    // Working on eval() when values involve class instances.
-    std::cout << "September 13, 2020" << std::endl;
-    std::string path = "/Users/cwr/Desktop/TexSyn_temp/202009013_";
+//    // Working on eval() when values involve class instances.
+//    std::cout << "September 13, 2020" << std::endl;
+//    std::string path = "/Users/cwr/Desktop/TexSyn_temp/202009013_";
+//
+//    debugPrint(TestFS::ClassC(1, 2).to_string());
+//    debugPrint(TestFS::ClassB(0.5).to_string());
+//    debugPrint(TestFS::ClassA(TestFS::ClassB(0.5), TestFS::ClassC(1, 2))
+//               .to_string());
+    
+    //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    
+    // Refactor FunctionSet (etc.) to work as const value.
+    std::cout << "September 17, 2020" << std::endl;
+    std::string path = "/Users/cwr/Desktop/TexSyn_temp/202009017_";
     
     debugPrint(TestFS::ClassC(1, 2).to_string());
     debugPrint(TestFS::ClassB(0.5).to_string());
     debugPrint(TestFS::ClassA(TestFS::ClassB(0.5), TestFS::ClassC(1, 2))
                .to_string());
-    
+
+    std::string root_type = "Float";
+    const FunctionSet& fs = TestFS::treeEval();
+
+    std::cout << std::endl;
+    fs.print();
+    std::cout << std::endl;
+            
+    const GpType& type_float = *fs.lookupGpTypeByName("Float");
+    for (auto& gp_function : type_float.functionsReturningThisType())
+    {
+        debugPrint(gp_function->name());
+    }
+    GpFunction* rf = fs.randomFunctionOfTypeInSize(100, type_float);
+    debugPrint(rf);
+    debugPrint(rf->name());
+
+    for (int i = 0; i < 10; i++)
+    {
+        int actual_size = 0;
+        std::string source_code;
+        GpTree gp_tree;
+        fs.makeRandomProgram(100, root_type, actual_size, source_code, gp_tree);
+        assert(actual_size == gp_tree.size());
+        std::cout << std::endl << gp_tree.to_string() << std::endl;
+        std::cout << "size=" << gp_tree.size() << std::endl;
+        std::cout << "eval=" << std::any_cast<float>(gp_tree.eval()) << std::endl;
+    }
+
+    // as of Sep 17 am: "...Floor(Mult(0.426497, Floor(0.142021))))))))"
+    // as of Sep 17 am: "...Sqrt(AddInt(Floor(0.904627), Floor(0.081947)))))))
+    //                  eval=43.6148"
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     //

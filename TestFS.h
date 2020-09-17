@@ -86,12 +86,12 @@ private:
         {
             {
                 "Float",
-                [](){ return std::any(frandom01()); },
+                [](){ return std::any(LPRS().frandom01()); },
                 any_to_string<float>
             },
             {
                 "Int",
-                [](){ return std::any(int(rand() % 10)); },
+                [](){ return std::any(int(LPRS().randomN(10))); },
                 any_to_string<int>
             },
             {
@@ -153,12 +153,12 @@ private:
         {
             {
                 "Float",
-                [](){ return std::any(frandom01()); },
+                [](){ return std::any(LPRS().frandom01()); },
                 any_to_string<float>
             },
             {
                 "Int",
-                [](){ return std::any(int(rand() % 10)); },
+                [](){ return std::any(int(LPRS().randomN(10))); },
                 any_to_string<int>
             }
         },
@@ -205,7 +205,7 @@ private:
             {"Vec2"},
             {
                 "Float_01",
-                [](){ return std::any(int(frandom01() < 0.5 ? 0 : 1)); },
+                [](){ return std::any(int(LPRS().frandom01() < 0.5 ? 0 : 1)); },
                 any_to_string<int>,
             }
         },
