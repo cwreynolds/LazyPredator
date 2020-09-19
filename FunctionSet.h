@@ -288,6 +288,15 @@ private:
     std::string id_;                            // TODO for debugging only.
 };
 
+// Used only below in FunctionSet, then undef-ed at end of file.
+#define name_lookup_util(name, map)               \
+[&]()                                             \
+{                                                 \
+    auto it = map.find(name);                     \
+    assert("unknown type" && (it != map.end()));  \
+    return &(it->second);                         \
+}()
+
 // Defines the function set used in a STGP run. Consists of a collection of
 // GpTypes and one of GpFunctions. Supports creation of random program drawn
 // from those types and functions, given a max_size and root type.
@@ -484,39 +493,14 @@ public:
         for (auto& [n, f] : nameToGpFunctionMap()) f.print();
     }
     
-    // Map from string names to (pointers to) GpTypes and GpFunction objects,
-    // for both const (read only) and non-const (writable, for internal use only
-    // during constructor)
-    // TODO should the non-const versions be PRIVATE?  TODO TODO TODO TODO TODO
-private:
-    GpType* lookupGpTypeByName(const std::string& name)
-    {
-        auto it = name_to_gp_type_.find(name);
-        assert("unknown type" && (it != name_to_gp_type_.end()));
-        return &(it->second);
-    }
-public:
+    // Map string names to (pointers to) GpTypes/GpFunction objects, for both
+    // const (public, read only) and non-const (private, writable, for internal
+    // use only during constructor). Use macro to remove code duplication.
     const GpType* lookupGpTypeByName(const std::string& name) const
-    {
-        auto it = name_to_gp_type_.find(name);
-        assert("unknown type" && (it != name_to_gp_type_.end()));
-        return &(it->second);
-    }
-private:
-    GpFunction* lookupGpFunctionByName(const std::string& name)
-    {
-        auto it = name_to_gp_function_.find(name);
-        assert("unknown function" && (it != name_to_gp_function_.end()));
-        return &(it->second);
-    }
-public:
+        { return name_lookup_util(name, nameToGpTypeMap()); }
     const GpFunction* lookupGpFunctionByName(const std::string& name) const
-    {
-        auto it = name_to_gp_function_.find(name);
-        assert("unknown function" && (it != name_to_gp_function_.end()));
-        return &(it->second);
-    }
-
+        { return name_lookup_util(name, nameToGpFunctionMap()); }
+    
     // Add new GpType/GpFunction to FunctionSet, stored in a name-to-object map.
     void addGpType(GpType& type) { name_to_gp_type_[type.name()] = type; }
     void addGpFunction(GpFunction& f) { name_to_gp_function_[f.name()] = f; }
@@ -534,4 +518,11 @@ private:
     // plus to look up those objects from their character string names.
     std::map<std::string, GpType> name_to_gp_type_;
     std::map<std::string, GpFunction> name_to_gp_function_;
+    // Non-const versions for used only in constructor.
+    GpType* lookupGpTypeByName(const std::string& name)
+        { return name_lookup_util(name, nameToGpTypeMap()); }
+    GpFunction* lookupGpFunctionByName(const std::string& name)
+        { return name_lookup_util(name, nameToGpFunctionMap()); }
 };
+
+#undef name_lookup_util
