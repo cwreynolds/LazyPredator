@@ -54,16 +54,14 @@ bool random_program_size_limit()
     for (int i = 0; i < total_subtests; i++)
     {
         int max_size = int(rs.frandom2(4, 100));
-        int actual_size = 0;
-        std::string source_code;
-        fs.dp_depth = 0;
-        GpTree gp_tree;
-        fs.makeRandomProgram(max_size, "Float",
-                             actual_size, source_code, gp_tree);
+        int actual_size = 0;  // Output arg, set to actual size of random tree.
+        GpTree gp_tree;       // Output arg, stores random tree.
+        fs.makeRandomProgram(max_size, "Float", actual_size, gp_tree);
+        // Are both measures of size (from makeRandomProgram() and measured
+        // after the fact by GpTree) within given limit? And they match?
         bool ok = (st(actual_size <= max_size) &&
-                   st(gp_tree.size() <= max_size)) &&
-                   st(actual_size == gp_tree.size()) &&
-                   st(source_code == gp_tree.to_string());
+                   st(gp_tree.size() <= max_size) &&
+                   st(actual_size == gp_tree.size()));
         if (!ok) all_ok = false;
     }
     return all_ok;

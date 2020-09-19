@@ -349,21 +349,6 @@ public:
             gp_function.setMinSizeToTerminate(min_size);
         }
     }
-
-    // TODO just for debugging
-    static inline bool dp = false;
-    // TODO just for debugging
-    static inline int dp_depth = 0;
-    // TODO just for debugging
-    void dp_prefix() const
-    {
-        if (dp)
-        {
-            std::string prefix;
-            for (int i = 0; i < dp_depth + 1; i++) prefix += "| ";
-            std::cout << prefix;
-        }
-    }
     
     // What is the minimum "size" required to terminate a program subtree with
     // the given function at the root? At FunctionSet construction time, this
@@ -392,11 +377,6 @@ public:
             int ms = gp_function->minSizeToTerminate();
             if (max_size >= ms) { ok.push_back(gp_function); }
         }
-        if (ok.empty() && dp)
-        {
-            dp_prefix(); debugPrint(max_size);
-            dp_prefix(); debugPrint(return_type.name());
-        }
         return (ok.empty() ? nullptr : ok.at(LPRS().randomN(ok.size())));
     }
 
@@ -407,18 +387,8 @@ public:
     void makeRandomProgram(int max_size,
                            const GpType& return_type,
                            int& output_actual_size,
-                           std::string& source_code,
                            GpTree& gp_tree) const
     {
-        if (dp)
-        {
-            dp_prefix();
-            std::cout << ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" << std::endl;
-            dp_prefix(); debugPrint(max_size);
-            dp_prefix(); debugPrint(return_type.name());
-            dp_prefix(); debugPrint(source_code);
-            dp_prefix(); std::cout << std::endl;
-        }
         // Find all function whose value is return_type, for which a subtree can
         // be constructed in max_size or fewer nodes, and select on randomly.
         GpFunction* rf = randomFunctionOfTypeInSize(max_size, return_type);
@@ -426,7 +396,7 @@ public:
         {
             // If found, recurse on a subtree with that function at the root.
             makeRandomProgramRoot(max_size, return_type, *rf,
-                                  output_actual_size, source_code, gp_tree);
+                                  output_actual_size, gp_tree);
         }
         else if (return_type.hasEphemeralGenerator())
         {
@@ -435,7 +405,6 @@ public:
             output_actual_size++;
             // TODO should pass rs() into the generator for repeatability.
             std::any leaf_value = return_type.generateEphemeralConstant();
-            source_code += return_type.to_string(leaf_value);
             gp_tree.setLeafValue(leaf_value, return_type);
         }
         else
@@ -446,24 +415,30 @@ public:
             std::cout << std::endl;
             exit(EXIT_FAILURE);
         }
-        if (dp)
-        {
-            dp_prefix();
-            std::cout << "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<" << std::endl;
-        }
     }
 
     // Overload to allow passing return_type_name as a string from top level.
     void makeRandomProgram(int max_size,
                            const std::string& return_type_name,
                            int& output_actual_size,
-                           std::string& source_code,
                            GpTree& gp_tree) const
     {
         makeRandomProgram(max_size,
                           *lookupGpTypeByName(return_type_name),
                           output_actual_size,
-                          source_code,
+                          gp_tree);
+    }
+
+    // Overload to allow passing return_type_name as a string from top level,
+    // and NOT passing in output_actual_size.
+    void makeRandomProgram(int max_size,
+                           const std::string& return_type_name,
+                           GpTree& gp_tree) const
+    {
+        int output_actual_size = 0;
+        makeRandomProgram(max_size,
+                          return_type_name,
+                          output_actual_size,
                           gp_tree);
     }
 
@@ -471,21 +446,11 @@ public:
                                const GpType& return_type,
                                const GpFunction& root_function,
                                int& output_actual_size,
-                               std::string& source_code,
                                GpTree& gp_tree) const
     {
-        if (dp)
-        {
-            dp_prefix(); debugPrint(max_size);
-            dp_prefix(); debugPrint(return_type.name());
-            dp_prefix(); debugPrint(root_function.name());
-            dp_prefix(); debugPrint(root_function.parameterTypes().size());
-        }
         output_actual_size++;  // for "function_name" (or epheneral) itself
         int size_used = 0;
         int count = int(root_function.parameterTypes().size());
-        source_code += root_function.name() + "(";  // TODO log
-        bool first = true;   // TODO log
         // Set root function in given GpTree object
         gp_tree.setFunction(root_function);
         // For each parameter of root, add/allocate a subtree in the GpTree.
@@ -496,44 +461,21 @@ public:
         // Loop over each parameter of "function_name" generating a subtree.
         for (auto& parameter_type : root_function.parameterTypes())
         {
-            if (dp)
-            {
-                dp_prefix(); std::cout << "((((((((((((((((((";
-                std::cout << " param=" << root_function.parameterTypes().size() - count;
-                std::cout << " type=" << parameter_type;
-                std::cout << std::endl;
-            }
-            if (first) first = false; else source_code += ", ";  // TODO log
             int fair_share = (max_size - (1 + size_used)) / count;
             int min_size_for_type = parameter_type->minSizeToTerminate();
             int subtree_max_size = std::max(fair_share, min_size_for_type);
-            if (dp) { dp_prefix(); debugPrint(subtree_max_size); }
             int subtree_actual_size = 0;
             std::string subtree_source;
-            dp_depth++;
-            makeRandomProgram(subtree_max_size, *parameter_type,
-                              subtree_actual_size, subtree_source,
+            makeRandomProgram(subtree_max_size,
+                              *parameter_type,
+                              subtree_actual_size,
                               gp_tree.subtrees().at(subtree_index));
             // TODO do this in a cleaner way after it is working
             subtree_index++;
-            dp_depth--;
             output_actual_size += subtree_actual_size;
             size_used += subtree_actual_size;
-            source_code += subtree_source;
-            if (dp)
-            {
-                dp_prefix(); debugPrint(subtree_max_size);
-                dp_prefix(); debugPrint(subtree_actual_size);
-                dp_prefix(); debugPrint(subtree_source);
-                dp_prefix(); debugPrint(count);
-            }
             count--;
-            if (dp)
-            {
-                dp_prefix(); std::cout << "))))))))))))))))))" << std::endl;
-            }
         }
-        source_code += ")";
     }
 
     void print() const

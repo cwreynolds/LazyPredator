@@ -584,55 +584,82 @@ int main(int argc, const char * argv[])
     
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     
-    // Refactor FunctionSet (etc.) to work as const value.
-    std::cout << "September 17, 2020" << std::endl;
-    std::string path = "/Users/cwr/Desktop/TexSyn_temp/202009017_";
-    
-    debugPrint(TestFS::ClassC(1, 2).to_string());
-    debugPrint(TestFS::ClassB(0.5).to_string());
-    debugPrint(TestFS::ClassA(TestFS::ClassB(0.5), TestFS::ClassC(1, 2))
-               .to_string());
+//    // Refactor FunctionSet (etc.) to work as const value.
+//    std::cout << "September 17, 2020" << std::endl;
+//    std::string path = "/Users/cwr/Desktop/TexSyn_temp/202009017_";
+//
+//    debugPrint(TestFS::ClassC(1, 2).to_string());
+//    debugPrint(TestFS::ClassB(0.5).to_string());
+//    debugPrint(TestFS::ClassA(TestFS::ClassB(0.5), TestFS::ClassC(1, 2))
+//               .to_string());
+//
+//    std::string root_type = "Float";
+//    const FunctionSet& fs = TestFS::treeEval();
+//
+//    std::cout << std::endl;
+//    fs.print();
+//    std::cout << std::endl;
+//
+//    const GpType& type_float = *fs.lookupGpTypeByName("Float");
+//    for (auto& gp_function : type_float.functionsReturningThisType())
+//    {
+//        debugPrint(gp_function->name());
+//    }
+//    GpFunction* rf = fs.randomFunctionOfTypeInSize(100, type_float);
+//    debugPrint(rf);
+//    debugPrint(rf->name());
+//
+//    for (int i = 0; i < 10; i++)
+//    {
+//        int actual_size = 0;
+//        std::string source_code;
+//        GpTree gp_tree;
+//        fs.makeRandomProgram(100, root_type, actual_size, source_code, gp_tree);
+//        assert(actual_size == gp_tree.size());
+//        std::cout << std::endl << gp_tree.to_string() << std::endl;
+//        std::cout << "size=" << gp_tree.size() << std::endl;
+//        std::cout << "eval=" << std::any_cast<float>(gp_tree.eval()) << std::endl;
+//    }
+//
+//    // as of Sep 17 am: "...Floor(Mult(0.426497, Floor(0.142021))))))))"
+//    // as of Sep 17 am: "...Sqrt(AddInt(Floor(0.904627), Floor(0.081947)))))))
+//    //                  eval=43.6148"
+//
+//    //
+//    //     ...AddInt(Floor(0.987937), Floor(0.257169)))),
+//    //        Sqrt(Floor(AddFloat(Sqrt(Floor(Sqrt(7))),
+//    //        AddFloat(Sqrt(7), Sqrt(3))))))))
+//    //     size=100
+//    //     eval=74.2361
 
+    //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    
+    // Remove FunctionSet::dp, dp_depth, and dp_prefix()
+    std::cout << "September 18, 2020" << std::endl;
+    std::string path = "/Users/cwr/Desktop/TexSyn_temp/202009018_";
+    
+    
     std::string root_type = "Float";
     const FunctionSet& fs = TestFS::treeEval();
-
     std::cout << std::endl;
     fs.print();
     std::cout << std::endl;
-            
-    const GpType& type_float = *fs.lookupGpTypeByName("Float");
-    for (auto& gp_function : type_float.functionsReturningThisType())
-    {
-        debugPrint(gp_function->name());
-    }
-    GpFunction* rf = fs.randomFunctionOfTypeInSize(100, type_float);
-    debugPrint(rf);
-    debugPrint(rf->name());
-
     for (int i = 0; i < 10; i++)
     {
-        int actual_size = 0;
-        std::string source_code;
         GpTree gp_tree;
-        fs.makeRandomProgram(100, root_type, actual_size, source_code, gp_tree);
-        assert(actual_size == gp_tree.size());
+        fs.makeRandomProgram(100, root_type, gp_tree);
         std::cout << std::endl << gp_tree.to_string() << std::endl;
         std::cout << "size=" << gp_tree.size() << std::endl;
         std::cout << "eval=" << std::any_cast<float>(gp_tree.eval()) << std::endl;
     }
+    
+    // Should end:
+    //    "...AddInt(Floor(0.910863), AddInt(9, 5))))))"
+    //    size=100
+    //    eval=165.879
 
-    // as of Sep 17 am: "...Floor(Mult(0.426497, Floor(0.142021))))))))"
-    // as of Sep 17 am: "...Sqrt(AddInt(Floor(0.904627), Floor(0.081947)))))))
-    //                  eval=43.6148"
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    //
-    // ...AddInt(Floor(0.987937), Floor(0.257169)))),
-    //    Sqrt(Floor(AddFloat(Sqrt(Floor(Sqrt(7))),
-    //    AddFloat(Sqrt(7), Sqrt(3))))))))
-    // size=100
-    // eval=74.2361
-    //
     // TODO temporarily doing this at the end to avoid disrupting the rand()
     // sequence leading to the exemplar result above. Need to fix the way
     // ephemeral constants use the global RS.
