@@ -56,9 +56,9 @@ bool random_program_size_limit()
         int max_size = int(rs.frandom2(4, 100));
         int actual_size = 0;  // Output arg, set to actual size of random tree.
         GpTree gp_tree;       // Output arg, stores random tree.
-        fs.makeRandomProgram(max_size, "Float", actual_size, gp_tree);
-        // Are both measures of size (from makeRandomProgram() and measured
-        // after the fact by GpTree) within given limit? And they match?
+        fs.makeRandomTree(max_size, "Float", actual_size, gp_tree);
+        // Are both measures of size (from makeRandomTree() and measured
+        // after the fact from GpTree) within given limit? And they match?
         bool ok = (st(actual_size <= max_size) &&
                    st(gp_tree.size() <= max_size) &&
                    st(actual_size == gp_tree.size()));

@@ -393,10 +393,10 @@ public:
     // in this FunctionSet. Parameter "max_size" is upper bound on the number of
     // nodes (function calls or constants) in the resulting program. The program
     // returns a value of "return_type" from its root.
-    void makeRandomProgram(int max_size,
-                           const GpType& return_type,
-                           int& output_actual_size,
-                           GpTree& gp_tree) const
+    void makeRandomTree(int max_size,
+                        const GpType& return_type,
+                        int& output_actual_size,
+                        GpTree& gp_tree) const
     {
         // Find all function whose value is return_type, for which a subtree can
         // be constructed in max_size or fewer nodes, and select on randomly.
@@ -404,8 +404,8 @@ public:
         if (rf)
         {
             // If found, recurse on a subtree with that function at the root.
-            makeRandomProgramRoot(max_size, return_type, *rf,
-                                  output_actual_size, gp_tree);
+            makeRandomTreeRoot(max_size, return_type, *rf,
+                               output_actual_size, gp_tree);
         }
         else if (return_type.hasEphemeralGenerator())
         {
@@ -427,35 +427,32 @@ public:
     }
 
     // Overload to allow passing return_type_name as a string from top level.
-    void makeRandomProgram(int max_size,
-                           const std::string& return_type_name,
-                           int& output_actual_size,
-                           GpTree& gp_tree) const
+    void makeRandomTree(int max_size,
+                        const std::string& return_type_name,
+                        int& output_actual_size,
+                        GpTree& gp_tree) const
     {
-        makeRandomProgram(max_size,
-                          *lookupGpTypeByName(return_type_name),
-                          output_actual_size,
-                          gp_tree);
+        makeRandomTree(max_size,
+                       *lookupGpTypeByName(return_type_name),
+                       output_actual_size,
+                       gp_tree);
     }
 
     // Overload to allow passing return_type_name as a string from top level,
     // and NOT passing in output_actual_size.
-    void makeRandomProgram(int max_size,
-                           const std::string& return_type_name,
-                           GpTree& gp_tree) const
+    void makeRandomTree(int max_size,
+                        const std::string& return_type_name,
+                        GpTree& gp_tree) const
     {
         int output_actual_size = 0;
-        makeRandomProgram(max_size,
-                          return_type_name,
-                          output_actual_size,
-                          gp_tree);
+        makeRandomTree(max_size, return_type_name, output_actual_size, gp_tree);
     }
 
-    void makeRandomProgramRoot(int max_size,
-                               const GpType& return_type,
-                               const GpFunction& root_function,
-                               int& output_actual_size,
-                               GpTree& gp_tree) const
+    void makeRandomTreeRoot(int max_size,
+                            const GpType& return_type,
+                            const GpFunction& root_function,
+                            int& output_actual_size,
+                            GpTree& gp_tree) const
     {
         output_actual_size++;  // for "function_name" (or epheneral) itself
         int size_used = 0;
@@ -475,10 +472,10 @@ public:
             int subtree_max_size = std::max(fair_share, min_size_for_type);
             int subtree_actual_size = 0;
             std::string subtree_source;
-            makeRandomProgram(subtree_max_size,
-                              *parameter_type,
-                              subtree_actual_size,
-                              gp_tree.subtrees().at(subtree_index));
+            makeRandomTree(subtree_max_size,
+                           *parameter_type,
+                           subtree_actual_size,
+                           gp_tree.subtrees().at(subtree_index));
             // TODO do this in a cleaner way after it is working
             subtree_index++;
             output_actual_size += subtree_actual_size;

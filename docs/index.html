@@ -105,6 +105,42 @@
       details of the implementation. On the other hand, I do want it to be more
       prose-like than the terse <code>git commit</code> messages.)</p>
     <br style="##########################################################################">
+    <div class="post" id="20200919"> <a href="#20200919" class="date">September
+        19, 2020</a>
+      <h1>Tweaks to <code>FunctionSet</code></h1>
+      <p>Well that exploded quickly! I noticed that the recording of <code>GpType</code>
+        with a constant “leaf” value in a <code>GpTree</code> was wrong, which
+        was going undetected, and ultimately not mattering. The latter—that the
+        <code>GpType</code> is redundant since it can be inferred from the
+        parent <code>GpTree</code> node—is an issue to consider later. However
+        if the value is stored it ought to be correct. It either needed to be
+        error checked (which it now is, at least in the unit test) or set in
+        sync with the tree's root function or leaf value are set. I changed <code>GpTree::setFunction()</code>
+        and <code>GpTree::setLeafValue()</code> to record a <code>GpType</code>
+        in the <code>GpTree</code>'s root.</p>
+      <p>Or that was what I did after I fixed the <em>other</em> bug I ran
+        into. Sample <code>FunctionSet</code>s are defined in <code>TestFS</code>.
+        Those are immutable <code>const</code> references. I had been copying
+        those because previously <code>FunctionSet</code> assumed it could
+        mutate itself. So I made several changes to allow <code>FunctionSet</code>s
+        to remain immutable. Part of that was to move a <code>RandomSequence</code>
+        object from inside <code>FunctionSet</code> out to global scope, now
+        accessed as <code>LPRS()</code>. That also needs to be reconsidered.
+        Maybe it should belong to <code>Population</code> class or something
+        else. In any case, the point is to have restartable random number
+        sequences when that is helpful for testing or debugging.</p>
+      <p>I was also concerned that there were four nearly identical short
+        functions in <code>FunctionSet</code>: <code>const</code> and non-<code>const</code>
+        versions of <code>lookupGpTypeByName()</code> and <code>lookupGpFunctionByName()</code>.
+        In fact their bodies were exactly identical, the differences were <code>const</code>-ness
+        of the functions and their return values. I tried making their bodies a
+        common function, then a common template, then finally fell back to a
+        common preprocessor macro. Not pretty, but some times you just need to
+        turn off type checking.</p>
+      <p>Finally, since its role is to create a random <code>GpTree</code>, I
+        renamed <code>FunctionSet</code>'s <code>makeRandomProgram()</code> to
+        <code>makeRandomTree()</code>.</p>
+    </div>
     <div class="post" id="20200915"> <a href="#20200915" class="date">September
         15, 2020</a>
       <h1>Tree evaluation to construct procedural models</h1>
