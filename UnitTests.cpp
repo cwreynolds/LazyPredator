@@ -50,6 +50,7 @@ bool random_program_size_limit()
     bool all_ok = true;
     int total_subtests = 1000;
     RandomSequence rs(77365918);
+    LPRS() = rs;
     const FunctionSet& fs = TestFS::treeEval();
     for (int i = 0; i < total_subtests; i++)
     {

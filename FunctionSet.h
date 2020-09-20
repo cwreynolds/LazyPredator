@@ -32,12 +32,6 @@
 #include <limits>
 #include "Utilities.h"
 
-// TODO put this in Utilities?
-template<typename T> std::string any_to_string(std::any a)
-{
-    return std::to_string(std::any_cast<T>(a));
-}
-
 // TODO -- LPRS() temporary global RandomSequence used for both makeRandomTree
 //         and ephemeral generators. Move somewhere else? Redesign?
 class LP

@@ -11,27 +11,6 @@
 #pragma once
 #include "FunctionSet.h"
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// TODO reconsider, move to Utilities if kept.
-#include  <sstream>
-inline std::string float_to_string(float f)
-{
-    std::stringstream ss;
-    ss << f;
-    return ss.str();
-}
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// TODO do the class instance values returned from GpFunctions want to be:
-//      return std::any(Uniform(...));
-//      return std::any(new Uniform(...));
-//      return std::any(*(new Uniform(...)));
-//
-//      I think std::any(Vec2()) is fine, but for classes derived from Texture?
-//
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 class TestFS
 {
 public:
@@ -63,7 +42,7 @@ public:
         ClassB(float f) : f_(f) {}
         std::string to_string() const
         {
-            return "ClassB(" + float_to_string(f_) + ")";
+            return "ClassB(" + any_to_string<float>(f_) + ")";
         }
     private:
         float f_;

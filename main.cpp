@@ -11,14 +11,8 @@
 
 int main(int argc, const char * argv[])
 {
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // TODO temporary experiments with std::any
-    if ((false))
-        UnitTests::allTestsOK();
-    else
-        std::cout << "WARNING UnitTests disabled!!" << std::endl;
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
+    UnitTests::allTestsOK();
+    
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //    // Testing instance counter for Individual.
 //    std::cout << "August 7, 2020" << std::endl;
@@ -638,12 +632,12 @@ int main(int argc, const char * argv[])
     std::cout << "September 18, 2020" << std::endl;
     std::string path = "/Users/cwr/Desktop/TexSyn_temp/202009018_";
     
-    
     std::string root_type = "Float";
     const FunctionSet& fs = TestFS::treeEval();
     std::cout << std::endl;
     fs.print();
     std::cout << std::endl;
+    LPRS().setSeed();
     for (int i = 0; i < 10; i++)
     {
         GpTree gp_tree;
@@ -659,12 +653,5 @@ int main(int argc, const char * argv[])
     //    eval=165.879
 
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // TODO temporarily doing this at the end to avoid disrupting the rand()
-    // sequence leading to the exemplar result above. Need to fix the way
-    // ephemeral constants use the global RS.
-    std::cout << std::endl;
-    UnitTests::allTestsOK();
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     return EXIT_SUCCESS;
 }
