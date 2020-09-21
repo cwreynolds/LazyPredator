@@ -632,7 +632,7 @@ int main(int argc, const char * argv[])
     std::cout << "September 18, 2020" << std::endl;
     std::string path = "/Users/cwr/Desktop/TexSyn_temp/202009018_";
     
-    std::string root_type = "Float";
+    //std::string root_type = "Float";
     const FunctionSet& fs = TestFS::treeEval();
     std::cout << std::endl;
     fs.print();
@@ -641,7 +641,8 @@ int main(int argc, const char * argv[])
     for (int i = 0; i < 10; i++)
     {
         GpTree gp_tree;
-        fs.makeRandomTree(100, root_type, gp_tree);
+        // fs.makeRandomTree(100, root_type, gp_tree);
+        fs.makeRandomTree(100, gp_tree);
         std::cout << std::endl << gp_tree.to_string() << std::endl;
         std::cout << "size=" << gp_tree.size() << std::endl;
         std::cout << "eval=" << std::any_cast<float>(gp_tree.eval()) << std::endl;

@@ -311,6 +311,8 @@ public:
             if (has_eg) gp_type.setMinSizeToTerminate(1);
             // Insert updated GpType into by-name map. (Copied again into map.)
             addGpType(gp_type);
+            // Root type (for trees of this FS) defaults to first GpType listed.
+            if (!getRootType()) setRootType(lookupGpTypeByName(gp_type.name()));
         }
         // Process each of the GpFunction specifications (copy then modify)
         for (GpFunction func : function_specs)
@@ -442,6 +444,18 @@ public:
         makeRandomTree(max_size, return_type_name, output_actual_size, gp_tree);
     }
 
+    // Overload to pass ONLY "max_size" and "output_gp_tree" from top level.
+    // "return_type" is assumed to be first GpType listed in the FunctionSet.
+    // "output_actual_size" is provided locally and passed in.
+    void makeRandomTree(int max_size, GpTree& output_gp_tree) const
+    {
+        int output_actual_size = 0;
+        makeRandomTree(max_size,
+                       *getRootType(),
+                       output_actual_size,
+                       output_gp_tree);
+    }
+
     void makeRandomTreeRoot(int max_size,
                             const GpType& return_type,
                             const GpFunction& root_function,
@@ -504,16 +518,23 @@ public:
         { return name_to_gp_function_; }
     const std::map<std::string, GpFunction>& nameToGpFunctionMap() const
         { return name_to_gp_function_; }
+    
+    // The type returned from the root of trees built from this function set.
+    const GpType*  getRootType() const { return root_type_; }
+    void setRootType(GpType* gp_type) { root_type_ = gp_type; }
+
 private:
     // These maps are used both to store the GpType and GpFunction objects,
     // plus to look up those objects from their character string names.
     std::map<std::string, GpType> name_to_gp_type_;
     std::map<std::string, GpFunction> name_to_gp_function_;
-    // Non-const versions for used only in constructor.
+    // Non-const versions for use only in constructor.
     GpType* lookupGpTypeByName(const std::string& name)
         { return name_lookup_util(name, nameToGpTypeMap()); }
     GpFunction* lookupGpFunctionByName(const std::string& name)
         { return name_lookup_util(name, nameToGpFunctionMap()); }
+    // The type returned from the root of trees built from this function set.
+    GpType* root_type_ = nullptr;
 };
 
 #undef name_lookup_util

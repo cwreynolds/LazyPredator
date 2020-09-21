@@ -105,6 +105,82 @@
       details of the implementation. On the other hand, I do want it to be more
       prose-like than the terse <code>git commit</code> messages.)</p>
     <br style="##########################################################################">
+    <div class="post" id="20200921"> <a href="#20200921" class="date">September
+        21, 2020</a>
+      <h1>Runtime connection between LazyPredator and TexSyn</h1>
+      <p>Finally LazyPredator and TexSyn are talking together at runtime! I had
+        mocked this up back on <a href="https://cwreynolds.github.io/TexSyn/#20200815">August
+          15</a> by having prototype <code>FunctionSet:makeRandomTree()</code>
+        print out the “source code” of generated trees, then hand editing that
+        into a test jig in TexSyn and rendering the textures. Now it is actually
+        working, directly evaluating the <code>GpTree</code> and then passing
+        that result to TexSyn's render utility. See renderings in today's the <a
+          href="https://cwreynolds.github.io/TexSyn/#20200921">TexSyn log</a>.</p>
+      <p>I was not looking forward to the software engineering of making
+        LazyPredator into a proper linkable library. Instead I took the path
+        that is becoming more popular, especially for libraries of modest size
+        like LazyPredator: I made it a <a href="https://stackoverflow.com/questions/12671383/benefits-of-header-only-libraries">header-only
+          library</a>. Then “linking” it to TexSyn was merely a matter of adding
+        the directive <code>#include "LazyPredator.h"</code>.</p>
+      <p>I wrote a subset of the <code>FunctionSet</code> definition for TexSyn
+        (similar to an earlier prototype in LP called <code>TestFS::tinyTexSyn()</code>)
+        for testing. It supports <code>GpTypes</code> for <code>Texture</code>
+        pointers, <code>Vec2</code> values, and <code>Float_01</code> values.
+        It provides two <code>GpFunction</code>s as <code>Texture</code>
+        operators : <code>Uniform</code> and <code>Spot</code>:</p>
+      <pre>const FunctionSet tiny_texsyn =<br>{
+    {
+        {"Texture"},
+        {"Vec2"},
+        {
+            "Float_01",
+            [](){ return std::any(LPRS().frandom01()); },
+            any_to_string&lt;float&gt;
+        }
+    },
+    {
+        {
+            "Vec2",
+            "Vec2",
+            {"Float_01", "Float_01"},
+            [](const GpTree&amp; tree)
+            {
+                return std::any(Vec2(tree.evalSubtree&lt;float&gt;(0),
+                                     tree.evalSubtree&lt;float&gt;(1)));
+            }
+        },
+        
+        {
+            "Uniform",
+            "Texture",
+            {"Float_01", "Float_01", "Float_01"},
+            [](const GpTree&amp; tree)
+            {
+                Texture* t = new Uniform(tree.evalSubtree&lt;float&gt;(0),
+                                         tree.evalSubtree&lt;float&gt;(1),
+                                         tree.evalSubtree&lt;float&gt;(2));
+                return std::any(t);
+            }
+        },
+        
+        {
+            "Spot",
+            "Texture",
+            {"Vec2", "Float_01", "Texture", "Float_01", "Texture"},
+            [](const GpTree&amp; tree)
+            {
+                Texture* t = new Spot(tree.evalSubtree&lt;Vec2&gt;(0),
+                                      tree.evalSubtree&lt;float&gt;(1),
+                                      *tree.evalSubtree&lt;Texture*&gt;(2),
+                                      tree.evalSubtree&lt;float&gt;(3),
+                                      *tree.evalSubtree&lt;Texture*&gt;(4));
+                return std::any(t);
+            }
+        },
+    }<br>};</pre>
+      <p>The next step is to build these out to include the ~50 Texture
+        operators in TexSyn.</p>
+    </div>
     <div class="post" id="20200919"> <a href="#20200919" class="date">September
         19, 2020</a>
       <h1>Tweaks to <code>FunctionSet</code></h1>
