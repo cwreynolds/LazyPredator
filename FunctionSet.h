@@ -382,6 +382,10 @@ public:
             int ms = gp_function->minSizeToTerminate();
             if (max_size >= ms) { ok.push_back(gp_function); }
         }
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // Intended only for testing and debugging
+        if (function_filter) function_filter(ok);
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         return (ok.empty() ? nullptr : ok.at(LPRS().randomN(ok.size())));
     }
 
@@ -492,12 +496,20 @@ public:
         }
     }
 
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     void print() const
     {
+        std::cout << std::endl;
+        std::cout << nameToGpTypeMap().size() << " GpTypes: " << std::endl;
         for (auto& [n, t] : nameToGpTypeMap()) t.print();
+        std::cout << std::endl;
+        std::cout << nameToGpFunctionMap().size() << " GpFunctions: ";
+        std::cout << std::endl;
         for (auto& [n, f] : nameToGpFunctionMap()) f.print();
+        std::cout << std::endl;
     }
-    
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
     // Map string names to (pointers to) GpTypes/GpFunction objects, for both
     // const (public, read only) and non-const (private, writable, for internal
     // use only during constructor). Use macro to remove code duplication.
@@ -522,6 +534,12 @@ public:
     // The type returned from the root of trees built from this function set.
     const GpType*  getRootType() const { return root_type_; }
     void setRootType(GpType* gp_type) { root_type_ = gp_type; }
+    
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // Intended only for testing and debugging
+    static inline std::function<void(std::vector<GpFunction*>&)>
+        function_filter = nullptr;
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 private:
     // These maps are used both to store the GpType and GpFunction objects,

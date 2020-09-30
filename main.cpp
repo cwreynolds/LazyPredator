@@ -628,30 +628,69 @@ int main(int argc, const char * argv[])
 
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     
-    // Remove FunctionSet::dp, dp_depth, and dp_prefix()
-    std::cout << "September 18, 2020" << std::endl;
-    std::string path = "/Users/cwr/Desktop/TexSyn_temp/202009018_";
+//    // Remove FunctionSet::dp, dp_depth, and dp_prefix()
+//    std::cout << "September 18, 2020" << std::endl;
+//    std::string path = "/Users/cwr/Desktop/TexSyn_temp/202009018_";
+//
+//    //std::string root_type = "Float";
+//    const FunctionSet& fs = TestFS::treeEval();
+//    std::cout << std::endl;
+//    fs.print();
+//    std::cout << std::endl;
+//    LPRS().setSeed();
+//    for (int i = 0; i < 10; i++)
+//    {
+//        GpTree gp_tree;
+//        // fs.makeRandomTree(100, root_type, gp_tree);
+//        fs.makeRandomTree(100, gp_tree);
+//        std::cout << std::endl << gp_tree.to_string() << std::endl;
+//        std::cout << "size=" << gp_tree.size() << std::endl;
+//        std::cout << "eval=" << std::any_cast<float>(gp_tree.eval()) << std::endl;
+//    }
+//
+//    // Should end:
+//    //    "...AddInt(Floor(0.910863), AddInt(9, 5))))))"
+//    //    size=100
+//    //    eval=165.879
+
+    //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     
-    //std::string root_type = "Float";
-    const FunctionSet& fs = TestFS::treeEval();
+    // Experimenting with crossover
+    std::cout << "September 29, 2020" << std::endl;
+    std::string path = "/Users/cwr/Desktop/TexSyn_temp/20200929_";
+    
+    const FunctionSet& fs = TestFS::crossover();
     std::cout << std::endl;
     fs.print();
     std::cout << std::endl;
     LPRS().setSeed();
+    
+    std::string filter_string = "P";
+    filter_string = "Q";
+    FunctionSet::function_filter = [&](std::vector<GpFunction*>& funcs)
+    {
+        std::vector<GpFunction*> temp = funcs;
+        funcs.clear();
+        for (auto& func : temp)
+        {
+            if (func->name().find(filter_string) != std::string::npos)
+                funcs.push_back(func);
+        }
+    };
+    
     for (int i = 0; i < 10; i++)
     {
         GpTree gp_tree;
-        // fs.makeRandomTree(100, root_type, gp_tree);
-        fs.makeRandomTree(100, gp_tree);
+        fs.makeRandomTree(30, gp_tree);
         std::cout << std::endl << gp_tree.to_string() << std::endl;
         std::cout << "size=" << gp_tree.size() << std::endl;
-        std::cout << "eval=" << std::any_cast<float>(gp_tree.eval()) << std::endl;
+        std::cout << "eval=" << any_to_string<int>(gp_tree.eval()) << std::endl;
     }
     
-    // Should end:
-    //    "...AddInt(Floor(0.910863), AddInt(9, 5))))))"
-    //    size=100
-    //    eval=165.879
+//    // Should end:
+//    //    "...AddInt(Floor(0.910863), AddInt(9, 5))))))"
+//    //    size=100
+//    //    eval=165.879
 
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     return EXIT_SUCCESS;

@@ -18,10 +18,17 @@ public:
     static const FunctionSet& treeEval() { return tree_eval; }
     // For testing tree eval for cases including construction class objects.
     static const FunctionSet& treeEvalObjects() { return tree_eval_objects; }
-    // Subset of TexSyn API
-    static const FunctionSet& tinyTexSyn() { return tiny_texsyn; }
-    // Covers "most" of TexSyn API.
-    static const FunctionSet& fullTexSyn() { return full_texsyn; }
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//    // Subset of TexSyn API
+//    static const FunctionSet& tinyTexSyn() { return tiny_texsyn; }
+//    // Covers "most" of TexSyn API.
+//    static const FunctionSet& fullTexSyn() { return full_texsyn; }
+    
+    
+    // Simple set for testing crossover.
+    static const FunctionSet& crossover() { return cross_over; }
+
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     class ClassC
     {
@@ -177,46 +184,110 @@ private:
             }
         }
     };
-    static inline const FunctionSet tiny_texsyn =
+    
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    
+    static inline const FunctionSet cross_over =
     {
         {
-            {"Texture"},
-            {"Vec2"},
             {
-                "Float_01",
-                [](){ return std::any(int(LPRS().frandom01() < 0.5 ? 0 : 1)); },
-                any_to_string<int>,
+                "Int",
+                [](){ return std::any(int(LPRS().randomN(10))); },
+                any_to_string<int>
             }
         },
         {
             {
-                "Vec2", "Vec2", {"Float_01", "Float_01"}, [](const GpTree& t)
+                "P", "Int", {"Int"},
+                [](const GpTree& t)
                 {
-                    return std::any(Vec2(t.evalSubtree<float>(0),
-                                         t.evalSubtree<float>(1)));
+                    return std::any(t.evalSubtree<int>(0));
                 }
             },
-            
-//            {
-//                "Uniform", "Texture", {"Float_01", "Float_01", "Float_01"},
-//                [](const GpTree& t)
-//                {
-//                    return std::any(*(new Uniform(t.evalSubtree<float>(0),
-//                                                  t.evalSubtree<float>(1),
-//                                                  t.evalSubtree<float>(2))));
-//                }
-//            },
-            
-//            {"Uniform", "Texture", {"Float_01", "Float_01", "Float_01"}},
-//            {"Spot", "Texture",
-//                {"Vec2", "Float_01", "Texture", "Float_01", "Texture"}},
-//            {"Add", "Texture", {"Texture", "Texture"}},
-//            {"Blur", "Texture", {"Float_01", "Texture"}},
-//            {"Affine", "Texture", {"Vec2", "Vec2", "Texture"}}
+            {
+                "PP", "Int", {"Int", "Int"},
+                [](const GpTree& t)
+                {
+                    return std::any(t.evalSubtree<int>(0) +
+                                    t.evalSubtree<int>(1));
+                }
+            },
+            {
+                "PPP", "Int", {"Int", "Int", "Int"},
+                [](const GpTree& t)
+                {
+                    return std::any(t.evalSubtree<int>(0) +
+                                    t.evalSubtree<int>(1) +
+                                    t.evalSubtree<int>(2));
+                }
+            },
+            {
+                "Q", "Int", {"Int"},
+                [](const GpTree& t)
+                {
+                    return std::any(t.evalSubtree<int>(0));
+                }
+            },
+            {
+                "QQ", "Int", {"Int", "Int"},
+                [](const GpTree& t)
+                {
+                    return std::any(t.evalSubtree<int>(0) +
+                                    t.evalSubtree<int>(1));
+                }
+            },
+            {
+                "QQQ", "Int", {"Int", "Int", "Int"},
+                [](const GpTree& t)
+                {
+                    return std::any(t.evalSubtree<int>(0) +
+                                    t.evalSubtree<int>(1) +
+                                    t.evalSubtree<int>(2));
+                }
+            }
         }
     };
+    
+//    static inline const FunctionSet tiny_texsyn =
+//    {
+//        {
+//            {"Texture"},
+//            {"Vec2"},
+//            {
+//                "Float_01",
+//                [](){ return std::any(int(LPRS().frandom01() < 0.5 ? 0 : 1)); },
+//                any_to_string<int>,
+//            }
+//        },
+//        {
+//            {
+//                "Vec2", "Vec2", {"Float_01", "Float_01"}, [](const GpTree& t)
+//                {
+//                    return std::any(Vec2(t.evalSubtree<float>(0),
+//                                         t.evalSubtree<float>(1)));
+//                }
+//            },
+//
+//    //    {
+//    //        "Uniform", "Texture", {"Float_01", "Float_01", "Float_01"},
+//    //        [](const GpTree& t)
+//    //        {
+//    //            return std::any(*(new Uniform(t.evalSubtree<float>(0),
+//    //                                          t.evalSubtree<float>(1),
+//    //                                          t.evalSubtree<float>(2))));
+//    //        }
+//    //    },
+//    //
+//    //    {"Uniform", "Texture", {"Float_01", "Float_01", "Float_01"}},
+//    //    {"Spot", "Texture",
+//    //        {"Vec2", "Float_01", "Texture", "Float_01", "Texture"}},
+//    //    {"Add", "Texture", {"Texture", "Texture"}},
+//    //    {"Blur", "Texture", {"Float_01", "Texture"}},
+//    //    {"Affine", "Texture", {"Vec2", "Vec2", "Texture"}}
+//        }
+//    };
 
-    static inline FunctionSet full_texsyn;
+//    static inline FunctionSet full_texsyn;
 
 //    static FunctionSet& full()
 //    {
@@ -322,4 +393,5 @@ private:
 //        };
 //        return full;
 //    }
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 };
