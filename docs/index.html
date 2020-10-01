@@ -105,9 +105,88 @@
       details of the implementation. On the other hand, I do want it to be more
       prose-like than the terse <code>git commit</code> messages.)</p>
     <br style="##########################################################################">
+    <div class="post" id="20200930"> <a href="#20200930" class="date">September
+        30, 2020</a>
+      <h1>Crossover of <code>GpTrees</code> — wait, that was <em>too</em> easy</h1>
+      <p>In biology <a href="https://en.wikipedia.org/wiki/Chromosomal_crossover">chromosomal
+          crossover</a> is a key mechanism where the DNA of two parents is
+        combined to produce a unique offspring. Two corresponding strands of
+        parental DNA are “scanned” in parallel, with one or the other being
+        copied into the new offspring's DNA. During this “scan” the source of
+        the offspring's DNA changes “randomly” from one parent to the other. (If
+        you are a biologist, please forgive this over-simplified probably
+        incorrect description.)</p>
+      <p>In genetic programming there is an analogous “crossover” operation on
+        program trees. When describing GP I often call this “random syntax-aware
+        cut-and-paste.” It is as if a subtree (subexpression) from one parent's
+        program is <em>copied</em>, then <em>pasted</em> into (a copy of) the
+        other parent's program, replacing a preexisting subtree (subexpression).
+        This creates a new offspring program with part of its code from one
+        parent and part of its code from the other parent. LazyPredator
+        implements “strongly typed genetic programming” so there is the
+        additional constraint that the type of the two subtrees must match. (In
+        TexSyn, most of the subtrees are of type <code>Texture</code>, but some
+        subtrees return <code>Vec2</code> or numeric <code>float</code>
+        values.)</p>
+      <p>Crossover had been on the to-do list for a while and I finally got
+        around to working on it. I defined a new test <code>FunctionSet</code>
+        whose terminals are all single digit integers, and whose functions
+        belong to two families: P, PP, PPP, Q, QQ, and QQQ. Here is that <code>FunctionSet</code>'s
+        self description:</p>
+      <pre>1 GpTypes: 
+GpType: Int, min size to terminate: 1, has ephemeral generator, has to_string, functions returning this type: P, PP, PPP, Q, QQ, QQQ.
+
+6 GpFunctions: 
+GpFunction: P, return_type: Int, parameters: (Int).
+GpFunction: PP, return_type: Int, parameters: (Int, Int).
+GpFunction: PPP, return_type: Int, parameters: (Int, Int, Int).
+GpFunction: Q, return_type: Int, parameters: (Int).
+GpFunction: QQ, return_type: Int, parameters: (Int, Int).
+GpFunction: QQQ, return_type: Int, parameters: (Int, Int, Int).</pre>
+      <p>I also added a mechanism to <code>FunctionSet</code> allowing a filter
+        to be specified on the available functions. Here are randomly created
+        program trees drawn from the two sets:</p>
+      <pre><span class="comment">// makeRandomTree() called with function filter allowing only the P family:</span>
+PPP(PPP(P(7), P(P(1)), PP(4, 3)), P(PPP(P(8), P(P(0)), PP(8, 4))), PPP(P(P(1)), P(P(6)), P(P(7))))
+
+<span class="comment">// makeRandomTree() called with function filter allowing only the Q family:</span>
+QQQ(Q(QQQ(Q(7), Q(2), QQ(5, 8))), Q(QQQ(Q(5), QQ(5, 3), Q(Q(3)))), QQQ(QQ(3, 4), QQ(6, 1), QQ(8, 1)))</pre>
+      <p>Then I manually selected a subtree from each of those <code>GpTrees</code>:</p>
+      <pre><span class="comment">// gp_tree_p.getSubtree(0):</span>
+<strong>PPP(P(7), P(P(1)), PP(4, 3))</strong>
+
+<span class="comment">// gp_tree_q.getSubtree(2):</span>
+<strong>QQQ(QQ(3, 4), QQ(6, 1), QQ(8, 1))</strong></pre>
+      <p>Then I assigned one to the other:</p>
+      <pre>gp_tree_p.getSubtree(0) = gp_tree_q.getSubtree(2);</pre>
+      <p><em>Et voila!:</em></p>
+      <pre>PPP(<strong>QQQ(QQ(3, 4), QQ(6, 1), QQ(8, 1))</strong>, P(PPP(P(8), P(P(0)), PP(8, 4))), PPP(P(P(1)), P(P(6)), P(P(7))))</pre>
+      <p>Writing that again with indentation and color to highlight the
+        subtrees:</p>
+      <pre><span class="comment">// The P tree with it first subtree selected:</span>
+<span style="color:red">PPP(<strong>PPP(P(7), P(P(1)), PP(4, 3))</strong>,
+    P(PPP(P(8), P(P(0)), PP(8, 4))),
+    PPP(P(P(1)), P(P(6)), P(P(7))))</span>
+
+<span class="comment">// The Q tree with it third subtree selected:</span>
+<span style="color:blue">QQQ(Q(QQQ(Q(7), Q(2), QQ(5, 8))),
+    Q(QQQ(Q(5), QQ(5, 3), Q(Q(3)))),
+    <strong>QQQ(QQ(3, 4), QQ(6, 1), QQ(8, 1))</strong>)</span>
+
+<span class="comment">// The offspring tree with some of both:</span>
+<span style="color:red">PPP(<span style="color:blue"><strong>QQQ(QQ(3, 4), QQ(6, 1), QQ(8, 1))</strong></span>,
+    P(PPP(P(8), P(P(0)), PP(8, 4))),
+    PPP(P(P(1)), P(P(6)), P(P(7))))</span></pre>
+    </div>
     <div class="post" id="20200921"> <a href="#20200921" class="date">September
         21, 2020</a>
       <h1>Runtime connection between LazyPredator and TexSyn</h1>
+      <p>[<strong>Update on September 29, 2020: </strong>after some further
+        revisions, I made a “first final” <code>FunctionSet</code> for TexSyn.
+        The code below is both incomplete and slightly outdated. To see the
+        “modern” <code>FunctionSet</code> for TexSyn in this source code: <a href="https://github.com/cwreynolds/TexSyn/blob/60acd34866634d1c3d69f04e0ae53cf3760b4b3c/GP.h">GP.h</a>
+        (assuming I did that right, it should be a permalink to the revision of
+        GP.h as of September 29 on GitHub.)]</p>
       <p>Finally LazyPredator and TexSyn are talking together at runtime! I had
         mocked this up back on <a href="https://cwreynolds.github.io/TexSyn/#20200815">August
           15</a> by having prototype <code>FunctionSet:makeRandomTree()</code>

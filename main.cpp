@@ -662,7 +662,6 @@ int main(int argc, const char * argv[])
     const FunctionSet& fs = TestFS::crossover();
     std::cout << std::endl;
     fs.print();
-    std::cout << std::endl;
     LPRS().setSeed();
     
     std::string filter_string = "P";
@@ -678,19 +677,47 @@ int main(int argc, const char * argv[])
         }
     };
     
-    for (int i = 0; i < 10; i++)
-    {
-        GpTree gp_tree;
-        fs.makeRandomTree(30, gp_tree);
-        std::cout << std::endl << gp_tree.to_string() << std::endl;
-        std::cout << "size=" << gp_tree.size() << std::endl;
-        std::cout << "eval=" << any_to_string<int>(gp_tree.eval()) << std::endl;
-    }
+    //for (int i = 0; i < 10; i++)
+    //{
+    //    GpTree gp_tree;
+    //    fs.makeRandomTree(30, gp_tree);
+    //    std::cout << std::endl << gp_tree.to_string() << std::endl;
+    //    std::cout << "size=" << gp_tree.size() << std::endl;
+    //    std::cout << "eval=" << any_to_string<int>(gp_tree.eval()) << std::endl;
+    //}
     
-//    // Should end:
-//    //    "...AddInt(Floor(0.910863), AddInt(9, 5))))))"
-//    //    size=100
-//    //    eval=165.879
+    filter_string = "P";
+    GpTree gp_tree_p;
+    fs.makeRandomTree(30, gp_tree_p);
+    debugPrint(gp_tree_p.to_string());
+    
+    filter_string = "Q";
+    GpTree gp_tree_q;
+    fs.makeRandomTree(30, gp_tree_q);
+    debugPrint(gp_tree_q.to_string());
+    
+    // PPP(PPP(P(7), P(P(1)), PP(4, 3)),
+    //     P(PPP(P(8), P(P(0)), PP(8, 4))),
+    //     PPP(P(P(1)), P(P(6)), P(P(7))))
+    // QQQ(Q(QQQ(Q(7), Q(2), QQ(5, 8))),
+    //     Q(QQQ(Q(5), QQ(5, 3), Q(Q(3)))),
+    //     QQQ(QQ(3, 4), QQ(6, 1), QQ(8, 1)))
+    
+    
+    debugPrint(gp_tree_p.getSubtree(0).to_string());
+    debugPrint(gp_tree_q.getSubtree(2).to_string());
+    
+    gp_tree_p.getSubtree(0) = gp_tree_q.getSubtree(2);
+    debugPrint(gp_tree_p.to_string());
+    
+    // PPP(QQQ(QQ(3, 4), QQ(6, 1), QQ(8, 1)),
+    //     P(PPP(P(8), P(P(0)), PP(8, 4))),
+    //     PPP(P(P(1)), P(P(6)), P(P(7))))
+
+    
+    
+
+    std::cout << std::endl << std::endl;
 
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     return EXIT_SUCCESS;
