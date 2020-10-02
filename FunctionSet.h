@@ -291,28 +291,22 @@ public:
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Essentially like operator==() but needs to be a template for the sake of
     // the std::any leaf nodes. Used only in the unit tests.
-    template <typename T> bool equals(const GpTree& tree) const
+    template <typename T> static bool match(const GpTree& a, const GpTree& b)
     {
-        auto equal_subtrees = [](const std::vector<GpTree>& a,
-                                 const std::vector<GpTree>& b)
+        auto equal_subtrees = [](const GpTree& a, const GpTree& b)
         {
-            bool ok = a.size() == b.size();
-            for (int i = 0; i < a.size(); i++)
-                if (!a.at(i).equals<T>(b.at(i))) ok = false;
+            bool ok = a.subtrees_.size() == b.subtrees_.size();
+            for (int i = 0; i < a.subtrees_.size(); i++)
+                if (!match<T>(a.getSubtree(i), b.getSubtree(i))) ok = false;
             return ok;
         };
-        auto equal_leaves = [](const GpTree& a, const GpTree& b)
-        {
-            return ((a.root_function_ && b.root_function_) ||
-                    (std::any_cast<T>(a.leaf_value_) ==
-                     std::any_cast<T>(b.leaf_value_)));
-        };
-        return (root_function_ == tree.root_function_ &&
-                root_type_ == tree.root_type_ &&
-                root_type_ == tree.root_type_ &&
-                equal_leaves(*this, tree) &&
-                equal_subtrees(subtrees_, tree.subtrees_) &&
-                id_ == tree.id_);
+        return (a.root_function_ == b.root_function_ && // Root functions match.
+                a.root_type_ == b.root_type_ &&         // Root types match.
+                a.id_ == b.id_ &&                       // IDs match.
+                equal_subtrees(a, b) &&                 // All subtrees match.
+                (!(a.isLeaf() && b.isLeaf()) ||         // Both not leaves, or
+                 (std::any_cast<T>(a.leaf_value_) ==    //   both leaves match.
+                  std::any_cast<T>(b.leaf_value_))));
     }
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 private:
