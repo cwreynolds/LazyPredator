@@ -287,7 +287,36 @@ public:
             subtree.traverseIntoVector(all_subtrees);
     }
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // Essentially like operator==() but needs to be a template for the sake of
+    // the std::any leaf nodes. Used only in the unit tests.
+    template <typename T> bool equals(const GpTree& tree) const
+    {
+        auto equal_subtrees = [](const std::vector<GpTree>& a,
+                                 const std::vector<GpTree>& b)
+        {
+            bool ok = a.size() == b.size();
+            for (int i = 0; i < a.size(); i++)
+                if (!a.at(i).equals<T>(b.at(i))) ok = false;
+            return ok;
+        };
+        auto equal_leaves = [](const GpTree& a, const GpTree& b)
+        {
+            return ((a.root_function_ && b.root_function_) ||
+                    (std::any_cast<T>(a.leaf_value_) ==
+                     std::any_cast<T>(b.leaf_value_)));
+        };
+        return (root_function_ == tree.root_function_ &&
+                root_type_ == tree.root_type_ &&
+                root_type_ == tree.root_type_ &&
+                equal_leaves(*this, tree) &&
+                equal_subtrees(subtrees_, tree.subtrees_) &&
+                id_ == tree.id_);
+    }
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 private:
+    // NOTE: if any more data members are added, compare them in equals().
     // Add (allocate) one subtree. addSubtrees() is external API.
     void addSubtree() { subtrees_.push_back({}); }
     // Each GpTree root will have a function object or a leaf value.
@@ -570,11 +599,11 @@ public:
         GpTree donor = exchange ? parent0 : parent1;
         // TODO this could be a non-const ref to offspring, or just offspring
         GpTree recipient = exchange ? parent1 : parent0;
-        int donar_size = donor.size();
+        int donor_size = donor.size();
         int recipient_size = recipient.size();
         
         // TODO just assume this works for now, later deal with failure.
-        int donor_subtree_index = LPRS().randomN(donar_size);
+        int donor_subtree_index = LPRS().randomN(donor_size);
         int recipient_subtree_index = LPRS().randomN(recipient_size);
         
         GpTree& donor_subtree = donor.nthInTraversal(donor_subtree_index);
@@ -582,7 +611,7 @@ public:
             recipient.nthInTraversal(recipient_subtree_index);
         
         debugPrint(exchange);
-        debugPrint(donar_size);
+        debugPrint(donor_size);
         debugPrint(donor.to_string());
         debugPrint(recipient_size);
         debugPrint(recipient.to_string());
@@ -595,6 +624,8 @@ public:
         offspring = recipient;
         
         debugPrint(offspring.to_string());
+        debugPrint(any_to_string<int>(offspring.eval()));
+        std::cout << std::endl;
     }
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     

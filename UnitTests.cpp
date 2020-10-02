@@ -83,7 +83,19 @@ bool gp_tree_construction()
     st0.setLeafValue(std::string("r.0"), str);
     st1.setLeafValue(std::string("r.1"), str);
     st10.setLeafValue(std::string("r.1.a"), str);
-    // Check for tree depth, breath, and labels.
+    
+    // Add tests for GpTree assignment:
+    const FunctionSet& fs = TestFS::crossover();
+    GpTree gp_tree_0;
+    GpTree gp_tree_1;
+    GpTree gp_tree_2;
+    LPRS().setSeed();
+    fs.makeRandomTree(30, gp_tree_0);
+    LPRS().setSeed();
+    fs.makeRandomTree(30, gp_tree_1);
+    gp_tree_2 = gp_tree_0;
+    
+    // Check for tree depth, breath, and labels. And assignments.
     return (created_empty &&
             st(root.subtrees().size() == 2) &&
             st(st0.subtrees().size() == 0) &&
@@ -92,7 +104,10 @@ bool gp_tree_construction()
             st(std::any_cast<std::string>(root.getLeafValue()) == "r") &&
             st(std::any_cast<std::string>(st0.getLeafValue())  == "r.0") &&
             st(std::any_cast<std::string>(st1.getLeafValue())  == "r.1") &&
-            st(std::any_cast<std::string>(st10.getLeafValue()) == "r.1.a"));
+            st(std::any_cast<std::string>(st10.getLeafValue()) == "r.1.a") &&
+            st(gp_tree_0.equals<int>(gp_tree_1)) &&
+            st(gp_tree_0.equals<int>(gp_tree_2)) &&
+            st(gp_tree_1.equals<int>(gp_tree_2)));
 }
 
 bool gp_tree_eval_simple()  // For simple case of "plain old data" types.
