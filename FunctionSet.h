@@ -271,6 +271,22 @@ public:
         }
         return s;
     }
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // Returns the n-th subtree in depth-first traversal order.
+    GpTree& nthInTraversal(int n)
+    {
+        std::vector<GpTree*> all_subtrees;
+        traverseIntoVector(all_subtrees);
+        return *all_subtrees.at(n);
+    }
+    // TODO maybe this should be private?
+    void traverseIntoVector(std::vector<GpTree*>& all_subtrees)
+    {
+        all_subtrees.push_back(this);
+        for (auto& subtree : subtrees())
+            subtree.traverseIntoVector(all_subtrees);
+    }
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 private:
     // Add (allocate) one subtree. addSubtrees() is external API.
     void addSubtree() { subtrees_.push_back({}); }
@@ -540,7 +556,48 @@ public:
     static inline std::function<void(std::vector<GpFunction*>&)>
         function_filter = nullptr;
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
+    
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // Crossover: given three GpTrees, two parents and an offspring,
+    // set the offspring to be a random crossover of the other two.
+    // TODO maybe this could be a static function, any benefit to that?
+    void crossover(const GpTree& parent0,
+                   const GpTree& parent1,
+                   GpTree& offspring) const
+    {
+        bool exchange = LPRS().frandom01() > 0.5;
+        // TODO I think this could be a const reference rather than a copy
+        GpTree donor = exchange ? parent0 : parent1;
+        // TODO this could be a non-const ref to offspring, or just offspring
+        GpTree recipient = exchange ? parent1 : parent0;
+        int donar_size = donor.size();
+        int recipient_size = recipient.size();
+        
+        // TODO just assume this works for now, later deal with failure.
+        int donor_subtree_index = LPRS().randomN(donar_size);
+        int recipient_subtree_index = LPRS().randomN(recipient_size);
+        
+        GpTree& donor_subtree = donor.nthInTraversal(donor_subtree_index);
+        GpTree& recipient_subtree =
+            recipient.nthInTraversal(recipient_subtree_index);
+        
+        debugPrint(exchange);
+        debugPrint(donar_size);
+        debugPrint(donor.to_string());
+        debugPrint(recipient_size);
+        debugPrint(recipient.to_string());
+        debugPrint(donor_subtree_index);
+        debugPrint(donor_subtree.to_string());
+        debugPrint(recipient_subtree_index);
+        debugPrint(recipient_subtree.to_string());
+        
+        recipient_subtree = donor_subtree;
+        offspring = recipient;
+        
+        debugPrint(offspring.to_string());
+    }
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    
 private:
     // These maps are used both to store the GpType and GpFunction objects,
     // plus to look up those objects from their character string names.
