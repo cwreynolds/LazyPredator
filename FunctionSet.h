@@ -29,6 +29,7 @@
 #pragma once
 #include <map>
 #include <any>
+#include <set>
 #include <limits>
 #include "Utilities.h"
 
@@ -280,12 +281,48 @@ public:
         return *all_subtrees.at(n);
     }
     // TODO maybe this should be private?
+    // TODO now (Oct 3) I think I prefere this as the API...
     void traverseIntoVector(std::vector<GpTree*>& all_subtrees)
     {
         all_subtrees.push_back(this);
         for (auto& subtree : subtrees())
             subtree.traverseIntoVector(all_subtrees);
     }
+
+    // Utility for crossover(): given a set of GpType pointers, filter a vector
+    // of subtrees (GpTree pointers), to retain only subtrees that return one of
+    // the given GpTypes. "source" and "destination" can be the same vector.
+    void filterSubtreesByTypes(const std::set<const GpType*>& types,
+                               const std::vector<GpTree*>& source,
+                               std::vector<GpTree*>& destination)
+    {
+        std::vector<GpTree*> filtered;
+        for (auto& gp_tree : source)
+            if (types.find(&gp_tree->getType()) != types.end()) filtered.push_back(gp_tree);
+        destination = filtered;
+    }
+
+    void collectSetOfTypes(std::set<const GpType*>& set_of_types) const
+    {
+        set_of_types.insert(&getType());
+        for (auto& st : subtrees()) st.collectSetOfTypes(set_of_types);
+    }
+    
+    static void sharedSetOfTypes(const GpTree& a,
+                                 const GpTree& b,
+                                 std::set<const GpType*>& set_of_types_output)
+    {
+        std::set<const GpType*> a_types;
+        std::set<const GpType*> b_types;
+        a.collectSetOfTypes(a_types);
+        b.collectSetOfTypes(b_types);
+        set_of_types_output.clear();
+        std::set_intersection(a_types.begin(), a_types.end(),
+                              b_types.begin(), b_types.end(),
+                              std::inserter(set_of_types_output,
+                                            set_of_types_output.begin()));
+    }
+    
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -596,29 +633,66 @@ public:
         int donor_size = donor.size();
         int recipient_size = recipient.size();
         
+        // Find the set of GpTypes which is found in BOTH donor and recipient.
+        std::set<const GpType*> shared_types;
+        GpTree::sharedSetOfTypes(donor, recipient, shared_types);
+        assert(!shared_types.empty());
+        
+        // TODO note analog of this below QQQ
+        std::vector<GpTree*> donor_subtrees;
+        donor.traverseIntoVector(donor_subtrees);
+        donor.filterSubtreesByTypes(shared_types,
+                                    donor_subtrees,
+                                    donor_subtrees);
+        
         // TODO just assume this works for now, later deal with failure.
-        int donor_subtree_index = LPRS().randomN(donor_size);
-        int recipient_subtree_index = LPRS().randomN(recipient_size);
-        
-        GpTree& donor_subtree = donor.nthInTraversal(donor_subtree_index);
-        GpTree& recipient_subtree =
-            recipient.nthInTraversal(recipient_subtree_index);
-        
-        debugPrint(exchange);
-        debugPrint(donor_size);
-        debugPrint(donor.to_string());
-        debugPrint(recipient_size);
-        debugPrint(recipient.to_string());
-        debugPrint(donor_subtree_index);
-        debugPrint(donor_subtree.to_string());
-        debugPrint(recipient_subtree_index);
-        debugPrint(recipient_subtree.to_string());
-        
+//        int donor_subtree_index = LPRS().randomN(donor_size);
+//        GpTree& donor_subtree = *donor_subtrees.at(donor_subtree_index);
+//        int dindex = LPRS().randomN(donor_size);
+        int dindex = LPRS().randomN(donor_subtrees.size());
+        GpTree& donor_subtree = *donor_subtrees.at(dindex);
+
+        // TODO note analog of this above QQQ
+        std::vector<GpTree*> recipient_subtrees;
+        recipient.traverseIntoVector(recipient_subtrees);
+        recipient.filterSubtreesByTypes({&donor_subtree.getType()},
+                                        recipient_subtrees,
+                                        recipient_subtrees);
+//        int recipient_subtree_index = LPRS().randomN(recipient_subtrees.size());
+//        GpTree& recipient_subtree = *recipient_subtrees.at(recipient_subtree_index);
+        int rindex = LPRS().randomN(recipient_subtrees.size());
+        GpTree& recipient_subtree = *recipient_subtrees.at(rindex);
+
+        {
+            // TODO debugging log
+            debugPrint(exchange);
+            debugPrint(donor_size);
+            debugPrint(donor.to_string());
+            debugPrint(recipient_size);
+            debugPrint(recipient.to_string());
+            debugPrint(dindex);
+            debugPrint(donor_subtree.to_string());
+            debugPrint(rindex);
+            debugPrint(recipient_subtree.to_string());
+            
+            std::cout << "shared types: ";
+//            std::set<const GpType*> shared_types;
+//            donor.collectSetOfTypes(shared_types);
+            for (auto& t : shared_types) std::cout << t->name() << " ";
+            std::cout << std::endl;
+            debugPrint(donor_subtree.getType().name());
+        }
+
         recipient_subtree = donor_subtree;
         offspring = recipient;
         
-        debugPrint(offspring.to_string());
-        debugPrint(any_to_string<int>(offspring.eval()));
+        {
+            // TODO debugging log
+            debugPrint(offspring.to_string());
+            //debugPrint(any_to_string<int>(offspring.eval()));
+            //debugPrint(any_to_string<float>(offspring.eval()));
+        }
+        
         std::cout << std::endl;
     }
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
