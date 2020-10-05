@@ -301,6 +301,21 @@ public:
             if (types.find(&gp_tree->getType()) != types.end()) filtered.push_back(gp_tree);
         destination = filtered;
     }
+    
+    // TODO PROTOTYPE
+    // Utility for crossover(): given a set of GpType pointers, filter a vector
+    // of subtrees (GpTree pointers), to retain only subtrees whose size is at
+    // least "min_size". "source" and "destination" can be the same vector.
+    void filterSubtreesByMinSize(int min_size,
+                                 const std::vector<GpTree*>& source,
+                                 std::vector<GpTree*>& destination)
+    {
+        std::vector<GpTree*> filtered;
+        for (auto& gp_tree : source)
+            if (gp_tree->size() >= min_size) filtered.push_back(gp_tree);
+        destination = filtered;
+    }
+
 
     void collectSetOfTypes(std::set<const GpType*>& set_of_types) const
     {
@@ -644,6 +659,12 @@ public:
         donor.filterSubtreesByTypes(shared_types,
                                     donor_subtrees,
                                     donor_subtrees);
+        // TODO PROTOTYPE
+//        donor.filterSubtreesByMinSize(2, donor_subtrees, donor_subtrees);
+        donor.filterSubtreesByMinSize(5, donor_subtrees, donor_subtrees);
+//        donor.filterSubtreesByMinSize(20, donor_subtrees, donor_subtrees);
+
+        
         
         // TODO just assume this works for now, later deal with failure.
 //        int donor_subtree_index = LPRS().randomN(donor_size);
@@ -658,6 +679,13 @@ public:
         recipient.filterSubtreesByTypes({&donor_subtree.getType()},
                                         recipient_subtrees,
                                         recipient_subtrees);
+//            // TODO PROTOTYPE
+//            recipient.filterSubtreesByMinSize(2,
+//    //        recipient.filterSubtreesByMinSize(6,
+//                                              recipient_subtrees,
+//                                              recipient_subtrees);
+
+        
 //        int recipient_subtree_index = LPRS().randomN(recipient_subtrees.size());
 //        GpTree& recipient_subtree = *recipient_subtrees.at(recipient_subtree_index);
         int rindex = LPRS().randomN(recipient_subtrees.size());
