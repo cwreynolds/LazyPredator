@@ -272,57 +272,29 @@ public:
         }
         return s;
     }
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // Returns the n-th subtree in depth-first traversal order.
-    GpTree& nthInTraversal(int n)
+    
+    // Collect all subtrees into an std::vector. Recursively traverses tree from
+    // this root down, storing pointers to each subtree into vector.
+    // NOTE: assumes vector is empty before initial call.
+    void collectVectorOfSubtrees(std::vector<GpTree*>& all_subtrees_output)
     {
-        std::vector<GpTree*> all_subtrees;
-        traverseIntoVector(all_subtrees);
-        return *all_subtrees.at(n);
-    }
-    // TODO maybe this should be private?
-    // TODO now (Oct 3) I think I prefere this as the API...
-    void traverseIntoVector(std::vector<GpTree*>& all_subtrees)
-    {
-        all_subtrees.push_back(this);
+        all_subtrees_output.push_back(this);
         for (auto& subtree : subtrees())
-            subtree.traverseIntoVector(all_subtrees);
+            subtree.collectVectorOfSubtrees(all_subtrees_output);
     }
 
-    // Utility for crossover(): given a set of GpType pointers, filter a vector
-    // of subtrees (GpTree pointers), to retain only subtrees that return one of
-    // the given GpTypes. "source" and "destination" can be the same vector.
-    void filterSubtreesByTypes(const std::set<const GpType*>& types,
-                               const std::vector<GpTree*>& source,
-                               std::vector<GpTree*>& destination)
+    // Collect all subtree typess into an std::set. Recursively traverses tree
+    // from this root down, inserting pointers to each GpType into set.
+    // NOTE: assumes set is empty before initial call.
+    void collectSetOfTypes(std::set<const GpType*>& set_of_types_output) const
     {
-        std::vector<GpTree*> filtered;
-        for (auto& gp_tree : source)
-            if (types.find(&gp_tree->getType()) != types.end()) filtered.push_back(gp_tree);
-        destination = filtered;
+        set_of_types_output.insert(&getType());
+        for (auto& subtree : subtrees())
+            subtree.collectSetOfTypes(set_of_types_output);
     }
     
-    // TODO PROTOTYPE
-    // Utility for crossover(): given a set of GpType pointers, filter a vector
-    // of subtrees (GpTree pointers), to retain only subtrees whose size is at
-    // least "min_size". "source" and "destination" can be the same vector.
-    void filterSubtreesByMinSize(int min_size,
-                                 const std::vector<GpTree*>& source,
-                                 std::vector<GpTree*>& destination)
-    {
-        std::vector<GpTree*> filtered;
-        for (auto& gp_tree : source)
-            if (gp_tree->size() >= min_size) filtered.push_back(gp_tree);
-        destination = filtered;
-    }
-
-
-    void collectSetOfTypes(std::set<const GpType*>& set_of_types) const
-    {
-        set_of_types.insert(&getType());
-        for (auto& st : subtrees()) st.collectSetOfTypes(set_of_types);
-    }
-    
+    // Given two trees find the set of types common to both. That is: collect
+    // the set of types for each then take the intersection of those types.
     static void sharedSetOfTypes(const GpTree& a,
                                  const GpTree& b,
                                  std::set<const GpType*>& set_of_types_output)
@@ -339,19 +311,24 @@ public:
     }
     
     // Utility for crossover(). Select a random subtree, whose size is greater
-    // then or equal to "min_size" and whose root type is in "types".
+    // then or equal to "min_size" and whose root type is in set of "types".
     GpTree& selectCrossoverSubtree(int min_size,
                                    const std::set<const GpType*>& types)
     {
-        std::vector<GpTree*> subtrees;
-        traverseIntoVector(subtrees);
-        filterSubtreesByTypes(types, subtrees, subtrees);
-        filterSubtreesByMinSize(min_size, subtrees, subtrees);
-        return *LPRS().randomSelectElement(subtrees);
+        std::vector<GpTree*> all_subtrees;
+        collectVectorOfSubtrees(all_subtrees);
+        std::vector<GpTree*> filtered_subtrees;
+        for (auto& gp_tree : all_subtrees)
+        {
+            if ((types.find(&gp_tree->getType()) != types.end()) &&
+                (gp_tree->size() >= min_size))
+            {
+                filtered_subtrees.push_back(gp_tree);
+            }
+        }
+        return *LPRS().randomSelectElement(filtered_subtrees);
     }
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
     // Essentially like operator==() but needs to be a template for the sake of
     // the std::any leaf nodes. Used only in the unit tests.
     template <typename T> static bool match(const GpTree& a, const GpTree& b)
@@ -371,7 +348,6 @@ public:
                  (std::any_cast<T>(a.leaf_value_) ==    //   both leaves match.
                   std::any_cast<T>(b.leaf_value_))));
     }
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 private:
     // NOTE: if any more data members are added, compare them in equals().
     // Add (allocate) one subtree. addSubtrees() is external API.
@@ -491,10 +467,8 @@ public:
             int ms = gp_function->minSizeToTerminate();
             if (max_size >= ms) { ok.push_back(gp_function); }
         }
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // Intended only for testing and debugging
+        // Intended to be used only for testing and debugging
         if (function_filter) function_filter(ok);
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         return (ok.empty() ? nullptr : ok.at(LPRS().randomN(ok.size())));
     }
 
@@ -605,7 +579,6 @@ public:
         }
     }
 
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     void print() const
     {
         std::cout << std::endl;
@@ -617,7 +590,6 @@ public:
         for (auto& [n, f] : nameToGpFunctionMap()) f.print();
         std::cout << std::endl;
     }
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     // Map string names to (pointers to) GpTypes/GpFunction objects, for both
     // const (public, read only) and non-const (private, writable, for internal
@@ -644,13 +616,9 @@ public:
     const GpType*  getRootType() const { return root_type_; }
     void setRootType(GpType* gp_type) { root_type_ = gp_type; }
     
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // Intended only for testing and debugging
+    // Intended to be used only for testing and debugging
     static inline std::function<void(std::vector<GpFunction*>&)>
         function_filter = nullptr;
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     // Crossover: given three GpTrees (two parents and an offspring) set the
     // offspring to be a random crossover of the other two. That is: take a
@@ -679,12 +647,10 @@ public:
         o_subtree = d_subtree;
     }
 
-    
     // The smallest size for a subtree (GpTree) to be exchanged between parent
     // GpTrees during crossover. The default of 1 allows all subtrees including
     // leaf values such as numeric constants. Values of 2 or more exclude those.
     int getCrossoverMinSize() const { return crossover_min_size_; }
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     
 private:
     // These maps are used both to store the GpType and GpFunction objects,
