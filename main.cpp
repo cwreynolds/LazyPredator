@@ -791,33 +791,33 @@ int main(int argc, const char * argv[])
 
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-    // Guarantee type matching (or detect failure) in crossover operator.
-    std::cout << "October 3, 2020" << std::endl;
-    std::string path = "/Users/cwr/Desktop/TexSyn_temp/20201003_";
-    
-    // const FunctionSet& fs = TestFS::crossover();
-    const FunctionSet& fs = TestFS::treeEval();
-    std::cout << std::endl;
-    fs.print();
-    LPRS().setSeed();
-    // int max_size = 30;
-    int max_size = 15;
-
-    GpTree gp_tree_0;
-    fs.makeRandomTree(max_size, gp_tree_0);
-    debugPrint(gp_tree_0.to_string());
-    
-    GpTree gp_tree_1;
-    fs.makeRandomTree(max_size, gp_tree_1);
-    debugPrint(gp_tree_1.to_string());
-        
-    std::cout << std::endl;
-
-    GpTree offspring;
-    fs.crossover(gp_tree_0, gp_tree_1, offspring);
-    fs.crossover(gp_tree_0, gp_tree_1, offspring);
-
-    std::cout << std::endl;
+//    // Guarantee type matching (or detect failure) in crossover operator.
+//    std::cout << "October 3, 2020" << std::endl;
+//    std::string path = "/Users/cwr/Desktop/TexSyn_temp/20201003_";
+//
+//    // const FunctionSet& fs = TestFS::crossover();
+//    const FunctionSet& fs = TestFS::treeEval();
+//    std::cout << std::endl;
+//    fs.print();
+//    LPRS().setSeed();
+//    // int max_size = 30;
+//    int max_size = 15;
+//
+//    GpTree gp_tree_0;
+//    fs.makeRandomTree(max_size, gp_tree_0);
+//    debugPrint(gp_tree_0.to_string());
+//
+//    GpTree gp_tree_1;
+//    fs.makeRandomTree(max_size, gp_tree_1);
+//    debugPrint(gp_tree_1.to_string());
+//
+//    std::cout << std::endl;
+//
+//    GpTree offspring;
+//    fs.crossover(gp_tree_0, gp_tree_1, offspring);
+//    fs.crossover(gp_tree_0, gp_tree_1, offspring);
+//
+//    std::cout << std::endl;
     
 //    exchange = 1
 //    donor_size = 15
@@ -846,6 +846,49 @@ int main(int argc, const char * argv[])
 //    any_to_string<float>(offspring.eval()) = 0
 
     
+    //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    
+    // Guarantee type matching (or detect failure) in crossover operator.
+    std::cout << "October 8, 2020" << std::endl;
+    std::string path = "/Users/cwr/Desktop/TexSyn_temp/20201008_";
+    
+    const FunctionSet fs =
+    {
+        {
+            {
+                "Thing",
+                nullptr,
+                any_to_string<std::string>
+            },
+            {
+                "Int",
+                [](){ return std::any(int(LPRS().randomN(10))); },
+                any_to_string<int>
+            }
+        },
+        {
+            {
+                "This", "Thing", {"Thing", "Thing"},
+                [](const GpTree& t) { return std::any(std::string("This")); }
+            },
+            {
+                "That", "Thing", {"Thing", "Thing"},
+                [](const GpTree& t) { return std::any(std::string("That")); }
+            },
+            {
+                "Other", "Thing", {"Int", "Int"},
+                [](const GpTree& t) { return std::any(std::string("Other")); }
+            }
+        }
+    };
+    for (int i = 0; i < 30; i++)
+    {
+        GpTree gp_tree;
+        fs.makeRandomTree(100, gp_tree);
+        std::cout << std::endl << gp_tree.to_string() << std::endl;
+        std::cout << "size=" << gp_tree.size() << std::endl;
+    }
+
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     return EXIT_SUCCESS;
 }

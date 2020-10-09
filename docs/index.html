@@ -105,6 +105,131 @@
       details of the implementation. On the other hand, I do want it to be more
       prose-like than the terse <code>git commit</code> messages.)</p>
     <br style="##########################################################################">
+    <div class="post" id="20201008"> <a href="#20201008" class="date">October
+        8, 2020</a>
+      <h1>Minimum size for crossover snippet</h1>
+      <p>I am developing LazyPredator and TexSyn in parallel, so sometimes its
+        hard to decide which “blog” should get a post. Recent work with GP
+        crossover was been reported in TexSyn's posts on <a href="https://cwreynolds.github.io/TexSyn/#20201003">October
+          3</a> and <a href="https://cwreynolds.github.io/TexSyn/#20201005">October
+          5</a> (and previously on this page on <a href="#20200930">September
+          30</a>). The topic of the <a href="https://cwreynolds.github.io/TexSyn/#20201005">October
+          5</a> post, and this one, is the question of whether random “crossover
+        points” in a pair of parent GP trees should be selected uniformly across
+        all nodes in the trees. I think this is the most common and
+        “traditional” approach. But I decided to allow a variation on this which
+        seems useful in a concrete case like TexSyn's <code>FunctionSet</code>.</p>
+      <p>The GP tree crossover operation is based on selecting, in two “parent”
+        trees, a pair of nodes. Those two nodes are the roots of two subtrees,
+        which can be thought of as a snippet of code in normal linear textual
+        code notation. We copy the selected subtree of the “donor” tree, and
+        paste it over the subtree of the “recipient”/offspring tree.</p>
+      <p>But let's back up a bit, how is the random selection of a node in each
+        tree defined? In the <a href="https://cwreynolds.github.io/TexSyn/#20201003">October
+          3</a> examples this was done in what I consider the “traditional” way:
+        a recursive traversal of the tree is made and a reference to each
+        node/subtree is stored in an array (an <code>std::vector</code>), then
+        a random index over the size of the is generated and the corresponding
+        subtree is selected. (Equivalently without the array: one traversal
+        measures the size of the tree, the random index is determined, then a
+        second traversal is made until it reaches that node, which is returned.)
+        This means that the selection of tree nodes is uniformly distributed
+        over all nodes in the tree.</p>
+      <p>Because LazyPredator is based on STGP (strongly typed genetic
+        programming) there is an additional constraint that the two selected
+        subtrees have the same type (<code>GpType</code>). This is accomplished
+        by first selecting a node in the “donor” tree, then filtering the nodes
+        of the “recipient” tree to use only subtrees with a matching type.</p>
+      <p>Consider this (partially redacted) <code>FunctionSet</code>. It shares
+        a property with TexSyn that the root type (<code>Thing</code>) has no
+        “ephemeral constants”, while the other type (<code>Int</code>) has no
+        operators, but only appears as numeric constant leaf nodes:</p>
+      <pre>FunctionSet fs =
+{
+    <span class="comment">// GpTypes:</span>
+    {
+        {
+            "Thing", nullptr, any_to_string&lt;...&gt;
+        },
+        {
+            "Int", [](){ return std::any(int(LPRS().randomN(10))); }, any_to_string&lt;int&gt;
+        }
+    },
+    <span class="comment">// GpFunctions:</span>
+    {
+        {
+            "This", "Thing", {"Thing", "Thing"}, [](const GpTree&amp; t) { ... }
+        },
+        {
+            "That", "Thing", {"Thing", "Thing"}, ](const GpTree&amp; t) { ... }
+        },
+        {
+            "Other", "Thing", {"Int", "Int"}, [](const GpTree&amp; t) { ... }
+        }
+    }
+};</pre>
+      <p>This is a typical random <code>GpTree</code>, of size 55, created by
+        that <code>FunctionSet</code> with 28 numeric constant leaf nodes:</p>
+      <pre>This(Other(<span style="color: red;">9</span>, <span style="color: red;">0</span>),
+     That(This(This(This(Other(<span style="color: red;">8</span>, <span style="color: red;">2</span>),
+                         This(Other(<span style="color: red;">5</span>, <span style="color: red;">9</span>),
+                              Other(<span style="color: red;">3</span>, <span style="color: red;">8</span>))),
+                    Other(<span style="color: red;">3</span>, <span style="color: red;">1</span>)),
+               That(This(This(Other(<span style="color: red;">6</span>, <span style="color: red;">1</span>),
+                              Other(<span style="color: red;">8</span>, <span style="color: red;">1</span>)),
+                         Other(<span style="color: red;">4</span>, <span style="color: red;">0</span>)),
+                    This(Other(<span style="color: red;">3</span>, <span style="color: red;">2</span>),
+                         That(This(Other(<span style="color: red;">9</span>, <span
+style="color: red;">4</span>),
+                                   Other(<span style="color: red;">6</span>, <span
+style="color: red;">9</span>)),
+                              This(Other(<span style="color: red;">6</span>, <span
+style="color: red;">4</span>),
+                                   Other(<span style="color: red;">1</span>, <span
+style="color: red;">9</span>)))))),
+          Other(<span style="color: red;">9</span>, <span style="color: red;">6</span>)))</pre>
+      <p>Note that 28/55 or about 51% of random nodes (selected uniformly) will
+        be these numeric constants. So given two <code>GpTrees</code> from this
+        <code>FunctionSet</code>, roughly half of all crossover operations will
+        consist of moving a single numeric constant from one tree to the other.
+        (Recall that in STGP, <code>Int</code>s from one tree can only
+        crossover to <code>Int</code>s in the other tree.) About half the
+        crossover operations will do nothing but parameter “tweaking” and in a
+        way that is without the context that would normally exist when a larger
+        subtree is moved. I would prefer that “tweaking” constant leaf values be
+        done by point mutation, which is defined to make “small” changes in
+        value.</p>
+      <p>Consider instead this version of the FunctionSet, with the new <code>crossover_min_size</code>
+        parameter added at the bottom:</p>
+      <pre>FunctionSet fs =
+{
+    <span class="comment">// GpTypes:</span>
+    {
+        ...
+    },
+    <span class="comment">// GpFunctions:</span>
+    {
+        ...
+    },
+    <span class="comment">// Min_size for crossover:</span>
+    <strong>2</strong>
+};</pre>
+      <p>By increasing the <code>crossover_min_size</code> to <strong>2</strong>
+        from its default of <strong>1</strong>, this requires that all
+        crossover subtrees/snippets must be of size <strong>2</strong> or
+        larger. Specifically this means that a single numeric constant leaf
+        value (of size 1) is <strong>excluded</strong> from selection as the
+        crossover subtree/snippet. (As mentioned above, this is accomplished by
+        filtering the set of candidate subtrees, in this case by size.) The
+        effect of this is that all crossover snippets must consist of subtrees
+        larger than a single leaf node. In terms of the random program above:
+        all of the red leaf nodes are excluded, and the selection must be one of
+        the subtrees in black. In the examples shown in TexSyn's blog for <a href="https://cwreynolds.github.io/TexSyn/#20201005">October
+          5</a>, a <code>crossover_min_size</code> of <strong>5</strong> is
+        used, implying that the crossover snippet must be larger than the
+        minimal (size 4) <code>Texture</code> generator of <code>Uniform(r, g,
+          b)</code>.</p>
+    </div>
     <div class="post" id="20200930"> <a href="#20200930" class="date">September
         30, 2020</a>
       <h1>Crossover of <code>GpTrees</code> — wait, that was <em>too</em> easy</h1>
@@ -118,7 +243,7 @@
         incorrect description.)</p>
       <p>In genetic programming there is an analogous “crossover” operation on
         program trees. When describing GP I often call this “random syntax-aware
-        cut-and-paste.” It is as if a subtree (subexpression) from one parent's
+        copy-and-paste.” It is as if a subtree (subexpression) from one parent's
         program is <em>copied</em>, then <em>pasted</em> into (a copy of) the
         other parent's program, replacing a preexisting subtree (subexpression).
         This creates a new offspring program with part of its code from one
