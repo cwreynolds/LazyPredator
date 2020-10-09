@@ -128,22 +128,22 @@
         tree defined? In the <a href="https://cwreynolds.github.io/TexSyn/#20201003">October
           3</a> examples this was done in what I consider the “traditional” way:
         a recursive traversal of the tree is made and a reference to each
-        node/subtree is stored in an array (an <code>std::vector</code>), then
-        a random index over the size of the is generated and the corresponding
-        subtree is selected. (Equivalently without the array: one traversal
-        measures the size of the tree, the random index is determined, then a
-        second traversal is made until it reaches that node, which is returned.)
-        This means that the selection of tree nodes is uniformly distributed
-        over all nodes in the tree.</p>
+        node/subtree is stored in an array (in this case an <code>std::vector</code>),
+        then a random index over the size of the array is generated and the
+        corresponding subtree is selected. (Equivalently without the array: one
+        traversal measures the size of the tree, the random index is determined,
+        then a second traversal is made until it reaches the node corresponding
+        to that index, which is returned.) This means that the selection of tree
+        nodes is uniformly distributed over all nodes in the tree.</p>
       <p>Because LazyPredator is based on STGP (strongly typed genetic
         programming) there is an additional constraint that the two selected
         subtrees have the same type (<code>GpType</code>). This is accomplished
         by first selecting a node in the “donor” tree, then filtering the nodes
-        of the “recipient” tree to use only subtrees with a matching type.</p>
+        of the “recipient” tree to consider only subtrees with a matching type.</p>
       <p>Consider this (partially redacted) <code>FunctionSet</code>. It shares
         a property with TexSyn that the root type (<code>Thing</code>) has no
         “ephemeral constants”, while the other type (<code>Int</code>) has no
-        operators, but only appears as numeric constant leaf nodes:</p>
+        operators, appearing only as numeric constant leaf nodes:</p>
       <pre>FunctionSet fs =
 {
     <span class="comment">// GpTypes:</span>
@@ -169,7 +169,8 @@
     }
 };</pre>
       <p>This is a typical random <code>GpTree</code>, of size 55, created by
-        that <code>FunctionSet</code> with 28 numeric constant leaf nodes:</p>
+        that <code>FunctionSet</code> with 28 numeric constant leaf nodes (in
+        red):</p>
       <pre>This(Other(<span style="color: red;">9</span>, <span style="color: red;">0</span>),
      That(This(This(This(Other(<span style="color: red;">8</span>, <span style="color: red;">2</span>),
                          This(Other(<span style="color: red;">5</span>, <span style="color: red;">9</span>),
@@ -195,12 +196,12 @@ style="color: red;">9</span>)))))),
         (Recall that in STGP, <code>Int</code>s from one tree can only
         crossover to <code>Int</code>s in the other tree.) About half the
         crossover operations will do nothing but parameter “tweaking” and in a
-        way that is without the context that would normally exist when a larger
+        way that ignores the context that would normally exist when a larger
         subtree is moved. I would prefer that “tweaking” constant leaf values be
         done by point mutation, which is defined to make “small” changes in
         value.</p>
-      <p>Consider instead this version of the FunctionSet, with the new <code>crossover_min_size</code>
-        parameter added at the bottom:</p>
+      <p>Consider instead this version of that FunctionSet, identical but with
+        the new <code>crossover_min_size</code> parameter added at the bottom:</p>
       <pre>FunctionSet fs =
 {
     <span class="comment">// GpTypes:</span>
@@ -224,11 +225,12 @@ style="color: red;">9</span>)))))),
         effect of this is that all crossover snippets must consist of subtrees
         larger than a single leaf node. In terms of the random program above:
         all of the red leaf nodes are excluded, and the selection must be one of
-        the subtrees in black. In the examples shown in TexSyn's blog for <a href="https://cwreynolds.github.io/TexSyn/#20201005">October
-          5</a>, a <code>crossover_min_size</code> of <strong>5</strong> is
-        used, implying that the crossover snippet must be larger than the
-        minimal (size 4) <code>Texture</code> generator of <code>Uniform(r, g,
-          b)</code>.</p>
+        the larger subtrees in black. In the examples shown in TexSyn's blog for
+        <a href="https://cwreynolds.github.io/TexSyn/#20201005">October 5</a>, a
+        <code>crossover_min_size</code> of <strong>5</strong> is used, implying
+        that the crossover snippet must be larger than the minimal (size 4) <code>Texture</code>
+        generator of <code>Uniform(r, g, b)</code>, a “texture” of uniform
+        color.</p>
     </div>
     <div class="post" id="20200930"> <a href="#20200930" class="date">September
         30, 2020</a>
