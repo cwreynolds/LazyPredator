@@ -848,37 +848,55 @@ int main(int argc, const char * argv[])
     
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     
-    // Guarantee type matching (or detect failure) in crossover operator.
-    std::cout << "October 8, 2020" << std::endl;
-    std::string path = "/Users/cwr/Desktop/TexSyn_temp/20201008_";
+//    // Guarantee type matching (or detect failure) in crossover operator.
+//    std::cout << "October 8, 2020" << std::endl;
+//    std::string path = "/Users/cwr/Desktop/TexSyn_temp/20201008_";
+//
+//    const FunctionSet fs =
+//    {
+//        {
+//            { "Thing" },
+//            { "Int", 0, 9 }
+//        },
+//        {
+//            {
+//                "This", "Thing", {"Thing", "Thing"},
+//                [](const GpTree& t) { return nullptr; }
+//            },
+//            {
+//                "That", "Thing", {"Thing", "Thing"},
+//                [](const GpTree& t) { return nullptr; }
+//            },
+//            {
+//                "Other", "Thing", {"Int", "Int"},
+//                [](const GpTree& t) { return nullptr; }
+//            }
+//        }
+//    };
+//    for (int i = 0; i < 30; i++)
+//    {
+//        GpTree gp_tree;
+//        fs.makeRandomTree(100, gp_tree);
+//        std::cout << std::endl << gp_tree.to_string() << std::endl;
+//        std::cout << "size=" << gp_tree.size() << std::endl;
+//    }
+
+    //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     
-    const FunctionSet fs =
+    // Guarantee type matching (or detect failure) in crossover operator.
+    std::cout << "October 11, 2020" << std::endl;
+    std::string path = "/Users/cwr/Desktop/TexSyn_temp/20201011_";
+        
+    GpType gp_type_i("Int", 0, 100);
+    GpType gp_type_f("Float", 0.0f, 100.0f);
+    std::any i = 50;
+    std::any f = 50.0f;
+    for (int k = 0; k < 1000; k++)
     {
-        {
-            { "Thing" },
-            { "Int", 0, 9 }
-        },
-        {
-            {
-                "This", "Thing", {"Thing", "Thing"},
-                [](const GpTree& t) { return nullptr; }
-            },
-            {
-                "That", "Thing", {"Thing", "Thing"},
-                [](const GpTree& t) { return nullptr; }
-            },
-            {
-                "Other", "Thing", {"Int", "Int"},
-                [](const GpTree& t) { return nullptr; }
-            }
-        }
-    };
-    for (int i = 0; i < 30; i++)
-    {
-        GpTree gp_tree;
-        fs.makeRandomTree(100, gp_tree);
-        std::cout << std::endl << gp_tree.to_string() << std::endl;
-        std::cout << "size=" << gp_tree.size() << std::endl;
+        std::cout << std::any_cast<int>(i) << ", ";
+        std::cout << std::any_cast<float>(f) << std::endl;
+        f = gp_type_f.jiggleConstant(f);
+        i = gp_type_i.jiggleConstant(i);
     }
 
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

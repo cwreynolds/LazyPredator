@@ -105,6 +105,39 @@
       details of the implementation. On the other hand, I do want it to be more
       prose-like than the terse <code>git commit</code> messages.)</p>
     <br style="##########################################################################">
+    <div class="post" id="20201011"> <a href="#20201011" class="date">October
+        11, 2020</a>
+      <h1>“Jiggle” mutation for numeric leaf values.</h1>
+      <p>Based on <a href="#20201010">yesterday's</a> streamlining for ranged
+        numeric types, it was pretty easy to add a new “handler function” to <code>GpType</code>
+        to provide “jiggle” mutation for the numeric constant values found at
+        leaves of <code>GpTree</code>s. Like yesterday, I only supported c++
+        concrete types <code>int</code> and <code>float</code>. If others are
+        needed they can be added later, or explicitly implemented using the
+        older, more general form of <code>GpType</code> constructor. The jiggle
+        handler function is automatically constructed for a ranged numeric
+        GpType, based on the given range bounds and a parameter prototyped as <code>GpType::maxJiggleFactor()</code>.
+        It is currently set to 0.05 so at any given jiggle, a value will be
+        offset by ±5% of the given range. Here is a little test code
+        to watch iterated jiggle of an <code>int</code> and <code>float</code>
+        type on the range [0, 100]:</p>
+      <pre>GpType gp_type_i("Int", 0, 100);
+GpType gp_type_f("Float", 0.0f, 100.0f);
+std::any i = 50;
+std::any f = 50.0f;
+for (int k = 0; k &lt; 1000; k++)
+{
+    std::cout &lt;&lt; std::any_cast&lt;int&gt;(i) &lt;&lt; ", ";
+    std::cout &lt;&lt; std::any_cast&lt;float&gt;(f) &lt;&lt; std::endl;
+    f = gp_type_f.jiggleConstant(f);
+    i = gp_type_i.jiggleConstant(i);
+}</pre>
+      <p>The result behaves as a “bounded Brownian” series. It stays within the
+        given range, covering the entire range, while not hugging the bounds due
+        to clipping. I took the log from that code and pasted it into a
+        speadsheet for plotting:</p>
+      <img src="images/20201011_jiggle_series.png" alt="jiggle series" title="jiggle series"
+        height="404" width="1000"> </div>
     <div class="post" id="20201010"> <a href="#20201010" class="date">October
         10, 2020</a>
       <h1><code>GpType</code> constructors: less is more</h1>
