@@ -855,29 +855,21 @@ int main(int argc, const char * argv[])
     const FunctionSet fs =
     {
         {
-            {
-                "Thing",
-                nullptr,
-                any_to_string<std::string>
-            },
-            {
-                "Int",
-                [](){ return std::any(int(LPRS().randomN(10))); },
-                any_to_string<int>
-            }
+            { "Thing" },
+            { "Int", 0, 9 }
         },
         {
             {
                 "This", "Thing", {"Thing", "Thing"},
-                [](const GpTree& t) { return std::any(std::string("This")); }
+                [](const GpTree& t) { return nullptr; }
             },
             {
                 "That", "Thing", {"Thing", "Thing"},
-                [](const GpTree& t) { return std::any(std::string("That")); }
+                [](const GpTree& t) { return nullptr; }
             },
             {
                 "Other", "Thing", {"Int", "Int"},
-                [](const GpTree& t) { return std::any(std::string("Other")); }
+                [](const GpTree& t) { return nullptr; }
             }
         }
     };

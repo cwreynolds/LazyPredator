@@ -59,6 +59,16 @@ public:
       : name_(name),
         ephemeral_generator_(ephemeral_generator),
         to_string_(to_string) {}
+    GpType(const std::string& name, float range_min, float range_max)
+      : name_(name),
+        ephemeral_generator_
+            ([=](){ return std::any(LPRS().frandom2(range_min, range_max)); }),
+        to_string_(any_to_string<float>) {}
+    GpType(const std::string& name, int range_min, int range_max)
+      : name_(name),
+        ephemeral_generator_
+            ([=](){ return std::any(LPRS().randomIJ(range_min, range_max)); }),
+        to_string_(any_to_string<int>) {}
     // Accessor for name.
     const std::string& name() const { return name_; }
     // Does this type have an ephemeral generator?

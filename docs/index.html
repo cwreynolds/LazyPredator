@@ -105,6 +105,81 @@
       details of the implementation. On the other hand, I do want it to be more
       prose-like than the terse <code>git commit</code> messages.)</p>
     <br style="##########################################################################">
+    <div class="post" id="20201010"> <a href="#20201010" class="date">October
+        10, 2020</a>
+      <h1><code>GpType</code> constructors: less is more</h1>
+      <p>Two key operators in genetic programming are <em>crossover</em> and <em>mutation</em>.
+        Crossover has been discussed <a href="#20201008">before</a>. I was
+        starting to think about a “point mutation” operator on <code>GpTree</code>s
+        that adds noise to numeric parameters in a tree's leaves. This is not
+        about that, but was prompted by setting the stage for it. The definition
+        of TexSyn's <code>FunctionSet</code> consists of two collection: <code>GpType</code>s
+        and <code>GpFunction</code>s. (And now a third parameter for <code>crossover_min_size</code>.)
+        Before today, the <code>GpType</code> specs looked like this:<br>
+      </p>
+      <pre>{<br>    { "<strong>Texture</strong>" },
+    { "<strong>Vec2</strong>" },
+    {
+        "<strong>Float_01</strong>",
+        [](){ return std::any(LPRS().frandom01()); },
+        any_to_string&lt;float&gt;
+    },
+    {
+        "<strong>Float_02</strong>",
+        [](){ return std::any(LPRS().frandom2(0, 2)); },
+        any_to_string&lt;float&gt;
+    },
+    {
+        "<strong>Float_0_10</strong>",
+        [](){ return std::any(LPRS().frandom2(0, 10)); },
+        any_to_string&lt;float&gt;
+    },
+    {
+        "<strong>Float_m5p5</strong>",
+        [](){ return std::any(LPRS().frandom2(-5, 5)); },
+        any_to_string&lt;float&gt;
+    }<br>}</pre>
+      <p>I have been glossing over this format for <code>GpType</code>
+        constructors, since it felt a little preliminary. <code>Texture</code>
+        and <code>Vec2</code> are used only as tags to correctly matching up
+        inputs and outputs of <code>GpFunction</code>s. The other four types
+        are specializations of the concrete <code>c++</code> type <code>float</code>.
+        These four types differ only in the range of values they represent. For
+        example, <code>Float_01</code> are values on the interval [0.0, 1.0]
+        and <code>Float_m5p5</code> are values on the interval [-5.0, 5.0]. For
+        each <code>GpType</code> “initializer list” (between braces <code>{}</code>)
+        there is: (1) a character string name, (2) a function to return a random
+        “ephemeral constant” uniformly selected from the type's range, and (3) a
+        function that casts from a value of this type to a character string for
+        printing. (The values actually passed around are of type <code>std::any</code>
+        for “type erasure” but let's not get into that right now.)</p>
+      <p>I came up with a way to make this less messy. I hope eventually that
+        LazyPredator will be used for other applications. For now however, it is
+        only being used with the <code>FunctionSet</code> for TexSyn. So this
+        may be short-sighted, but so far, a <code>GpType</code> either just
+        tags an instance of a c++ class (like <code>Texture</code> and <code>Vec2</code>)
+        or it represents a numeric type, perhaps with range constraints (like <code>Float_01</code>
+        ... <code>Float_m5p5</code>). So rather than writing out the two (soon
+        to be three) handler functions/lambdas, all we need to specify are the
+        ranges. I defined two new constructors for <code>GpType</code> one for
+        float and one for int that takes: a name, range_min, and range_max. The
+        internal structure of a <code>GpType</code> object is unchanged, this
+        is just a different way to initialize its internal state. The result is
+        a much more compact specification for the <code>GpType</code>s of a <code>FunctionSet</code>:</p>
+      <pre>{<br>    { "<strong>Texture</strong>" },
+    { "<strong>Vec2</strong>" },
+    { "<strong>Float_01</strong>", 0.0f, 1.0f },
+    { "<strong>Float_02</strong>", 0.0f, 2.0f },
+    { "<strong>Float_0_10</strong>", 0.0f, 10.0f },
+    { "<strong>Float_m5p5</strong>", -5.0f, 5.0f }<br>}</pre>
+      <p>I like this approach. The connection with mutation operators is that
+        soon there would have been need for a fourth item in <code>GpType</code>'s
+        initializer list: a function to “jiggle” an existing value of this type.
+        Having defined a <code>GpType</code> as a ranged numeric value, we can
+        automatically generate the handlers for randomizing, printing, and soon,
+        for mutating. The older constructors remain available for cases not
+        covered by this streamlining.</p>
+    </div>
     <div class="post" id="20201008"> <a href="#20201008" class="date">October
         8, 2020</a>
       <h1>Minimum size for crossover snippet</h1>
