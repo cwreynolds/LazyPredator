@@ -51,8 +51,11 @@ class GpFunction;  // Forward reference to class defined below.
 class GpType
 {
 public:
+    // Default constructor.
     GpType(){}
+    // Constructor for name only.
     GpType(const std::string& name) : name_(name) {}
+    // Full constructor, specify all parameters.
     GpType(const std::string& name,
            std::function<std::any()> ephemeral_generator,
            std::function<std::string(std::any a)> to_string,
@@ -61,21 +64,15 @@ public:
         ephemeral_generator_(ephemeral_generator),
         to_string_(to_string),
         jiggle_(jiggle) {}
-    // TODO I think these two ranged numeric versions be combined as a template.
-    GpType(const std::string& name, float range_min, float range_max)
-      : name_(name),
-        ephemeral_generator_
-            ([=](){ return std::any(LPRS().frandom2(range_min, range_max)); }),
-        to_string_(any_to_string<float>),
-        jiggle_([=](std::any x)
-            { return jiggle(std::any_cast<float>(x), range_min, range_max); }){}
-    GpType(const std::string& name, int range_min, int range_max)
-      : name_(name),
-        ephemeral_generator_
-            ([=](){ return std::any(LPRS().randomIJ(range_min, range_max)); }),
-        to_string_(any_to_string<int>),
-        jiggle_([=](std::any x)
-            { return jiggle(std::any_cast<int>(x), range_min, range_max); }) {}
+    // Constructor for ranged numeric types (name, range_min, range_max).
+    template <typename T>
+    GpType(const std::string& name, T range_min, T range_max)
+      : GpType(name,
+               [=](){ return std::any(LPRS().random2(range_min, range_max)); },
+               any_to_string<T>,
+               [=](std::any x){ return jiggle(std::any_cast<T>(x),
+                                              range_min,
+                                              range_max); }){}
     // Accessor for name.
     const std::string& name() const { return name_; }
     // Does this type have an ephemeral generator?
@@ -128,8 +125,8 @@ public:
     template <typename T> T jiggle(T x, T min, T max)
     {
         T max_jiggle = (max - min) * getMaxJiggleFactor();
-        return LPRS().randomIJ(std::max(min, x - max_jiggle),
-                               std::min(max, x + max_jiggle));
+        return LPRS().random2(std::max(min, x - max_jiggle),
+                              std::min(max, x + max_jiggle));
     }
 private:
     std::string name_;
