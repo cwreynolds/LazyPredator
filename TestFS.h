@@ -61,23 +61,16 @@ private:
     static inline const FunctionSet tree_eval_objects =
     {
         {
-            {
-                "Float",
-                [](){ return std::any(LPRS().frandom01()); },
-                any_to_string<float>
-            },
-            {
-                "Int",
-                [](){ return std::any(int(LPRS().randomN(10))); },
-                any_to_string<int>
-            },
+            { "Float", 0.0f, 1.0f },
+            { "Int", 0, 9 },
             {
                 "ClassA",
                 nullptr,
                 [](std::any a)
                 {
                     return std::any_cast<ClassA&>(a).to_string();
-                }
+                },
+                nullptr
             },
             {
                 "ClassB",
@@ -85,7 +78,8 @@ private:
                 [](std::any a)
                 {
                     return std::any_cast<ClassB*>(a)->to_string();
-                }
+                },
+                nullptr
             },
             {
                 "ClassC",
@@ -93,7 +87,8 @@ private:
                 [](std::any a)
                 {
                     return std::any_cast<ClassC>(a).to_string();
-                }
+                },
+                nullptr
             },
         },
         {
@@ -128,16 +123,8 @@ private:
     static inline const FunctionSet tree_eval =
     {
         {
-            {
-                "Float",
-                [](){ return std::any(LPRS().frandom01()); },
-                any_to_string<float>
-            },
-            {
-                "Int",
-                [](){ return std::any(int(LPRS().randomN(10))); },
-                any_to_string<int>
-            }
+            { "Float", 0.0f, 1.0f },
+            { "Int", 0, 9 }
         },
         {
             {
@@ -179,11 +166,7 @@ private:
     static inline const FunctionSet cross_over =
     {
         {
-            {
-                "Int",
-                [](){ return std::any(int(LPRS().randomN(10))); },
-                any_to_string<int>
-            }
+            { "Int", 0, 9 }
         },
         {
             {

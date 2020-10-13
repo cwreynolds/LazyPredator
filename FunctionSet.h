@@ -55,25 +55,13 @@ public:
     GpType(const std::string& name) : name_(name) {}
     GpType(const std::string& name,
            std::function<std::any()> ephemeral_generator,
-           std::function<std::string(std::any a)> to_string)
+           std::function<std::string(std::any a)> to_string,
+           std::function<std::any(std::any)> jiggle)
       : name_(name),
         ephemeral_generator_(ephemeral_generator),
-        to_string_(to_string) {}
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // TODO -- NOTE the general constructor above should be expanded to support
-    // a jiggle function.
-    
-//    GpType(const std::string& name, float range_min, float range_max)
-//      : name_(name),
-//        ephemeral_generator_
-//            ([=](){ return std::any(LPRS().frandom2(range_min, range_max)); }),
-//        to_string_(any_to_string<float>) {}
-//    GpType(const std::string& name, int range_min, int range_max)
-//      : name_(name),
-//        ephemeral_generator_
-//            ([=](){ return std::any(LPRS().randomIJ(range_min, range_max)); }),
-//        to_string_(any_to_string<int>) {}
-
+        to_string_(to_string),
+        jiggle_(jiggle) {}
+    // TODO I think these two ranged numeric versions be combined as a template.
     GpType(const std::string& name, float range_min, float range_max)
       : name_(name),
         ephemeral_generator_
@@ -85,24 +73,9 @@ public:
       : name_(name),
         ephemeral_generator_
             ([=](){ return std::any(LPRS().randomIJ(range_min, range_max)); }),
-    to_string_(any_to_string<int>),
-    jiggle_([=](std::any x)
+        to_string_(any_to_string<int>),
+        jiggle_([=](std::any x)
             { return jiggle(std::any_cast<int>(x), range_min, range_max); }) {}
-
-    // TODO oh, maybe make a randomIJ overload for floats to allow templating?
-//    template <typename T> static T jiggle(T x, T min, T max)
-    template <typename T> T jiggle(T x, T min, T max)
-    {
-//        T max_jiggle = (max - min) * 0.05;
-//        debugPrint(max_jiggle);
-        T max_jiggle = (max - min) * maxJiggleFactor();
-        return LPRS().randomIJ(std::max(min, x - max_jiggle),
-                               std::min(max, x + max_jiggle));
-    }
-    
-    // TODO TEMP -- needs to be settable
-    float maxJiggleFactor() { return 0.05; }
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Accessor for name.
     const std::string& name() const { return name_; }
     // Does this type have an ephemeral generator?
@@ -113,7 +86,6 @@ public:
         assert(hasEphemeralGenerator());
         return ephemeral_generator_();
     }
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Does this type have a jiggle function?
     bool hasJiggler() const { return bool(jiggle_); }
     // Generate an ephemeral constant.
@@ -122,7 +94,6 @@ public:
         assert(hasJiggler());
         return jiggle_(current_value);
     }
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Access collection of (pointers to) GpFunction that return this type.
     const std::vector<GpFunction*>& functionsReturningThisType() const
         { return functions_returning_this_type_; }
@@ -143,19 +114,33 @@ public:
     // Uses function (supplied in constructor) to make a string of std::any
     // value via this GpType's concrete c++ type.
     std::string to_string(std::any a) const { return to_string_(a); }
+    // Get/set the max jiggle factor: a scale factor on the magnitude of noise
+    // added to a ranged numeric GpType by "jiggle mutation." The zero-centered
+    // noise added is uniformly distributed on the interval [-m, +m] where m is:
+    // ((range_max - range_min) * maxJiggleFactor()). The interval [-m, +m] is
+    // then "pre-clipped" to the range of the GpType.
+    //
+    // TODO it is unclear how setMaxJiggleFactor() could be called,
+    //      perhaps as yet another constructor overload?
+    float getMaxJiggleFactor() const { return max_jiggle_factor_; }
+    void setMaxJiggleFactor(float f) { max_jiggle_factor_ = f; }
+    // Utility template function for jiggle mutation handlers.
+    template <typename T> T jiggle(T x, T min, T max)
+    {
+        T max_jiggle = (max - min) * getMaxJiggleFactor();
+        return LPRS().randomIJ(std::max(min, x - max_jiggle),
+                               std::min(max, x + max_jiggle));
+    }
 private:
     std::string name_;
     // Function to generate an ephemeral constant.
     std::function<std::any()> ephemeral_generator_ = nullptr;
     // Function to generate string representation of a value of this GpType.
     std::function<std::string(std::any a)> to_string_ = nullptr;
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    
     // Function to jiggle/jitter an ephemeral constant.
     std::function<std::any(std::any)> jiggle_ = nullptr;
-
-    
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // Scale factor on the magnitude of noise for "jiggle mutation".
+    float max_jiggle_factor_ = 0.05;
     // Collection of pointers to GpFunctions which return this type.
     std::vector<GpFunction*> functions_returning_this_type_;
     // Minimum "size" of tree returning this type from root;

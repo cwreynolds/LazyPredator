@@ -887,16 +887,15 @@ int main(int argc, const char * argv[])
     std::cout << "October 11, 2020" << std::endl;
     std::string path = "/Users/cwr/Desktop/TexSyn_temp/20201011_";
         
-    GpType gp_type_i("Int", 0, 100);
-    GpType gp_type_f("Float", 0.0f, 100.0f);
-    std::any i = 50;
-    std::any f = 50.0f;
+    GpType ti("Int", 0, 100);
+    GpType tf("Float", 0.0f, 100.0f);
+    std::any vi = 50;
+    std::any vf = 50.0f;
     for (int k = 0; k < 1000; k++)
     {
-        std::cout << std::any_cast<int>(i) << ", ";
-        std::cout << std::any_cast<float>(f) << std::endl;
-        f = gp_type_f.jiggleConstant(f);
-        i = gp_type_i.jiggleConstant(i);
+        std::cout << ti.to_string(vi) << ", " << tf.to_string(vf) << std::endl;
+        vf = tf.jiggleConstant(vf);
+        vi = ti.jiggleConstant(vi);
     }
 
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

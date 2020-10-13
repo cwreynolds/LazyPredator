@@ -115,22 +115,23 @@
         concrete types <code>int</code> and <code>float</code>. If others are
         needed they can be added later, or explicitly implemented using the
         older, more general form of <code>GpType</code> constructor. The jiggle
-        handler function is automatically constructed for a ranged numeric
-        GpType, based on the given range bounds and a parameter prototyped as <code>GpType::maxJiggleFactor()</code>.
-        It is currently set to 0.05 so at any given jiggle, a value will be
-        offset by ±5% of the given range. Here is a little test code
-        to watch iterated jiggle of an <code>int</code> and <code>float</code>
-        type on the range [0, 100]:</p>
-      <pre>GpType gp_type_i("Int", 0, 100);
-GpType gp_type_f("Float", 0.0f, 100.0f);
-std::any i = 50;
-std::any f = 50.0f;
+        handler function is automatically constructed for a ranged numeric <code>
+          GpType</code>, based on the given range bounds and a parameter
+        prototyped as <code>GpType::maxJiggleFactor()</code>. It is currently
+        set to 0.05 so at any given jiggle, a value will be offset by up to ±5%
+        of the given range. Here is a little test code to watch iterated jiggle
+        of an <code>int</code> and <code>float</code> type on the range [0,
+        100]:</p>
+      <pre>GpType ti("Int", 0, 100);
+GpType tf("Float", 0.0f, 100.0f);
+std::any vi = 50;
+std::any vf = 50.0f;
 for (int k = 0; k &lt; 1000; k++)
 {
-    std::cout &lt;&lt; std::any_cast&lt;int&gt;(i) &lt;&lt; ", ";
-    std::cout &lt;&lt; std::any_cast&lt;float&gt;(f) &lt;&lt; std::endl;
-    f = gp_type_f.jiggleConstant(f);
-    i = gp_type_i.jiggleConstant(i);
+    vi = ti.jiggleConstant(vi);
+    vf = tf.jiggleConstant(vf);
+    std::cout &lt;&lt; ti.to_string(vi) &lt;&lt; ", ";
+    std::cout &lt;&lt; tf.to_string(vf) &lt;&lt; std::endl;
 }</pre>
       <p>The result behaves as a “bounded Brownian” series. It stays within the
         given range, covering the entire range, while not hugging the bounds due
