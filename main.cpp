@@ -883,20 +883,38 @@ int main(int argc, const char * argv[])
 
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     
-    // Guarantee type matching (or detect failure) in crossover operator.
-    std::cout << "October 11, 2020" << std::endl;
-    std::string path = "/Users/cwr/Desktop/TexSyn_temp/20201011_";
-        
-    GpType ti("Int", 0, 100);
-    GpType tf("Float", 0.0f, 100.0f);
-    std::any vi = 50;
-    std::any vf = 50.0f;
-    for (int k = 0; k < 1000; k++)
-    {
-        std::cout << ti.to_string(vi) << ", " << tf.to_string(vf) << std::endl;
-        vf = tf.jiggleConstant(vf);
-        vi = ti.jiggleConstant(vi);
-    }
+//    // Test jiggle for mutation.
+//    std::cout << "October 11, 2020" << std::endl;
+//    std::string path = "/Users/cwr/Desktop/TexSyn_temp/20201011_";
+//
+//    GpType ti("Int", 0, 100);
+//    GpType tf("Float", 0.0f, 100.0f);
+//    std::any vi = 50;
+//    std::any vf = 50.0f;
+//    for (int k = 0; k < 1000; k++)
+//    {
+//        std::cout << ti.to_string(vi) << ", " << tf.to_string(vf) << std::endl;
+//        vf = tf.jiggleConstant(vf);
+//        vi = ti.jiggleConstant(vi);
+//    }
+
+    //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    
+    // Build out Population and Individual.
+    std::cout << "October 13, 2020" << std::endl;
+    std::string path = "/Users/cwr/Desktop/TexSyn_temp/20201013_";
+    
+//    for (int i = 0; i < 2000; i++)
+//    {
+//        int count = LPRS().random2(3, 100);
+//        Population population(count);
+//
+//        auto [a, b, c] = population.selectThreeIndices();
+//        std::cout << i << ": a, b, c = " << a << ", " << b << ", " << c;
+//        std::cout << " count=" << count;
+//        if ((a == b) || (b == c) || (c == a)) std::cout << "  oops!";
+//        std::cout << std::endl;
+//    }
 
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     return EXIT_SUCCESS;
