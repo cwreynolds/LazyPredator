@@ -17,22 +17,31 @@ public:
     Population() {}
     Population(int size)
     {
-        for (int i = 0; i < size; i++) individuals.push_back(new Individual);
+        for (int i = 0; i < size; i++) individuals_.push_back(new Individual);
+    }
+    // TODO combine constructors with and without fs?
+    Population(int size, int max_tree_size, const FunctionSet& fs)
+    {
+        for (int i = 0; i < size; i++)
+        {
+            individuals_.push_back(new Individual(max_tree_size, fs));
+        }
     }
     ~Population()
     {
-        while (!individuals.empty())
+        while (!individuals_.empty())
         {
-            Individual* last = individuals.back();
-            individuals.pop_back();
+            Individual* last = individuals_.back();
+            individuals_.pop_back();
             delete last;
         }
     }
+    const std::vector<Individual*>& individuals() const { return individuals_; }
     // Select three random (but guaranteed to be unique) indices into the
     // population for Individuals to be used in a three way tournament.
     std::tuple<int, int, int> selectThreeIndices()
     {
-        int count = static_cast<int>(individuals.size()) - 1;
+        int count = static_cast<int>(individuals().size()) - 1;
         assert("fewer than 3 in population" && (count >= 2));
         int count13 = count / 3;
         int count23 = (count * 2) / 3;
@@ -41,5 +50,5 @@ public:
                                LPRS().random2(count23 + 1, count));
     };
 private:
-    std::vector<Individual*> individuals;
+    std::vector<Individual*> individuals_;
 };

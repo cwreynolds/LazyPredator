@@ -105,11 +105,49 @@
       details of the implementation. On the other hand, I do want it to be more
       prose-like than the terse <code>git commit</code> messages.)</p>
     <br style="##########################################################################">
+    <div class="post" id="20201014"> <a href="#20201014" class="date">October
+        14, 2020</a>
+      <h1>Back to <code>Population</code> and <code>Individual</code></h1>
+      <h1></h1>
+      <p>After about two months developing a representation for genetic
+        programming (<code>FunctionSet</code>, <code>GpTree</code>, <code>GpFunction</code>,
+        and <code>GpType</code>) I have returned to the basics of evolutionary
+        computation: <code>Individual</code> and <code>Population</code>. My
+        initial plan is to avoid the traditional numeric measure of fitness,
+        instead using relative fitness as measured in competitive tournaments.
+        For some definitions of fitness, there is no significant difference. If
+        we define the fitness of a tower as its height, then that one number
+        tells us all we need to know about an individual. But in other kinds of
+        fitness—for example, which team in a sports league is best—all that can
+        be established is a relative ranking. We cannot evaluate a team to
+        produce a single numeric fitness that predicts which of two teams will
+        win a match.</p>
+      <p>My initial plan is to use tournaments of three <code>Individuals</code>
+        from the <code>Population</code>. This provides a minimalist
+        replacement strategy for the “steady state genetic algorithm”: three
+        individuals are selected at random (neutral selection, not “fitness
+        proportionate”), they compete in a three-way contest, the <code>Individual</code>
+        which does the worst is removed from the <code>Population</code>, and
+        replaced with a new offspring, formed by crossover between the other two
+        <code>Individuals</code> in the tournament. It is not required to
+        establish a “full ordering” of the three <code>Individual</code>s, only
+        to determine which is in last place. The ranking of the other two is
+        ignored.</p>
+      <p>Yesterday I experimented with several implementations of <code>Population::selectThreeIndices()</code>
+        to select three random but unique (“without replacement”?) members of
+        the population to be in a tournament. (The “modern <code>c++17</code>
+        way” of doing this is with <code>std::sample()</code> but for the
+        moment I needed to use LP's <code>RandomSequence</code> API.) Today I
+        started building out the <code>Individual</code> and <code>Population</code>
+        classes. I am now able to initialize a Population of a given size, where
+        each <code>Individual</code> is initialized with random <code>GpTree</code>
+        of a given max size from a given <code>FunctionSet</code>.</p>
+    </div>
     <div class="post" id="20201011"> <a href="#20201011" class="date">October
         11, 2020</a>
       <h1>“Jiggle” mutation for numeric leaf values.</h1>
       <p>Based on <a href="#20201010">yesterday's</a> streamlining for ranged
-        numeric types, it was pretty easy to add a new “handler function” to <code>GpType</code>
+        numeric types, it was pretty easy to add a new handler function to <code>GpType</code>
         to provide “jiggle” mutation for the numeric constant values found at
         leaves of <code>GpTree</code>s. Like yesterday, I only supported c++
         concrete types <code>int</code> and <code>float</code>. If others are
@@ -117,11 +155,11 @@
         older, more general form of <code>GpType</code> constructor. The jiggle
         handler function is automatically constructed for a ranged numeric <code>
           GpType</code>, based on the given range bounds and a parameter
-        prototyped as <code>GpType::maxJiggleFactor()</code>. It is currently
-        set to 0.05 so at any given jiggle, a value will be offset by up to ±5%
-        of the given range. Here is a little test code to watch iterated jiggle
-        of an <code>int</code> and <code>float</code> type on the range [0,
-        100]:</p>
+        prototyped as <code>GpType::getMaxJiggleFactor()</code>. It is
+        currently set to 0.05 so at any given jiggle, a value will be offset by
+        <em>up to ±5%</em> of the given range. Here is a little test code to
+        watch iterated jiggle of an <code>int</code> and <code>float</code>
+        type on the range [0, 100]:</p>
       <pre>GpType ti("Int", 0, 100);
 GpType tf("Float", 0.0f, 100.0f);
 std::any vi = 50;
