@@ -371,6 +371,22 @@ public:
         }
         return *LPRS().randomSelectElement(filtered_subtrees);
     }
+    
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // TODO note makeRandomTree() and crossover() are methods of FunctionSet
+    //      Is this misplaced, or are they?
+    void mutate()
+    {
+        if (isLeaf())
+        {
+            setLeafValue(getType().jiggleConstant(getLeafValue()), getType());
+        }
+        else
+        {
+            for (auto& subtree : subtrees()) subtree.mutate();
+        }
+    }
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     // Essentially like operator==() but needs to be a template for the sake of
     // the std::any leaf nodes. Used only in the unit tests.
