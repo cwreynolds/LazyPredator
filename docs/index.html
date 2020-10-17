@@ -105,6 +105,45 @@
       details of the implementation. On the other hand, I do want it to be more
       prose-like than the terse <code>git commit</code> messages.)</p>
     <br style="##########################################################################">
+    <div class="post" id="20201017"> <a href="#20201017" class="date">October
+        17, 2020</a>
+      <h1>Evolution, almost certainly!</h1>
+      <p><strong>Huzzah!</strong> On <a href="#20201015">October 15</a> I
+        cobbled together a minimal evolution run, using the TexSyn API. I ran a
+        small number of “steps” — steady state population updates — and it did
+        not crash. The next day I cleaned up the prototype tournament function
+        so it might actually be correct. Then I tried a longer run. I got to
+        step 61 when it failed an assert (in TexSyn's RGB↔︎HSV conversions).
+        That code has been stable for many months, as I dug in it seemed to just
+        be noticing bad input data (floating point <code>nan</code>s). Then
+        followed a lot of unsuccessful attempts to isolate the failure. Finally
+        I recalled that I had slapped together <code>GpTree::mutate()</code>
+        just before trying an evolution run. Indeed, when I commented out the
+        call to that, the assert failures stopped. To be fixed soon.</p>
+      <p>Even better, when I let my tiny <code>Population</code> of 10 <code>Individuals</code>
+        run for 1000 steps — what my non-steady-state peeps would call “100
+        generations” — the <code>Population</code> seemed to be clearly
+        evolving toward the goal state. As mentioned in the previous post, I was
+        looking only the “average color” of the TexSyn <code>Texture</code>
+        which is the value of the evolving <code>Individual</code>s. In fact, I
+        looked only at the green and blue components of the average color (in
+        RGB space) so all details of textures are ignored. The “winners” of a
+        tournament among three <code>Textures</code> are the two whose average
+        color have either: the higher green level, or the lower blue level.
+        (Conversely: the “loser” of the tournament is the color with the lowest
+        green or highest blue.) This is a simplistic example of a 3-way
+        tournament and multi-objective optimization. Participants in the
+        tournament are chosen at random, uniformly across the <code>Population</code>.
+        The tournament then makes a uniform random choice between minimizing
+        blue or maximizing green. As the 1000 step evolution ran, the
+        tournament-winning texture clearly moved into the green-to-yellow color
+        range. (The red RGB component is ignored, so allows drift across the
+        green-yellow range.)</p>
+      <p>There is lots more to do, but at least LazyPredator has passed into
+        “not obviously broken” territory. I noticed that the modest 1000 step
+        run accumulated 1.8 GB of memory which means it's leaking memory like
+        mad. OpenCV <code>Mat</code> objects are a likely candidate.</p>
+    </div>
     <div class="post" id="20201015"> <a href="#20201015" class="date">October
         15, 2020</a>
       <h1>Evolution, maybe?</h1>
@@ -113,11 +152,11 @@
         if only briefly. It is at least running. Not sure if it is actually
         working. The first version was using random tournaments, so it was
         impossible to tell. Then I tried to make a simplistic tournament
-        function. Using the TexSyn FunctionSet, I told it to prefer textures
-        whose average color had high levels of green or low levels of blue. This
-        should produce textures which are primarily in the green-to-yellow
-        neighborhood of color space. Again, it ran OK, but no obvious
-        evolutionary change in such a short test.</p>
+        function. Using the TexSyn <code>FunctionSet</code>, I told it to
+        prefer textures whose average color had high levels of green or low
+        levels of blue. This should produce textures which are primarily in the
+        green-to-yellow neighborhood of color space. Again, it ran OK, but no
+        obvious evolutionary change in such a short test.</p>
     </div>
     <div class="post" id="20201014"> <a href="#20201014" class="date">October
         14, 2020</a>

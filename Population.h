@@ -62,12 +62,11 @@ public:
         function_set.crossover(parent_0->tree(),
                                parent_1->tree(),
                                offspring->tree());
-        offspring->tree().mutate();
-        
-        // TODO crossover
-        // TODO mutation
-        // TODO replace in population.
-        
+        //~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~
+        // TODO temporily skipping this to see if it affects the Oct 16 crash:
+//        offspring->tree().mutate();
+        //~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~
+
         replaceIndividual(loser_index, offspring);
         
         // TODO TEMP for debugging
@@ -81,7 +80,11 @@ public:
     // TODO merge this with code now in ~Population()
     void replaceIndividual(int i, Individual* new_individual)
     {
+        //~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~
+        // TODO temporily skipping this to see if it affects the Oct 16 crash:
+        // and now reverting
         delete individuals_.at(i);
+        //~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~
         individuals_.at(i) = new_individual;
     }
 

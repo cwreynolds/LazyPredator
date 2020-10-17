@@ -30,6 +30,11 @@ public:
     //      make a setTree() function that copies in the given tree?
     GpTree& tree() { return tree_; }
     static const int& getInstanceCount() { return getSetInstanceCount(); }
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    static inline const int class_validity_id = 426229132;
+    int instance_validity_id = class_validity_id;
+    bool valid() const { return instance_validity_id == class_validity_id; }
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 private:
     static int& getSetInstanceCount() { static int count = 0;  return count; }
     GpTree tree_;

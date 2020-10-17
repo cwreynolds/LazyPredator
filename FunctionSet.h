@@ -407,6 +407,11 @@ public:
                  (std::any_cast<T>(a.leaf_value_) ==    //   both leaves match.
                   std::any_cast<T>(b.leaf_value_))));
     }
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    static inline const int class_validity_id = 546447325;
+    int instance_validity_id = class_validity_id;
+    bool valid() const { return instance_validity_id == class_validity_id; }
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 private:
     // NOTE: if any more data members are added, compare them in equals().
     // Add (allocate) one subtree. addSubtrees() is external API.
