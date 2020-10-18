@@ -37,8 +37,10 @@ public:
         }
     }
     const std::vector<Individual*>& individuals() const { return individuals_; }
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
+    // Perform one step of the "steady state" evolutionary computation. Hold a
+    // tournament with three randomly selected Individuals. The "loser" is
+    // replaced in the Population by a new "offspring" created by crossing over
+    // the two "winners" and mutating the result
     void evolutionStep(std::function<Individual*
                                      (Individual*, Individual*, Individual*)>
                        tournament_function,
@@ -62,11 +64,8 @@ public:
         function_set.crossover(parent_0->tree(),
                                parent_1->tree(),
                                offspring->tree());
-        //~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~
-        // TODO temporily skipping this to see if it affects the Oct 16 crash:
-//        offspring->tree().mutate();
-        //~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~
-
+        // Mutate constants in new tree.
+        offspring->tree().mutate();
         replaceIndividual(loser_index, offspring);
         
         // TODO TEMP for debugging
@@ -80,26 +79,15 @@ public:
     // TODO merge this with code now in ~Population()
     void replaceIndividual(int i, Individual* new_individual)
     {
-        //~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~
-        // TODO temporily skipping this to see if it affects the Oct 16 crash:
-        // and now reverting
         delete individuals_.at(i);
-        //~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~ ~~
         individuals_.at(i) = new_individual;
     }
-
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Select three random (but guaranteed to be unique) indices into the
     // population for Individuals to be used in a three way tournament.
     std::tuple<int, int, int> selectThreeIndices()
     {
         int count = static_cast<int>(individuals().size()) - 1;
         assert("fewer than 3 in population" && (count >= 2));
-//        int count13 = count / 3;
-//        int count23 = (count * 2) / 3;
-//        return std::make_tuple(LPRS().random2(0, count13),
-//                               LPRS().random2(count13 + 1, count23),
-//                               LPRS().random2(count23 + 1, count));
         int one_third = count / 3;
         int two_thirds = (count * 2) / 3;
         return std::make_tuple(LPRS().random2(0, one_third),
@@ -107,8 +95,6 @@ public:
                                LPRS().random2(two_thirds + 1, count));
     };
 private:
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     Individual* individual(int i) { return individuals_.at(i); }
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     std::vector<Individual*> individuals_;
 };

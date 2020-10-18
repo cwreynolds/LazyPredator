@@ -67,12 +67,15 @@ public:
     // Constructor for ranged numeric types (name, range_min, range_max).
     template <typename T>
     GpType(const std::string& name, T range_min, T range_max)
+      : GpType(name, range_min, range_max, defaultJiggleScale()) {}
+    // Constructor for ranged numeric types, plus custom jiggle scale.
+    template <typename T>
+    GpType(const std::string& name, T range_min, T range_max, float jiggle_scale)
       : GpType(name,
                [=](){ return std::any(LPRS().random2(range_min, range_max)); },
                any_to_string<T>,
-               [=](std::any x){ return jiggle(std::any_cast<T>(x),
-                                              range_min,
-                                              range_max); }){}
+               [=](std::any x) { return jiggle(std::any_cast<T>(x), range_min,
+                                               range_max, jiggle_scale); }){}
     // Accessor for name.
     const std::string& name() const { return name_; }
     // Does this type have an ephemeral generator?
@@ -111,20 +114,16 @@ public:
     // Uses function (supplied in constructor) to make a string of std::any
     // value via this GpType's concrete c++ type.
     std::string to_string(std::any a) const { return to_string_(a); }
-    // Get/set the max jiggle factor: a scale factor on the magnitude of noise
-    // added to a ranged numeric GpType by "jiggle mutation." The zero-centered
-    // noise added is uniformly distributed on the interval [-m, +m] where m is:
-    // ((range_max - range_min) * maxJiggleFactor()). The interval [-m, +m] is
-    // then "pre-clipped" to the range of the GpType.
-    //
-    // TODO it is unclear how setMaxJiggleFactor() could be called,
-    //      perhaps as yet another constructor overload?
-    float getMaxJiggleFactor() const { return max_jiggle_factor_; }
-    void setMaxJiggleFactor(float f) { max_jiggle_factor_ = f; }
+    // Default max jiggle: a scale factor for magnitude of noise added to a
+    // ranged numeric GpType by "jiggle mutation." Zero-centered noise added is
+    // uniformly distributed on the interval [-m, +m] where m is: ((range_max -
+    // range_min) * jiggle_factor). The interval [-m, +m] is then "pre-clipped"
+    // to the range of the GpType.
+    static float defaultJiggleScale() { return 0.05; }
     // Utility template function for jiggle mutation handlers.
-    template <typename T> T jiggle(T x, T min, T max)
+    template <typename T> static T jiggle(T x, T min, T max, float jiggle_scale)
     {
-        T max_jiggle = (max - min) * getMaxJiggleFactor();
+        T max_jiggle = (max - min) * jiggle_scale;
         return LPRS().random2(std::max(min, x - max_jiggle),
                               std::min(max, x + max_jiggle));
     }
@@ -136,8 +135,6 @@ private:
     std::function<std::string(std::any a)> to_string_ = nullptr;
     // Function to jiggle/jitter an ephemeral constant.
     std::function<std::any(std::any)> jiggle_ = nullptr;
-    // Scale factor on the magnitude of noise for "jiggle mutation".
-    float max_jiggle_factor_ = 0.05;
     // Collection of pointers to GpFunctions which return this type.
     std::vector<GpFunction*> functions_returning_this_type_;
     // Minimum "size" of tree returning this type from root;
@@ -371,8 +368,8 @@ public:
         }
         return *LPRS().randomSelectElement(filtered_subtrees);
     }
-    
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // Traverse tree, applying "jiggle" point mutation on each constant leaf
+    // value, according to it GpType.
     // TODO note makeRandomTree() and crossover() are methods of FunctionSet
     //      Is this misplaced, or are they?
     void mutate()
@@ -386,8 +383,6 @@ public:
             for (auto& subtree : subtrees()) subtree.mutate();
         }
     }
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
     // Essentially like operator==() but needs to be a template for the sake of
     // the std::any leaf nodes. Used only in the unit tests.
     template <typename T> static bool match(const GpTree& a, const GpTree& b)
@@ -407,11 +402,6 @@ public:
                  (std::any_cast<T>(a.leaf_value_) ==    //   both leaves match.
                   std::any_cast<T>(b.leaf_value_))));
     }
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    static inline const int class_validity_id = 546447325;
-    int instance_validity_id = class_validity_id;
-    bool valid() const { return instance_validity_id == class_validity_id; }
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 private:
     // NOTE: if any more data members are added, compare them in equals().
     // Add (allocate) one subtree. addSubtrees() is external API.

@@ -105,6 +105,32 @@
       details of the implementation. On the other hand, I do want it to be more
       prose-like than the terse <code>git commit</code> messages.)</p>
     <br style="##########################################################################">
+    <!-- --------------------------------------------------------------------------- -->
+    <div class="post" id="20201018"> <a href="#20201018" class="date">October
+        18, 2020</a>
+      <h1>Fixing that mutation problem, setting jiggle scale.</h1>
+      <p>I re-enabled <code>GpTree::mutate()</code> and tracked down the
+        problem seen <a href="#20201017">earlier</a>. The added-in-a-hurry <code>GpType::getMaxJiggleFactor()</code>
+        function was misbehaving (the wrong <code>this</code> pointer was
+        captured in the jiggle handler lambda). The intent was to allow
+        customizing the “jiggle scale” but as I had noted in the code, it was
+        not obvious how or when that could happen. I suspect it does not really
+        matter. The default value (of <em>up to ±5%</em> of the given numeric
+        range of a <code>GpType</code>) would probably be fine. But if some
+        imaginary future user of LazyPredator <em>did</em> need to tweak that
+        value they would be annoyed it was not settable. </p>
+      <p>So instead, the mutation bug is now fixed, and the “jiggle scale” still
+        defaults to 0.05 via a new static function called <code>GpType::defaultJiggleScale()</code>,
+        but can be overridden by yet another constructor for the class. For
+        example one of the TexSyn <code>GpType</code>s is currently written:</p>
+      <pre>...<br>{ "Float_01", 0.0f, 1.0f },<br>...</pre>
+      <p>with its “jiggle scale” defaulting to <em>±5%</em>, or a custom value
+        can be given like this:</p>
+      <pre>...<br>{ "Float_01", 0.0f, 1.0f, <strong>0.1f</strong> },<br>...</pre>
+      <p>indicating the jiggle scale for that type is ±10% of the given range
+        [0, 1].</p>
+    </div>
+    <!-- --------------------------------------------------------------------------- -->
     <div class="post" id="20201017"> <a href="#20201017" class="date">October
         17, 2020</a>
       <h1>Evolution, almost certainly!</h1>
