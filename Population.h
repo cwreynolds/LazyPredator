@@ -36,6 +36,7 @@ public:
             delete last;
         }
     }
+    // Return const reference to collection of Individuals in Population.
     const std::vector<Individual*>& individuals() const { return individuals_; }
     // Perform one step of the "steady state" evolutionary computation. Hold a
     // tournament with three randomly selected Individuals. The "loser" is
@@ -59,6 +60,11 @@ public:
         Individual* parent_1 = b;
         if (loser == a) { loser_index = i; parent_0 = b; parent_1 = c; }
         if (loser == b) { loser_index = i; parent_0 = a; parent_1 = c; }
+        
+        //~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+        parent_0->incrementTournamentsSurvived();
+        parent_1->incrementTournamentsSurvived();
+        //~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 
         Individual* offspring = new Individual();
         function_set.crossover(parent_0->tree(),
@@ -94,6 +100,30 @@ public:
                                LPRS().random2(one_third + 1, two_thirds),
                                LPRS().random2(two_thirds + 1, count));
     };
+    
+    //~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+    // Find the best Individual in Population, defined as having survived the
+    // most tournaments.
+    // TODO name?
+    Individual* findBestIndividual() const
+    {
+        assert(!individuals().empty()); // Or just return nullptr in this case?
+        int most_survived = std::numeric_limits<int>::min();
+        Individual* best_individual = nullptr;
+        for (auto& individual : individuals())
+        {
+            int survived = individual->getTournamentsSurvived();
+            if (most_survived < survived)
+            {
+                most_survived = survived;
+                best_individual = individual;
+            }
+        }
+//        debugPrint(most_survived);
+        return best_individual;
+    }
+    //~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+
 private:
     Individual* individual(int i) { return individuals_.at(i); }
     std::vector<Individual*> individuals_;

@@ -17,10 +17,36 @@ public:
     {
         getSetInstanceCount()++;
     }
+//    Individual(int max_tree_size, const FunctionSet& fs)
+//    {
+//        getSetInstanceCount()++;
+//        fs.makeRandomTree(max_tree_size, tree());
+//    }
     Individual(int max_tree_size, const FunctionSet& fs)
     {
         getSetInstanceCount()++;
-        fs.makeRandomTree(max_tree_size, tree());
+        GpTree gp_tree;
+        fs.makeRandomTree(max_tree_size, gp_tree);
+        
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // TODO very temporary experiment to make sure generated tree is bigger
+        //      than crossover_min_size
+        //      ought to cycle until OK, exit after too many retries
+        if (gp_tree.size() < fs.getCrossoverMinSize())
+        {
+            std::cout << "OOPS! generated tree size (" << gp_tree.size();
+            std::cout << ") is less than crossover_min_size (";
+            std::cout << fs.getCrossoverMinSize() << "). Retrying...";
+            std::cout << std::endl;
+            
+            debugPrint(gp_tree.to_string());
+            
+            gp_tree = GpTree();
+            fs.makeRandomTree(max_tree_size, gp_tree);
+        }
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        
+        tree() = gp_tree;
     }
     ~Individual()
     {
@@ -31,11 +57,42 @@ public:
     GpTree& tree() { return tree_; }
     static const int& getInstanceCount() { return getSetInstanceCount(); }
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    static inline const int class_validity_id = 426229132;
-    int instance_validity_id = class_validity_id;
-    bool valid() const { return instance_validity_id == class_validity_id; }
+    
+    
+//    std::any result_as_any = i->tree().eval();
+    
+    
+    // TODO EXPERIMENTAL
+    //      need to flush this cache if tree is modified
+    
+    
+    std::any tree_value_cache_ = nullptr;
+    bool tree_evaluated_ = false;
+    
+    // TODO name: treeValue(), treeEval(), cachedTreeEval(), ...
+    std::any treeValue()
+    {
+        if (tree_evaluated_)
+        {
+//            std::cout << "using cached eval() for Individual " << this << std::endl;
+        }
+        else
+        {
+//            std::cout << "eval() tree for Individual " << this << std::endl;
+            tree_value_cache_ = tree_.eval();
+            tree_evaluated_ = true;
+        }
+        return tree_value_cache_;
+    }
+    
+    int getTournamentsSurvived() const { return tournaments_survived_; }
+    void incrementTournamentsSurvived() { tournaments_survived_++; }
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 private:
     static int& getSetInstanceCount() { static int count = 0;  return count; }
     GpTree tree_;
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // Number of tournament this Individual has survived (did not "lose").
+    int tournaments_survived_ = 0;
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 };

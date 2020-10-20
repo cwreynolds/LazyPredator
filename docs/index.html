@@ -105,6 +105,53 @@
       details of the implementation. On the other hand, I do want it to be more
       prose-like than the terse <code>git commit</code> messages.)</p>
     <br style="##########################################################################">
+    <div class="post" id="20201019"> <a href="#20201019" class="date">October
+        19, 2020</a>
+      <h1>Evolution: first quantitative data</h1>
+      <p>I did some more tooling work, and collected some data on the simple
+        test application I described on <a href="#20201017">October 17</a>. As
+        then, there are 3-way tournaments. Three TexSyn textures compete based
+        on their “average color.” That is, as if they were infinitely blurred,
+        and could be represented by a single color in RGB space. The tournaments
+        have two cases, one of which is selected randomly. The three textures
+        compete for either (a) the highest green component of their three
+        average colors, or (b) the lowest blue component. This should cause the
+        population to move toward colors with high green, low blue, and
+        unconstrained red. This describes colors in the yellow-to-green region.</p>
+      <p>The run plotted below has a population size of 50, and was run for 5000
+        steps (which corresponds to 100 “generation equivalents”). This took
+        about 20 minutes, or longer if I rendered the textures. Originally I
+        displayed them one after another, as sort of a flickering movie, which
+        allowed me to see they were tending toward yellow-to-green color
+        schemes. I recorded <em>ad hoc</em> data and made some plots. I looked
+        at the “average average” color—taking the average color of all 50
+        textures in the population an averaging them together each step. That
+        produces the wiggly lines in the plot below identified in the legend as
+        “red (average)” etc. This looked OK, the green was higher, blue lower,
+        and red seemed to drift someone in between. Then I selected one member
+        of the population as “best.” This is subject to change. My current
+        criteria for “best” is the member of the population which has “survived”
+        the most tournaments. Since losing a tournament leads to an individual
+        being removed from the population, it seems that the number of times one
+        has been tested and survived is some proxy of quality. The three
+        step-like plots show average red, green and blue for the “best”
+        individual. The step changes are when a new best comes along, then holds
+        steady until the next change of rankings. Unlike the “average average”
+        plots, these “best” values are closer to the extremes, near or at the
+        bounds of unit RGB space.</p>
+      <img src="images/20201019_yellow_green_run.png" alt="yellow/green run" title="yellow/green run"
+        height="396" width="1000">
+      <p>One unrelated problem that arose during this work had to do with
+        “minimum size for crossover snippet” as discussed on <a href="#20201008">October
+          8</a>. On a whim I had chosen a value of <strong>five</strong>, while
+        the smallest valid TexSyn tree has <strong>size</strong> four, as in: <code>Uniform(0.3,
+          0.8, 0.4)</code>. My thought was I would rather see slightly larger
+        subtrees used for crossover. It seemed to work fine until today when I
+        was initializing a larger population of size 50. One of those initial
+        random trees just happened to be that minimal size four example.That led
+        to an obscure divide by zero error. I made a temp fix but it needs some
+        more thought.</p>
+    </div>
     <div class="post" id="20201018"> <a href="#20201018" class="date">October
         18, 2020</a>
       <h1>Fixing that mutation problem, setting jiggle scale.</h1>
