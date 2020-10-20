@@ -352,22 +352,33 @@ public:
     
     // Utility for crossover(). Select a random subtree, whose size is greater
     // then or equal to "min_size" and whose root type is in set of "types".
+    // (Default to root if entire tree is not larger than "min_size". See final
+    // paragraph on https://cwreynolds.github.io/LazyPredator/#20201019)
     GpTree& selectCrossoverSubtree(int min_size,
                                    const std::set<const GpType*>& types)
     {
-        std::vector<GpTree*> all_subtrees;
-        collectVectorOfSubtrees(all_subtrees);
-        std::vector<GpTree*> filtered_subtrees;
-        for (auto& gp_tree : all_subtrees)
+        GpTree* result = this;
+        auto gp_type_ok = [&](GpTree* tree)
+            { return types.find(&(tree->getType())) != types.end(); };
+        if (size() > min_size)
         {
-            if ((types.find(&gp_tree->getType()) != types.end()) &&
-                (gp_tree->size() >= min_size))
+            std::vector<GpTree*> all_subtrees;
+            collectVectorOfSubtrees(all_subtrees);
+            std::vector<GpTree*> filtered_subtrees;
+            for (auto& gp_tree : all_subtrees)
             {
-                filtered_subtrees.push_back(gp_tree);
+                if (gp_type_ok(gp_tree) && (gp_tree->size() >= min_size))
+                {
+                    filtered_subtrees.push_back(gp_tree);
+                }
             }
+            assert(!filtered_subtrees.empty());
+            result = LPRS().randomSelectElement(filtered_subtrees);
         }
-        return *LPRS().randomSelectElement(filtered_subtrees);
+        assert(gp_type_ok(result));
+        return *result;
     }
+
     // Traverse tree, applying "jiggle" point mutation on each constant leaf
     // value, according to it GpType.
     // TODO note makeRandomTree() and crossover() are methods of FunctionSet
