@@ -131,14 +131,16 @@
         red seemed to drift someone in between. Then I selected one member of
         the population as “best.” This is subject to change. My current criteria
         for “best” is the member of the population which has “survived” the most
-        tournaments. Since losing a tournament leads to an individual being
-        removed from the population, it seems that the number of times one has
-        been tested and survived is some proxy of quality. The three step-like
-        plots show average red, green and blue for the “best” individual. The
-        step changes are when a new best comes along, then holds steady until
-        the next change of rankings. Unlike the “average average” plots, these
-        “best” values are closer to the extremes, near or at the bounds of unit
-        RGB space.</p>
+        tournaments. Since losing a tournament (being ranked third of three)
+        leads to an individual being removed from the population, it seems that
+        the number of times one has been tested and survived is some proxy of
+        quality. The three step-like plots show this current “best” individual's
+        average red, green and blue. The step changes are when a new best comes
+        along, then holds steady until the next change of rankings. Unlike the
+        “average average” plots, these “best” values are closer to the extremes,
+        near or at the bounds of unit RGB space. (TexSyn does not place bounds
+        on color values, but I used <code>Color::clipToUnitRGB()</code> when
+        computing average colors for this run.)</p>
       <img src="images/20201019_yellow_green_run.png" alt="yellow/green run" title="yellow/green run"
         height="396" width="1000">
       <p>One unrelated problem that arose during this work had to do with
