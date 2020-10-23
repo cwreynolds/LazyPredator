@@ -36,15 +36,23 @@ public:
             delete last;
         }
     }
+    
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    typedef std::function<Individual*(Individual*, Individual*, Individual*)>
+            TournamentFunction;
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
     // Return const reference to collection of Individuals in Population.
     const std::vector<Individual*>& individuals() const { return individuals_; }
     // Perform one step of the "steady state" evolutionary computation. Hold a
     // tournament with three randomly selected Individuals. The "loser" is
     // replaced in the Population by a new "offspring" created by crossing over
     // the two "winners" and mutating the result
-    void evolutionStep(std::function<Individual*
-                                     (Individual*, Individual*, Individual*)>
-                       tournament_function,
+//    void evolutionStep(std::function<Individual*
+//                                     (Individual*, Individual*, Individual*)>
+//                       tournament_function,
+//                       const FunctionSet& function_set)
+    void evolutionStep(TournamentFunction tournament_function,
                        const FunctionSet& function_set)
     {
         auto [i, j, k] = selectThreeIndices();
@@ -124,6 +132,26 @@ public:
     }
     //~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
 
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    // TODO experimental
+    // Run evolution on Population
+//    void run(int steps,
+//             const FunctionSet& function_set,
+//             std::function<Individual*(Individual*, Individual*, Individual*)>
+//                 tournament_function)
+    void run(int steps,
+             const FunctionSet& function_set,
+             TournamentFunction tournament_function)
+    {
+        // Run given number of steps.
+        for (int i = 0; i < steps; i++)
+        {
+            // Run evolution step with given tournament and function set.
+            evolutionStep(tournament_function, function_set);
+        }
+    }
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 private:
     Individual* individual(int i) { return individuals_.at(i); }
     std::vector<Individual*> individuals_;
