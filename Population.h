@@ -36,52 +36,46 @@ public:
             delete last;
         }
     }
-    
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // Type for functions that implement 3-way tournaments, returning the loser.
     typedef std::function<Individual*(Individual*, Individual*, Individual*)>
             TournamentFunction;
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
     // Return const reference to collection of Individuals in Population.
     const std::vector<Individual*>& individuals() const { return individuals_; }
     // Perform one step of the "steady state" evolutionary computation. Hold a
     // tournament with three randomly selected Individuals. The "loser" is
     // replaced in the Population by a new "offspring" created by crossing over
     // the two "winners" and mutating the result
-//    void evolutionStep(std::function<Individual*
-//                                     (Individual*, Individual*, Individual*)>
-//                       tournament_function,
-//                       const FunctionSet& function_set)
     void evolutionStep(TournamentFunction tournament_function,
                        const FunctionSet& function_set)
     {
+        // Select three Individual uniformly distributed across this Population.
         auto [i, j, k] = selectThreeIndices();
         Individual* a = individual(i);
         Individual* b = individual(j);
         Individual* c = individual(k);
-
+        // Run tournament amoung the three, determined which one is the worst.
         Individual* loser = tournament_function(a, b, c);
-        
+        // Determine the other two which become parents of new offspring.
         // TODO this seems awkward, think of a better way:
         int loser_index = k;
         Individual* parent_0 = a;
         Individual* parent_1 = b;
         if (loser == a) { loser_index = i; parent_0 = b; parent_1 = c; }
         if (loser == b) { loser_index = i; parent_0 = a; parent_1 = c; }
-        
-        //~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+        // Both parents increase their rank because they survived the tournament
         parent_0->incrementTournamentsSurvived();
         parent_1->incrementTournamentsSurvived();
-        //~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
-
-        Individual* offspring = new Individual();
+        // Create new offspring tree from crossover between two parents.
+        GpTree offspring_tree;
         function_set.crossover(parent_0->tree(),
                                parent_1->tree(),
-                               offspring->tree());
+                               offspring_tree);
         // Mutate constants in new tree.
-        offspring->tree().mutate();
+        offspring_tree.mutate();
+        // Create new offspring Individual from new tree.
+        Individual* offspring = new Individual(offspring_tree);
+        // Delete tournament loser from Population, replace with new offspring.
         replaceIndividual(loser_index, offspring);
-        
         // TODO TEMP for debugging
         last_individual_added = offspring;
     }
@@ -108,11 +102,8 @@ public:
                                LPRS().random2(one_third + 1, two_thirds),
                                LPRS().random2(two_thirds + 1, count));
     };
-    
-    //~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
     // Find the best Individual in Population, defined as having survived the
-    // most tournaments.
-    // TODO name?
+    // most tournaments. TODO name?
     Individual* findBestIndividual() const
     {
         assert(!individuals().empty()); // Or just return nullptr in this case?
@@ -127,19 +118,9 @@ public:
                 best_individual = individual;
             }
         }
-//        debugPrint(most_survived);
         return best_individual;
     }
-    //~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
-
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    // TODO experimental
-    // Run evolution on Population
-//    void run(int steps,
-//             const FunctionSet& function_set,
-//             std::function<Individual*(Individual*, Individual*, Individual*)>
-//                 tournament_function)
+    // Run "steps" of evolution, given "function_set" and "tournament_function".
     void run(int steps,
              const FunctionSet& function_set,
              TournamentFunction tournament_function)
@@ -151,7 +132,6 @@ public:
             evolutionStep(tournament_function, function_set);
         }
     }
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 private:
     Individual* individual(int i) { return individuals_.at(i); }
     std::vector<Individual*> individuals_;

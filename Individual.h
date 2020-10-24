@@ -13,26 +13,31 @@
 class Individual
 {
 public:
-    Individual()
+    Individual() { getSetInstanceCount()++; }
+    Individual(int max_tree_size, const FunctionSet& fs) : Individual()
     {
-        getSetInstanceCount()++;
+        fs.makeRandomTree(max_tree_size, tree_);
     }
-    Individual(int max_tree_size, const FunctionSet& fs)
+    Individual(const GpTree& gp_tree) : Individual() { tree_ = gp_tree; }
+    ~Individual() { getSetInstanceCount()--; }
+    // Read-only (const) access to this Individual's GpTree.
+    const GpTree& tree() { return tree_; }
+    // Overwrite this Individual's GpTree with "new_tree". Flush eval() cache.
+    // TODO Is this ever needed?
+    void setTree(const GpTree& new_tree)
     {
-        getSetInstanceCount()++;
-        fs.makeRandomTree(max_tree_size, tree());
+        tree_ = new_tree;
+        flushTreeValueCache();
     }
-    ~Individual()
+    // TODO Is this ever needed?
+    void flushTreeValueCache()
     {
-        getSetInstanceCount()--;
+        // TODO need to delete value?
+        std::cout << "WARNING: flushTreeValueCache() called" << std::endl;
+        tree_value_cache_ = nullptr;
+        tree_evaluated_ = false;
     }
-    // TODO was private non const accessor, but need access to modify. Maybe
-    //      make a setTree() function that copies in the given tree?
-    GpTree& tree() { return tree_; }
-    static const int& getInstanceCount() { return getSetInstanceCount(); }
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // Return the result of running/evaluating this Individual's GpTree.
-    // TODO EXPERIMENTAL need to flush this cache if tree is modified
+    // Return/cache the result of running/evaluating this Individual's GpTree.
     std::any treeValue()
     {
         if (!tree_evaluated_)
@@ -42,18 +47,16 @@ public:
         }
         return tree_value_cache_;
     }
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Get/inc count of tournament Individual has survived (did not "lose").
     int getTournamentsSurvived() const { return tournaments_survived_; }
     void incrementTournamentsSurvived() { tournaments_survived_++; }
+    static const int& getInstanceCount() { return getSetInstanceCount(); }
 private:
     static int& getSetInstanceCount() { static int count = 0;  return count; }
     GpTree tree_;
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Resettable cache for result of tree evaluation.
     std::any tree_value_cache_ = nullptr;
     bool tree_evaluated_ = false;
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Number of tournament this Individual has survived (did not "lose").
     int tournaments_survived_ = 0;
 };
