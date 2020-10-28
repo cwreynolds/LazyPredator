@@ -11,6 +11,59 @@
 #include "Individual.h"
 #include "FunctionSet.h"
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+class TournamentGroupMember
+{
+public:
+    Individual* individual = nullptr;  // pointer to an Individual.
+    int index = 0;                     // Individual's index in Population.
+    float metric = 0;                  // Optional fitness metric.
+};
+
+class TournamentGroup
+{
+public:
+    TournamentGroup(const std::vector<TournamentGroupMember>& member_list)
+        : members_(member_list) {}
+    const std::vector<TournamentGroupMember>& members() const { return members_;}
+    size_t size() const { return members().size(); }
+    TournamentGroupMember at(int i) const { return members().at(i); }
+    void sort()
+    {
+        std::sort(members_.begin(),
+                  members_.end(),
+                  []
+                  (const TournamentGroupMember &a,
+                   const TournamentGroupMember &b)
+                  { return a.metric < b.metric; });
+    }
+
+private:
+    std::vector<TournamentGroupMember> members_;
+};
+
+//typedef std::pair<float, Individual*> ScoredIndividual;
+//
+//// Given 3 Individuals and scalar metric, return Individual with lowest metric.
+//Individual* worstMetric(Individual* a, Individual* b, Individual* c,
+//                        std::function<float(Individual*)> metric)
+//{
+//    // Create a vector of {metric, Individual*} pairs
+//    std::vector<ScoredIndividual> rankings = { {metric(a), a},
+//                                               {metric(b), b},
+//                                               {metric(c), c} };
+//    // Sort rankings by ascending score.
+//    std::sort(rankings.begin(), rankings.end(),
+//              [](const ScoredIndividual &a, const ScoredIndividual &b)
+//                  { return a.first < b.first; });
+//    // Primarily for the sake of debugging, remember the best:
+//    tournament_best = rankings.at(2).second;
+//    return rankings.at(0).second;
+//}
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 class Population
 {
 public:
@@ -55,6 +108,7 @@ public:
         Individual* c = individual(k);
         // Run tournament amoung the three, determined which one is the worst.
         Individual* loser = tournament_function(a, b, c);
+        assert(loser);
         // Determine the other two which become parents of new offspring.
         // TODO this seems awkward, think of a better way:
         int loser_index = k;
@@ -90,6 +144,11 @@ public:
         delete individuals_.at(i);
         individuals_.at(i) = new_individual;
     }
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    
+    // select tournament group...
+    
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Select three random (but guaranteed to be unique) indices into the
     // population for Individuals to be used in a three way tournament.
     std::tuple<int, int, int> selectThreeIndices()
