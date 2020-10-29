@@ -16,6 +16,12 @@
 class TournamentGroupMember
 {
 public:
+    TournamentGroupMember()
+        : individual(nullptr), index(0), metric(0) {}
+    TournamentGroupMember(Individual* individual_, int index_)
+        : individual(individual_), index(index_), metric(0) {}
+    TournamentGroupMember(Individual* individual_, int index_, float metric_)
+        : individual(individual_), index(index_), metric(metric_) {}
     Individual* individual = nullptr;  // pointer to an Individual.
     int index = 0;                     // Individual's index in Population.
     float metric = 0;                  // Optional fitness metric.
@@ -24,11 +30,19 @@ public:
 class TournamentGroup
 {
 public:
+    TournamentGroup() {}
     TournamentGroup(const std::vector<TournamentGroupMember>& member_list)
         : members_(member_list) {}
     const std::vector<TournamentGroupMember>& members() const { return members_;}
     size_t size() const { return members().size(); }
     TournamentGroupMember at(int i) const { return members().at(i); }
+    
+    // TODO these will only be correct if sort() had been called since last
+    // modification. Can it just assume that is the case? Should this call
+    // sort() just to be sure? Some kind of flag for caching?
+    Individual* bestIndividual() const { return members().back().individual; }
+    Individual* worstIndividual() const { return members().front().individual; }
+
     void sort()
     {
         std::sort(members_.begin(),
@@ -43,24 +57,20 @@ private:
     std::vector<TournamentGroupMember> members_;
 };
 
-//typedef std::pair<float, Individual*> ScoredIndividual;
-//
-//// Given 3 Individuals and scalar metric, return Individual with lowest metric.
-//Individual* worstMetric(Individual* a, Individual* b, Individual* c,
-//                        std::function<float(Individual*)> metric)
-//{
-//    // Create a vector of {metric, Individual*} pairs
-//    std::vector<ScoredIndividual> rankings = { {metric(a), a},
-//                                               {metric(b), b},
-//                                               {metric(c), c} };
-//    // Sort rankings by ascending score.
-//    std::sort(rankings.begin(), rankings.end(),
-//              [](const ScoredIndividual &a, const ScoredIndividual &b)
-//                  { return a.first < b.first; });
-//    // Primarily for the sake of debugging, remember the best:
-//    tournament_best = rankings.at(2).second;
-//    return rankings.at(0).second;
-//}
+// TODO super temp compilation tests
+inline void ignore_me_delete_me()
+{
+    // TODO super temp compilation tests
+    Individual ind0;
+    TournamentGroupMember tgm1;
+    TournamentGroupMember tgm2(&ind0, 5);
+    TournamentGroupMember tgm3(&ind0, 5, 1.0);
+
+    TournamentGroup tg1;
+    TournamentGroup tg2({ {}, {}, {}, {}, {} });
+    TournamentGroup tg3({ {&ind0, 5}, {&ind0, 4}, {&ind0, 3} });
+    TournamentGroup tg4({ {&ind0, 5, 1.234 }, {&ind0, 4, 5.678} });
+}
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -147,6 +157,43 @@ public:
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     
     // select tournament group...
+    // Select three Individual uniformly distributed across this Population.
+
+//    TournamentGroup selectTournamentGroup()
+//    {
+//        auto [i, j, k] = selectThreeIndices();
+//        Individual* a = individual(i);
+//        Individual* b = individual(j);
+//        Individual* c = individual(k);
+//        return TournamentGroup({ {a, i}, {b, j}, {c, k} });
+//    }
+
+//    TournamentGroup selectTournamentGroup()
+//    {
+//        auto [i, j, k] = selectThreeIndices();
+//        return TournamentGroup
+//        ({
+//            {individual(i), i},
+//            {individual(j), j},
+//            {individual(k), k}
+//        });
+//    }
+
+//    TournamentGroup selectTournamentGroup()
+//    {
+//        auto [i, j, k] = selectThreeIndices();
+//        return TournamentGroup
+//        ({ {individual(i), i}, {individual(j), j}, {individual(k), k} });
+//    }
+
+    TournamentGroup selectTournamentGroup()
+    {
+        auto [i, j, k] = selectThreeIndices();
+        return TournamentGroup({ {individual(i), i},
+                                 {individual(j), j},
+                                 {individual(k), k} });
+    }
+
     
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Select three random (but guaranteed to be unique) indices into the
