@@ -13,6 +13,14 @@
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+#define USE_TOURNAMENT_GROUP
+
+//~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~
+#ifndef USE_TOURNAMENT_GROUP
+#else // USE_TOURNAMENT_GROUP
+#endif // USE_TOURNAMENT_GROUP
+//~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~
+
 class TournamentGroupMember
 {
 public:
@@ -37,6 +45,9 @@ public:
     size_t size() const { return members().size(); }
     TournamentGroupMember at(int i) const { return members().at(i); }
     
+    // Tournament function may want to record a metric, related to fitness.
+    void setMetric(int i, float m) { members_.at(i).metric = m; }
+
     // TODO these will only be correct if sort() had been called since last
     // modification. Can it just assume that is the case? Should this call
     // sort() just to be sure? Some kind of flag for caching?
@@ -52,6 +63,7 @@ public:
                    const TournamentGroupMember &b)
                   { return a.metric < b.metric; });
     }
+    
 
 private:
     std::vector<TournamentGroupMember> members_;
@@ -99,9 +111,16 @@ public:
             delete last;
         }
     }
+    //~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~
+#ifndef USE_TOURNAMENT_GROUP
     // Type for functions that implement 3-way tournaments, returning the loser.
     typedef std::function<Individual*(Individual*, Individual*, Individual*)>
             TournamentFunction;
+#else // USE_TOURNAMENT_GROUP
+    // Functions that implement tournaments, by transforming a TournamentGroup.
+    typedef std::function<TournamentGroup(TournamentGroup)> TournamentFunction;
+#endif // USE_TOURNAMENT_GROUP
+    //~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~
     // Return const reference to collection of Individuals in Population.
     const std::vector<Individual*>& individuals() const { return individuals_; }
     // Perform one step of the "steady state" evolutionary computation. Hold a
@@ -111,6 +130,8 @@ public:
     void evolutionStep(TournamentFunction tournament_function,
                        const FunctionSet& function_set)
     {
+        //~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~
+#ifndef USE_TOURNAMENT_GROUP
         // Select three Individual uniformly distributed across this Population.
         auto [i, j, k] = selectThreeIndices();
         Individual* a = individual(i);
@@ -126,6 +147,29 @@ public:
         Individual* parent_1 = b;
         if (loser == a) { loser_index = i; parent_0 = b; parent_1 = c; }
         if (loser == b) { loser_index = i; parent_0 = a; parent_1 = c; }
+#else // USE_TOURNAMENT_GROUP
+        TournamentGroup random_group = selectTournamentGroup();
+        // Run tournament amoung the three, return ranked group.
+        TournamentGroup ranked_group = tournament_function(random_group);
+        Individual* loser = ranked_group.worstIndividual();
+        assert(loser);
+        // Determine the other two which become parents of new offspring.
+//        // TODO this seems awkward, think of a better way:
+//        int loser_index = k;
+//        Individual* parent_0 = a;
+//        Individual* parent_1 = b;
+//        if (loser == a) { loser_index = i; parent_0 = b; parent_1 = c; }
+//        if (loser == b) { loser_index = i; parent_0 = a; parent_1 = c; }
+        
+        int loser_index = ranked_group.at(2).index;
+
+        Individual* parent_0 = ranked_group.at(0).individual;
+        Individual* parent_1 = ranked_group.at(1).individual;
+
+        
+#endif // USE_TOURNAMENT_GROUP
+        //~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~
+
         // Both parents increase their rank because they survived the tournament
         parent_0->incrementTournamentsSurvived();
         parent_1->incrementTournamentsSurvived();
@@ -198,6 +242,8 @@ public:
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Select three random (but guaranteed to be unique) indices into the
     // population for Individuals to be used in a three way tournament.
+    // (TODO later: is there really ANY advantage to ensuring the indices
+    //       are unique? Say they were all the same number. So what?)
     std::tuple<int, int, int> selectThreeIndices()
     {
         int count = static_cast<int>(individuals().size()) - 1;
