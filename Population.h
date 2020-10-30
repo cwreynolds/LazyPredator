@@ -64,6 +64,21 @@ public:
                   { return a.metric < b.metric; });
     }
     
+    // TODO or should this be to_string() ?
+    void print() const
+    {
+        // TODO need a template utility for printing an std::vector as a comma
+        //      separated list.
+        std::cout << "TournamentGroup: {";
+        bool first = true;
+        for (auto& m : members())
+        {
+            if (!first) { std::cout << ", "; first = false; }
+            std::cout << "{" << m.individual << ", ";
+            std::cout << m.index << ", " << m.metric << "}";
+        }
+        std::cout << "}" << std::endl;
+    }
 
 private:
     std::vector<TournamentGroupMember> members_;
@@ -146,6 +161,7 @@ public:
         Individual* parent_0 = a;
         Individual* parent_1 = b;
         if (loser == a) { loser_index = i; parent_0 = b; parent_1 = c; }
+        // TODO old bug!! this should have been "loser_index = j;"!!!!!!!!!!!!!!
         if (loser == b) { loser_index = i; parent_0 = a; parent_1 = c; }
 #else // USE_TOURNAMENT_GROUP
         TournamentGroup random_group = selectTournamentGroup();
@@ -154,18 +170,15 @@ public:
         Individual* loser = ranked_group.worstIndividual();
         assert(loser);
         // Determine the other two which become parents of new offspring.
-//        // TODO this seems awkward, think of a better way:
-//        int loser_index = k;
-//        Individual* parent_0 = a;
-//        Individual* parent_1 = b;
-//        if (loser == a) { loser_index = i; parent_0 = b; parent_1 = c; }
-//        if (loser == b) { loser_index = i; parent_0 = a; parent_1 = c; }
+//        int loser_index = ranked_group.at(2).index;
+//        Individual* parent_0 = ranked_group.at(0).individual;
+//        Individual* parent_1 = ranked_group.at(1).individual;
         
-        int loser_index = ranked_group.at(2).index;
-
-        Individual* parent_0 = ranked_group.at(0).individual;
-        Individual* parent_1 = ranked_group.at(1).individual;
-
+        // TODO this was the bug Oct 29 bug, we need less error-prone API
+        // (what about bestIndividual() AND secondBestIndividual()?)
+        int loser_index = ranked_group.at(0).index;
+        Individual* parent_0 = ranked_group.at(1).individual;
+        Individual* parent_1 = ranked_group.at(2).individual;
         
 #endif // USE_TOURNAMENT_GROUP
         //~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~
