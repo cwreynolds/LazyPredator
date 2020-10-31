@@ -105,6 +105,50 @@
       details of the implementation. On the other hand, I do want it to be more
       prose-like than the terse <code>git commit</code> messages.)</p>
     <br style="##########################################################################">
+    <div class="post" id="20201031"> <a href="#20201031" class="date">October
+        31, 2020 🎃</a>
+      <h1>Progress report: <code>TournamentGroup</code> and bug fix</h1>
+      <p>I have been working along, making incremental progress. After the
+        “yellow/green” test described on <a href="#20201019">October 19</a> I
+        started on a slightly more ambitious test case I called “colorful, well
+        exposed” textures (in a package named <code>CWE</code>). It is nearly
+        random evolution, constrained only by tournament-based “fitness” tests
+        that favor textures with a full range of brightness (luminance) and
+        color saturations. It measures these by uniformly sampling colors from
+        the texture, placing them into a histogram (of saturation or brightness)
+        then scoring the histogram's flatness (uniformity).</p>
+      <p>Previously, a lot of my prototype tournament functions had the
+        structure of passing in three <code>Individual*</code> pointers and
+        returning the “worst” one, the loser of the tournament. This felt
+        awkward and led to duplicated code (e.g. for finding best or worst
+        individuals). So I refactored things to put most of that into a new
+        class <code>TournamentGroup</code>. It encapsulates the previously
+        duplicated code and serves as a container for the individuals in a
+        tournament, with the side benefit of allowing them to have arbitrary
+        size. (In case there is ever a need for tournaments with 2 or 10
+        participants.) Always the careful incrementalist, I made an <code>#ifdef</code>
+        flag so converting to using the new class was reversible. I got the <code>CWE</code>
+        test running with <code>TournamentGroup</code> then went back to verify
+        I got the same result from the old and new code. <strong>I did not.</strong>
+        While poking around I realized that the old code had a significant bug
+        in <code>Population::evolutionStep()</code>. It was related to that
+        “duplicated code” issue, and was definitely doing the wrong thing in ⅓
+        of the cases.</p>
+      <p>After various testing, I went back to the <code>YG</code>
+        (“yellow/green”) test and reran it, using the new <code>TournamentGroup</code>-based
+        bug-free code and got much more satisfying results. The <a href="#20201019">October
+          19</a> results seemed disappointingly “indecisive.” I had expected the
+        green level to push right up toward 100% and the blue level to drop down
+        near zero. Instead the results less convincing—green was highest, red in
+        the middle, and blue lowest—but they wandered in the mid-range instead
+        of pushing out to the bounds. I plotted the results of the new run and
+        it looked much better. Not only are the “population best” green/blue
+        values very close to the bounds, but the “population average” are within
+        about 5% of the bounds. Also this run is 1000 evolution steps long. The
+        run on October 19 was five times longer and never got this close to
+        its goal.</p>
+      <img src="images/20201031_yg_run_5.png" alt="yellow/green run 5" title="yellow/green run 5"
+        height="399" width="1000"> </div>
     <div class="post" id="20201019"> <a href="#20201019" class="date">October
         19, 2020</a>
       <h1>Evolution: first quantitative data</h1>
