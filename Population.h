@@ -11,15 +11,15 @@
 #include "Individual.h"
 #include "FunctionSet.h"
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+class TournamentGroup;
+class TournamentGroupMember;
 
-#define USE_TOURNAMENT_GROUP
-
-//~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~
-#ifndef USE_TOURNAMENT_GROUP
-#else // USE_TOURNAMENT_GROUP
-#endif // USE_TOURNAMENT_GROUP
-//~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~
+// Classes to represent the Individuals participating in a tournament. Each one
+// is a TournamentGroupMember composed of an Individual pointer, an index in the
+// Population, and an optional float fitness metric. The collection of those, a
+// TournamentGroup, is passed around functions related to tournaments. The
+// members of a group are kept in sorted order.
+// TODO maybe move to their own file rather than be distracting clutter here?
 
 class TournamentGroupMember
 {
@@ -38,33 +38,28 @@ public:
 class TournamentGroup
 {
 public:
-    TournamentGroup() {}
+    TournamentGroup() { sort(); }
     TournamentGroup(const std::vector<TournamentGroupMember>& member_list)
-        : members_(member_list) {}
-    const std::vector<TournamentGroupMember>& members() const { return members_;}
+        : members_(member_list) { sort(); }
+    // Const reference to vector of members. (TODO any need for this?)
+    const std::vector<TournamentGroupMember>& members() const {return members_;}
+    // Number of members in this group (normally 3).
     size_t size() const { return members().size(); }
-    TournamentGroupMember at(int i) const { return members().at(i); }
-    
-    // Tournament function may want to record a metric, related to fitness.
-    void setMetric(int i, float m) { members_.at(i).metric = m; }
-
-    // TODO these will only be correct if sort() had been called since last
-    // modification. Can it just assume that is the case? Should this call
-    // sort() just to be sure? Some kind of flag for caching?
-    Individual* bestIndividual() const { return members().back().individual; }
-    Individual* worstIndividual() const { return members().front().individual; }
-
-    void sort()
+    // For "numerical fitness"-based tournaments, map a given scoring function
+    // over all members to set the metric values. Sorts members afterward.
+    void setAllMetrics(std::function<float(Individual*)> scoring)
     {
-        std::sort(members_.begin(),
-                  members_.end(),
-                  []
-                  (const TournamentGroupMember &a,
-                   const TournamentGroupMember &b)
-                  { return a.metric < b.metric; });
+        for (auto& m : members_) { m.metric = scoring(m.individual); }
+        sort();
     }
-    
-    // TODO or should this be to_string() ?
+    int worstIndex() const { return members().front().index; }
+    Individual* worstIndividual() const { return members().front().individual; }
+    Individual* bestIndividual() const { return members().back().individual; }
+    Individual* secondBestIndividual() const
+    {
+        return members().at(size() - 2).individual;
+    }
+    // For debugging/testing. TODO or should this be to_string() ?
     void print() const
     {
         // TODO need a template utility for printing an std::vector as a comma
@@ -79,27 +74,17 @@ public:
         }
         std::cout << "}" << std::endl;
     }
-
 private:
+    // Sort the members of this group by their "metric" value.
+    void sort()
+    {
+        auto sorted = [](const TournamentGroupMember &a,
+                         const TournamentGroupMember &b)
+                        { return a.metric < b.metric; };
+        std::sort(members_.begin(), members_.end(), sorted);
+    }
     std::vector<TournamentGroupMember> members_;
 };
-
-// TODO super temp compilation tests
-inline void ignore_me_delete_me()
-{
-    // TODO super temp compilation tests
-    Individual ind0;
-    TournamentGroupMember tgm1;
-    TournamentGroupMember tgm2(&ind0, 5);
-    TournamentGroupMember tgm3(&ind0, 5, 1.0);
-
-    TournamentGroup tg1;
-    TournamentGroup tg2({ {}, {}, {}, {}, {} });
-    TournamentGroup tg3({ {&ind0, 5}, {&ind0, 4}, {&ind0, 3} });
-    TournamentGroup tg4({ {&ind0, 5, 1.234 }, {&ind0, 4, 5.678} });
-}
-
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 class Population
 {
@@ -126,16 +111,8 @@ public:
             delete last;
         }
     }
-    //~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~
-#ifndef USE_TOURNAMENT_GROUP
-    // Type for functions that implement 3-way tournaments, returning the loser.
-    typedef std::function<Individual*(Individual*, Individual*, Individual*)>
-            TournamentFunction;
-#else // USE_TOURNAMENT_GROUP
     // Functions that implement tournaments, by transforming a TournamentGroup.
     typedef std::function<TournamentGroup(TournamentGroup)> TournamentFunction;
-#endif // USE_TOURNAMENT_GROUP
-    //~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~
     // Return const reference to collection of Individuals in Population.
     const std::vector<Individual*>& individuals() const { return individuals_; }
     // Perform one step of the "steady state" evolutionary computation. Hold a
@@ -145,56 +122,25 @@ public:
     void evolutionStep(TournamentFunction tournament_function,
                        const FunctionSet& function_set)
     {
-        //~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~
-#ifndef USE_TOURNAMENT_GROUP
-        // Select three Individual uniformly distributed across this Population.
-        auto [i, j, k] = selectThreeIndices();
-        Individual* a = individual(i);
-        Individual* b = individual(j);
-        Individual* c = individual(k);
-        // Run tournament amoung the three, determined which one is the worst.
-        Individual* loser = tournament_function(a, b, c);
-        assert(loser);
-        // Determine the other two which become parents of new offspring.
-        // TODO this seems awkward, think of a better way:
-        int loser_index = k;
-        Individual* parent_0 = a;
-        Individual* parent_1 = b;
-        if (loser == a) { loser_index = i; parent_0 = b; parent_1 = c; }
-        // TODO old bug!! this should have been "loser_index = j;"!!!!!!!!!!!!!!
-        if (loser == b) { loser_index = i; parent_0 = a; parent_1 = c; }
-#else // USE_TOURNAMENT_GROUP
         TournamentGroup random_group = selectTournamentGroup();
         // Run tournament amoung the three, return ranked group.
         TournamentGroup ranked_group = tournament_function(random_group);
         Individual* loser = ranked_group.worstIndividual();
+        int loser_index = ranked_group.worstIndex();
         assert(loser);
-        // Determine the other two which become parents of new offspring.
-//        int loser_index = ranked_group.at(2).index;
-//        Individual* parent_0 = ranked_group.at(0).individual;
-//        Individual* parent_1 = ranked_group.at(1).individual;
-        
-        // TODO this was the bug Oct 29 bug, we need less error-prone API
-        // (what about bestIndividual() AND secondBestIndividual()?)
-        int loser_index = ranked_group.at(0).index;
-        Individual* parent_0 = ranked_group.at(1).individual;
-        Individual* parent_1 = ranked_group.at(2).individual;
-        
-#endif // USE_TOURNAMENT_GROUP
-        //~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~
-
-        // Both parents increase their rank because they survived the tournament
+        // Other two become parents of new offspring.
+        Individual* parent_0 = ranked_group.secondBestIndividual();
+        Individual* parent_1 = ranked_group.bestIndividual();
+        // Both parent's rank increases because they survived the tournament.
         parent_0->incrementTournamentsSurvived();
         parent_1->incrementTournamentsSurvived();
-        // Create new offspring tree from crossover between two parents.
-        GpTree offspring_tree;
-        function_set.crossover(parent_0->tree(),
-                               parent_1->tree(),
-                               offspring_tree);
+        // Create new offspring tree by crossing-over these two parents.
+        GpTree new_tree;
+        function_set.crossover(parent_0->tree(), parent_1->tree(), new_tree);
         // Mutate constants in new tree.
-        offspring_tree.mutate();
+        new_tree.mutate();
         // Create new offspring Individual from new tree.
-        Individual* offspring = new Individual(offspring_tree);
+        Individual* offspring = new Individual(new_tree);
         // Delete tournament loser from Population, replace with new offspring.
         replaceIndividual(loser_index, offspring);
         // TODO TEMP for debugging
@@ -211,38 +157,7 @@ public:
         delete individuals_.at(i);
         individuals_.at(i) = new_individual;
     }
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    
-    // select tournament group...
-    // Select three Individual uniformly distributed across this Population.
-
-//    TournamentGroup selectTournamentGroup()
-//    {
-//        auto [i, j, k] = selectThreeIndices();
-//        Individual* a = individual(i);
-//        Individual* b = individual(j);
-//        Individual* c = individual(k);
-//        return TournamentGroup({ {a, i}, {b, j}, {c, k} });
-//    }
-
-//    TournamentGroup selectTournamentGroup()
-//    {
-//        auto [i, j, k] = selectThreeIndices();
-//        return TournamentGroup
-//        ({
-//            {individual(i), i},
-//            {individual(j), j},
-//            {individual(k), k}
-//        });
-//    }
-
-//    TournamentGroup selectTournamentGroup()
-//    {
-//        auto [i, j, k] = selectThreeIndices();
-//        return TournamentGroup
-//        ({ {individual(i), i}, {individual(j), j}, {individual(k), k} });
-//    }
-
+    // TournamentGroup with three Individuals selected randomly from Population.
     TournamentGroup selectTournamentGroup()
     {
         auto [i, j, k] = selectThreeIndices();
@@ -250,9 +165,6 @@ public:
                                  {individual(j), j},
                                  {individual(k), k} });
     }
-
-    
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Select three random (but guaranteed to be unique) indices into the
     // population for Individuals to be used in a three way tournament.
     // (TODO later: is there really ANY advantage to ensuring the indices
