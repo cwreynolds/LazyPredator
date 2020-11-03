@@ -197,6 +197,21 @@ public:
         }
         return best_individual;
     }
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // Returns (by value, eg copied) a vector of "n" Individual* pointers having
+    // the largest values of getTournamentsSurvived(). These are, in some sense,
+    // the "best" n Individuals in the population.
+//    std::vector<const Individual*> nMostTournamentsSurvived(int n)
+    std::vector<Individual*> nMostTournamentsSurvived(int n)
+    {
+        std::vector<Individual*> collection = individuals();
+        auto best_survior = [](Individual* a, Individual* b)
+            {return a->getTournamentsSurvived() > b->getTournamentsSurvived();};
+        std::sort(collection.begin(), collection.end(), best_survior);
+        if (n < individuals().size()) { collection.resize(n); }
+        return collection;
+    }
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Run "steps" of evolution, given "function_set" and "tournament_function".
     void run(int steps,
              const FunctionSet& function_set,
