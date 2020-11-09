@@ -74,6 +74,19 @@ public:
         }
         std::cout << "}" << std::endl;
     }
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // Find largest tree size of all Individuals in this TournamentGroup.
+    int maxTreeSize() const
+    {
+        int max_tree_size = std::numeric_limits<int>::min();
+        for (auto& m : members())
+        {
+            int tree_size = m.individual->tree().size();
+            if (max_tree_size < tree_size) max_tree_size = tree_size;
+        }
+        return max_tree_size;
+    }
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 private:
     // Sort the members of this group by their "metric" value.
     void sort()
