@@ -86,6 +86,23 @@ public:
         }
         return max_tree_size;
     }
+    
+    // TODO maybe this is better suited to needs of CWE?
+    // Find smallest tree size of all Individuals in this TournamentGroup.
+    int minTreeSize() const
+    {
+//        int max_tree_size = std::numeric_limits<int>::min();
+        int min_tree_size = std::numeric_limits<int>::max();
+        for (auto& m : members())
+        {
+            int tree_size = m.individual->tree().size();
+//            if (max_tree_size < tree_size) max_tree_size = tree_size;
+            if (min_tree_size > tree_size) min_tree_size = tree_size;
+        }
+//        return max_tree_size;
+        return min_tree_size;
+    }
+
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 private:
     // Sort the members of this group by their "metric" value.
