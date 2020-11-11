@@ -103,6 +103,19 @@ public:
         return min_tree_size;
     }
 
+    // Given an Individual, returns an int from 1 to members().size(),
+    // rank 1 corresponds to bestIndividual().
+    int rankOfIndividual(Individual* individual)
+    {
+        int rank = 0;
+        int count = int(members().size());
+        for (int i = 0; i <  count; i++)
+        {
+            if (individual == members().at(i).individual) rank = count - i;
+        }
+        assert("given Individual not in TournamentGroup" && rank != 0);
+        return rank;
+    }
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 private:
     // Sort the members of this group by their "metric" value.
@@ -240,6 +253,25 @@ public:
         std::sort(collection.begin(), collection.end(), best_survior);
         if (n < individuals().size()) { collection.resize(n); }
         return collection;
+    }
+    
+//    std::cout << "pop ave size=" << population->averageTreeSize();
+//    std::cout << " won=" << population->averageTournamentsSurvived();
+
+    // Average of "tree size" over all Individuals.
+    int averageTreeSize() const
+    {
+        int total = 0;
+        for (auto& i : individuals()) { total += i->tree().size(); }
+        return total / individuals().size();
+    }
+
+    // Average of "tournaments survived" over all Individuals.
+    float averageTournamentsSurvived() const
+    {
+        int total = 0;
+        for (auto& i : individuals()) { total += i->getTournamentsSurvived(); }
+        return float(total) / individuals().size();
     }
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Run "steps" of evolution, given "function_set" and "tournament_function".
