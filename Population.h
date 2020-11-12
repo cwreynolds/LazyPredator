@@ -212,16 +212,50 @@ public:
     // population for Individuals to be used in a three way tournament.
     // (TODO later: is there really ANY advantage to ensuring the indices
     //       are unique? Say they were all the same number. So what?)
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    
+    // TODO was thinking about flat/uniform selection, and given that comment
+    // above (who cares about uniqueness?) here is a new version of this which
+    // does 3x "tournament" selection based on tournament survivial.
+    
+//    std::tuple<int, int, int> selectThreeIndices()
+//    {
+//        int count = static_cast<int>(individuals().size()) - 1;
+//        assert("fewer than 3 in population" && (count >= 2));
+//        int one_third = count / 3;
+//        int two_thirds = (count * 2) / 3;
+//        return std::make_tuple(LPRS().random2(0, one_third),
+//                               LPRS().random2(one_third + 1, two_thirds),
+//                               LPRS().random2(two_thirds + 1, count));
+//    };
+  
+    // Consider three random Individuals from Population, return the one with
+    // the largest "tournaments survived".
+    int randomIndexFromTournamentsSurvival() const
+    {
+        auto ri = [&](){ return LPRS().randomN(individuals().size()); };
+        std::vector<int> indices = { ri(), ri(), ri() };
+        auto i2ts = [&](int i)
+            { return individuals().at(i)->getTournamentsSurvived(); };
+        auto most_survived = [&](int a, int b) { return i2ts(a) > i2ts(b); };
+//        debugPrint(vec_to_string(indices));
+        std::sort(indices.begin(), indices.end(), most_survived);
+//        debugPrint(vec_to_string(indices));
+//        debugPrint(i2ts(indices.at(0)));
+//        debugPrint(i2ts(indices.at(1)));
+//        debugPrint(i2ts(indices.at(2)));
+        return indices.front();
+    }
+    
     std::tuple<int, int, int> selectThreeIndices()
     {
-        int count = static_cast<int>(individuals().size()) - 1;
-        assert("fewer than 3 in population" && (count >= 2));
-        int one_third = count / 3;
-        int two_thirds = (count * 2) / 3;
-        return std::make_tuple(LPRS().random2(0, one_third),
-                               LPRS().random2(one_third + 1, two_thirds),
-                               LPRS().random2(two_thirds + 1, count));
+        return std::make_tuple(randomIndexFromTournamentsSurvival(),
+                               randomIndexFromTournamentsSurvival(),
+                               randomIndexFromTournamentsSurvival());
     };
+
+    
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Find the best Individual in Population, defined as having survived the
     // most tournaments. TODO name?
     Individual* findBestIndividual() const
