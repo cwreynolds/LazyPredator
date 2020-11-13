@@ -50,6 +50,14 @@ public:
     // Get/inc count of tournament Individual has survived (did not "lose").
     int getTournamentsSurvived() const { return tournaments_survived_; }
     void incrementTournamentsSurvived() { tournaments_survived_++; }
+    //~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~
+    bool hasFitness() const { return has_fitness_; }
+    void setFitness(float f) { fitness_ = f; has_fitness_ = true; }
+//    float getFitness() const { assert(hasFitness()); return fitness_; }
+    float getFitness() const { return (hasFitness() ?
+                                       fitness_ :
+                                       getTournamentsSurvived()); }
+    //~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~
     static const int& getInstanceCount() { return getSetInstanceCount(); }
 private:
     static int& getSetInstanceCount() { static int count = 0;  return count; }
@@ -59,4 +67,8 @@ private:
     bool tree_evaluated_ = false;
     // Number of tournament this Individual has survived (did not "lose").
     int tournaments_survived_ = 0;
+    //~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~
+    float fitness_ = 0;
+    bool has_fitness_ = false;
+    //~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~
 };

@@ -10,6 +10,7 @@
 
 #include "Individual.h"
 #include "FunctionSet.h"
+#include <iomanip>
 
 class TournamentGroup;
 class TournamentGroupMember;
@@ -162,6 +163,52 @@ public:
     // tournament with three randomly selected Individuals. The "loser" is
     // replaced in the Population by a new "offspring" created by crossing over
     // the two "winners" and mutating the result
+    //~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~
+    
+    typedef std::function<float(Individual&)> FitnessFunction;
+
+    // TODO very experimental non-tournament version for simple fitness
+    void evolutionStep(FitnessFunction fitness_function,
+                       const FunctionSet& function_set)
+    {
+//        auto [index_a, index_b, offspring_index] = selectThreeIndices();
+//        Individual* parent_a = individual(index_a);
+//        Individual* parent_b = individual(index_b);
+        
+//        int randomIndexBiasToHighFitness() const {}
+//        int randomIndexBiasToLowFitness() const {}
+
+        int offspring_index = randomIndexBiasToLowFitness();
+        int index_a = randomIndexBiasToHighFitness();
+        int index_b = randomIndexBiasToHighFitness();
+        Individual* parent_a = individual(index_a);
+        Individual* parent_b = individual(index_b);
+
+        // TODO copied from previous overload of evolutionStep()
+        //      should it be a function to prevent duplication?
+        
+        // Create new offspring tree by crossing-over these two parents.
+        GpTree new_tree;
+//        function_set.crossover(parent_0->tree(), parent_1->tree(), new_tree);
+        function_set.crossover(parent_a->tree(), parent_b->tree(), new_tree);
+        // Mutate constants in new tree.
+        new_tree.mutate();
+        // Create new offspring Individual from new tree.
+        Individual* offspring = new Individual(new_tree);
+        
+        offspring->setFitness(fitness_function(*offspring));
+        
+        // Delete tournament loser from Population, replace with new offspring.
+//        replaceIndividual(loser_index, offspring);
+        replaceIndividual(offspring_index, offspring);
+        // TODO TEMP for debugging
+        last_individual_added = offspring;
+        //~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~
+        step_count_++;
+        logger();
+
+    }
+    //~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~
     void evolutionStep(TournamentFunction tournament_function,
                        const FunctionSet& function_set)
     {
@@ -188,6 +235,10 @@ public:
         replaceIndividual(loser_index, offspring);
         // TODO TEMP for debugging
         last_individual_added = offspring;
+        //~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~
+        step_count_++;
+        logger();
+        //~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~
     }
 
     // TODO TEMP for debugging
@@ -218,41 +269,76 @@ public:
     // above (who cares about uniqueness?) here is a new version of this which
     // does 3x "tournament" selection based on tournament survivial.
     
-//    std::tuple<int, int, int> selectThreeIndices()
-//    {
-//        int count = static_cast<int>(individuals().size()) - 1;
-//        assert("fewer than 3 in population" && (count >= 2));
-//        int one_third = count / 3;
-//        int two_thirds = (count * 2) / 3;
-//        return std::make_tuple(LPRS().random2(0, one_third),
-//                               LPRS().random2(one_third + 1, two_thirds),
-//                               LPRS().random2(two_thirds + 1, count));
-//    };
+    std::tuple<int, int, int> selectThreeIndices()
+    {
+        int count = static_cast<int>(individuals().size()) - 1;
+        assert("fewer than 3 in population" && (count >= 2));
+        int one_third = count / 3;
+        int two_thirds = (count * 2) / 3;
+        return std::make_tuple(LPRS().random2(0, one_third),
+                               LPRS().random2(one_third + 1, two_thirds),
+                               LPRS().random2(two_thirds + 1, count));
+    };
   
-    // Consider three random Individuals from Population, return the one with
-    // the largest "tournaments survived".
-    int randomIndexFromTournamentsSurvival() const
+//        // Consider three random Individuals from Population, return the one with
+//        // the largest "tournaments survived".
+//        int randomIndexFromTournamentsSurvival() const
+//        {
+//            auto ri = [&](){ return LPRS().randomN(individuals().size()); };
+//            std::vector<int> indices = { ri(), ri(), ri() };
+//            auto i2ts = [&](int i)
+//                { return individuals().at(i)->getTournamentsSurvived(); };
+//            auto most_survived = [&](int a, int b) { return i2ts(a) > i2ts(b); };
+//    //        debugPrint(vec_to_string(indices));
+//            std::sort(indices.begin(), indices.end(), most_survived);
+//    //        debugPrint(vec_to_string(indices));
+//    //        debugPrint(i2ts(indices.at(0)));
+//    //        debugPrint(i2ts(indices.at(1)));
+//    //        debugPrint(i2ts(indices.at(2)));
+//            return indices.front();
+//        }
+    
+    // Returns a random index int0 individuals() with a bias expressed by a sort
+    // compare function of two indices. The index sorted to the FRONT of the
+    // list is the one selected.
+    int randomIndexWithBias(std::function<bool(int, int)> sorter_function) const
     {
         auto ri = [&](){ return LPRS().randomN(individuals().size()); };
         std::vector<int> indices = { ri(), ri(), ri() };
-        auto i2ts = [&](int i)
-            { return individuals().at(i)->getTournamentsSurvived(); };
-        auto most_survived = [&](int a, int b) { return i2ts(a) > i2ts(b); };
-//        debugPrint(vec_to_string(indices));
-        std::sort(indices.begin(), indices.end(), most_survived);
-//        debugPrint(vec_to_string(indices));
-//        debugPrint(i2ts(indices.at(0)));
-//        debugPrint(i2ts(indices.at(1)));
-//        debugPrint(i2ts(indices.at(2)));
+//        auto i2ts = [&](int i)
+//        { return individuals().at(i)->getTournamentsSurvived(); };
+//        auto most_survived = [&](int a, int b) { return i2ts(a) > i2ts(b); };
+        std::sort(indices.begin(), indices.end(), sorter_function);
         return indices.front();
     }
+
     
-    std::tuple<int, int, int> selectThreeIndices()
+    int randomIndexBiasToHighFitness() const
     {
-        return std::make_tuple(randomIndexFromTournamentsSurvival(),
-                               randomIndexFromTournamentsSurvival(),
-                               randomIndexFromTournamentsSurvival());
-    };
+        auto high_fit = [&](int a, int b)
+        {
+            return (individuals().at(a)->getFitness() >
+                    individuals().at(b)->getFitness());
+        };
+        return randomIndexWithBias(high_fit);
+    }
+    int randomIndexBiasToLowFitness() const
+    {
+        auto low_fit = [&](int a, int b)
+        {
+            return (individuals().at(a)->getFitness() >
+                    individuals().at(b)->getFitness());
+        };
+        return randomIndexWithBias(low_fit);
+    }
+
+    
+//    std::tuple<int, int, int> selectThreeIndices()
+//    {
+//        return std::make_tuple(randomIndexFromTournamentsSurvival(),
+//                               randomIndexFromTournamentsSurvival(),
+//                               randomIndexFromTournamentsSurvival());
+//    };
 
     
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -278,16 +364,26 @@ public:
     // Returns (by value, eg copied) a vector of "n" Individual* pointers having
     // the largest values of getTournamentsSurvived(). These are, in some sense,
     // the "best" n Individuals in the population.
-//    std::vector<const Individual*> nMostTournamentsSurvived(int n)
-    std::vector<Individual*> nMostTournamentsSurvived(int n)
+//    std::vector<Individual*> nMostTournamentsSurvived(int n)
+//    {
+//        std::vector<Individual*> collection = individuals();
+//        auto best_survior = [](Individual* a, Individual* b)
+//            {return a->getTournamentsSurvived() > b->getTournamentsSurvived();};
+//        std::sort(collection.begin(), collection.end(), best_survior);
+//        if (n < individuals().size()) { collection.resize(n); }
+//        return collection;
+//    }
+    
+    std::vector<Individual*> nTopFitness(int n)
     {
         std::vector<Individual*> collection = individuals();
-        auto best_survior = [](Individual* a, Individual* b)
-            {return a->getTournamentsSurvived() > b->getTournamentsSurvived();};
-        std::sort(collection.begin(), collection.end(), best_survior);
+        auto best_fitness = [](Individual* a, Individual* b)
+            {return a->getFitness() > b->getFitness();};
+        std::sort(collection.begin(), collection.end(), best_fitness);
         if (n < individuals().size()) { collection.resize(n); }
         return collection;
     }
+
     
 //    std::cout << "pop ave size=" << population->averageTreeSize();
 //    std::cout << " won=" << population->averageTournamentsSurvived();
@@ -301,11 +397,17 @@ public:
     }
 
     // Average of "tournaments survived" over all Individuals.
-    float averageTournamentsSurvived() const
+//    float averageTournamentsSurvived() const
+//    {
+//        int total = 0;
+//        for (auto& i : individuals()) { total += i->getTournamentsSurvived(); }
+//        return float(total) / individuals().size();
+//    }
+    float averageFitness() const
     {
-        int total = 0;
-        for (auto& i : individuals()) { total += i->getTournamentsSurvived(); }
-        return float(total) / individuals().size();
+        float total = 0;
+        for (auto& i : individuals()) { total += i->getFitness(); }
+        return total / individuals().size();
     }
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Run "steps" of evolution, given "function_set" and "tournament_function".
@@ -320,7 +422,54 @@ public:
             evolutionStep(tournament_function, function_set);
         }
     }
+    //~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~
+    // Called at the end of each evolutionStep(). Can override by subclassing or
+    // with setLoggerFunction().
+    virtual void logger()
+    {
+        if (logger_function_) logger_function_(*this);
+    }
+    void setLoggerFunction(std::function<void(Population&)> logger_function)
+    {
+        logger_function_ = logger_function;
+    }
+    static void basicLogger(Population& population)
+    {
+        std::chrono::time_point<std::chrono::high_resolution_clock>
+            now_time = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double>
+            elapsed_time = now_time - population.start_time_;
+        population.start_time_ = now_time;
+        
+//        std::vector<Individual*> tops = population.nMostTournamentsSurvived(10);
+        std::vector<Individual*> tops = population.nTopFitness(10);
+
+        
+        std::cout << population.step_count_ << ": ";
+        std::cout << "t=" << elapsed_time.count() << ", ";
+//        std::cout << "winner size=" << best->tree().size();
+//        std::cout << " won=" << best->getTournamentsSurvived() << ", ";
+        std::cout << "pop ave size=" << population.averageTreeSize();
+//        std::cout << " won=" << population.averageTournamentsSurvived() << ", ";
+        std::cout << " fit=" << population.averageFitness() << ", ";
+        
+//            std::vector<float> fits;
+//    //        for (auto i : tops) fits.push_back(i->getTournamentsSurvived());
+//            for (auto i : tops) fits.push_back(i->getFitness());
+//            std::cout << "pop best (" << vec_to_string(fits) << ")";
+
+        std::cout << "pop best (" << std::setprecision(2);
+        for (auto i : tops) std::cout << i->getFitness() << " ";
+        std::cout << ")";
+        std::cout << std::endl;
+    }
+    //~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~
 private:
     Individual* individual(int i) { return individuals_.at(i); }
     std::vector<Individual*> individuals_;
+    //~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~
+    std::function<void(Population&)> logger_function_ = basicLogger;
+    std::chrono::time_point<std::chrono::high_resolution_clock> start_time_;
+    int step_count_ = 0;
+    //~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~
 };
