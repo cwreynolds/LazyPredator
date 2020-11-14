@@ -301,17 +301,48 @@ public:
     // Returns a random index int0 individuals() with a bias expressed by a sort
     // compare function of two indices. The index sorted to the FRONT of the
     // list is the one selected.
+//        int randomIndexWithBias(std::function<bool(int, int)> sorter_function) const
+//        {
+//            auto ri = [&](){ return LPRS().randomN(individuals().size()); };
+//            std::vector<int> indices = { ri(), ri(), ri() };
+//    //        auto i2ts = [&](int i)
+//    //        { return individuals().at(i)->getTournamentsSurvived(); };
+//    //        auto most_survived = [&](int a, int b) { return i2ts(a) > i2ts(b); };
+//            std::sort(indices.begin(), indices.end(), sorter_function);
+//            return indices.front();
+//        }
+//    // Ad hoc elitism
+//    int randomIndexWithBias(std::function<bool(int, int)> sorter_function) const
+//    {
+//        auto ri = [&](){ return LPRS().randomN(individuals().size()); };
+//        std::vector<int> indices = { ri(), ri(), ri() };
+//        std::sort(indices.begin(), indices.end(), sorter_function);
+//        return indices.front();
+//    }
+
+    // Ad hoc elitism
     int randomIndexWithBias(std::function<bool(int, int)> sorter_function) const
     {
-        auto ri = [&](){ return LPRS().randomN(individuals().size()); };
-        std::vector<int> indices = { ri(), ri(), ri() };
-//        auto i2ts = [&](int i)
-//        { return individuals().at(i)->getTournamentsSurvived(); };
-//        auto most_survived = [&](int a, int b) { return i2ts(a) > i2ts(b); };
-        std::sort(indices.begin(), indices.end(), sorter_function);
-        return indices.front();
+        int index = -1;
+        // TODO must be cached if calling this 9 times per step.
+        Individual* best = nTopFitness(1).at(0);
+        Individual* selection = best;
+        // The previous version: uniform distribution across whole population
+        auto non_elite_select = [&]()
+        {
+            auto ri = [&](){ return LPRS().randomN(individuals().size()); };
+            std::vector<int> indices = { ri(), ri(), ri() };
+            std::sort(indices.begin(), indices.end(), sorter_function);
+            return indices.front();
+        };
+        // Loop until "best" is not the "selection", usually just one time.
+        while (selection == best)
+        {
+            index = non_elite_select();
+            selection = individuals().at(index);
+        }
+        return index;
     }
-
     
     int randomIndexBiasToHighFitness() const
     {
@@ -331,6 +362,27 @@ public:
         };
         return randomIndexWithBias(low_fit);
     }
+//    // Ad hoc elitism
+//    int randomIndexBiasToLowFitness() const
+//    {
+//        int index = -1;
+//        Individual* best = nTopFitness(1).at(0);
+//        Individual* selection = best;
+//
+//        auto low_fit = [&](int a, int b)
+//        {
+//            return (individuals().at(a)->getFitness() >
+//                    individuals().at(b)->getFitness());
+//        };
+//
+//        while (selection == best)
+//        {
+//            index = randomIndexWithBias(low_fit);
+//            selection = individuals().at(index);
+//        }
+//
+//        return index;
+//    }
 
     
 //    std::tuple<int, int, int> selectThreeIndices()
@@ -374,7 +426,7 @@ public:
 //        return collection;
 //    }
     
-    std::vector<Individual*> nTopFitness(int n)
+    std::vector<Individual*> nTopFitness(int n) const
     {
         std::vector<Individual*> collection = individuals();
         auto best_fitness = [](Individual* a, Individual* b)
@@ -445,8 +497,16 @@ public:
         std::vector<Individual*> tops = population.nTopFitness(10);
 
         
-        std::cout << population.step_count_ << ": ";
-        std::cout << "t=" << elapsed_time.count() << ", ";
+//        std::cout << population.step_count_ << ": ";
+//        std::cout << "t=" << elapsed_time.count() << ", ";
+        
+//        auto default_precision = std::cout.precision();
+        int default_precision = int(std::cout.precision());
+        std::cout << population.step_count_ << ": t=";
+        std::cout << std::setprecision(3) << elapsed_time.count() << ", ";
+        std::cout << std::setprecision(default_precision);
+
+        
 //        std::cout << "winner size=" << best->tree().size();
 //        std::cout << " won=" << best->getTournamentsSurvived() << ", ";
         std::cout << "pop ave size=" << population.averageTreeSize();
@@ -460,7 +520,8 @@ public:
 
         std::cout << "pop best (" << std::setprecision(2);
         for (auto i : tops) std::cout << i->getFitness() << " ";
-        std::cout << ")";
+//        std::cout << ")";
+        std::cout << ")" << std::setprecision(default_precision);
         std::cout << std::endl;
     }
     //~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~
