@@ -320,25 +320,35 @@ public:
 //        return indices.front();
 //    }
 
-    // Ad hoc elitism
     int randomIndexWithBias(std::function<bool(int, int)> sorter_function) const
+    {
+        auto ri = [&](){ return LPRS().randomN(individuals().size()); };
+        std::vector<int> indices = { ri(), ri(), ri() };
+        std::sort(indices.begin(), indices.end(), sorter_function);
+        return indices.front();
+    }
+
+    // Ad hoc elitism
+//    int randomIndexWithBias(std::function<bool(int, int)> sorter_function) const
+    int randomIndexWithBiasAndElitism(std::function<bool(int, int)> sorter_function) const
     {
         int index = -1;
         // TODO must be cached if calling this 9 times per step.
         Individual* best = nTopFitness(1).at(0);
         Individual* selection = best;
-        // The previous version: uniform distribution across whole population
-        auto non_elite_select = [&]()
-        {
-            auto ri = [&](){ return LPRS().randomN(individuals().size()); };
-            std::vector<int> indices = { ri(), ri(), ri() };
-            std::sort(indices.begin(), indices.end(), sorter_function);
-            return indices.front();
-        };
+//        // The previous version: uniform distribution across whole population
+//        auto non_elite_select = [&]()
+//        {
+//            auto ri = [&](){ return LPRS().randomN(individuals().size()); };
+//            std::vector<int> indices = { ri(), ri(), ri() };
+//            std::sort(indices.begin(), indices.end(), sorter_function);
+//            return indices.front();
+//        };
         // Loop until "best" is not the "selection", usually just one time.
         while (selection == best)
         {
-            index = non_elite_select();
+//            index = non_elite_select();
+            index = randomIndexWithBias(sorter_function);
             selection = individuals().at(index);
         }
         return index;
@@ -360,7 +370,8 @@ public:
             return (individuals().at(a)->getFitness() >
                     individuals().at(b)->getFitness());
         };
-        return randomIndexWithBias(low_fit);
+//        return randomIndexWithBias(low_fit);
+        return randomIndexWithBiasAndElitism(low_fit);
     }
 //    // Ad hoc elitism
 //    int randomIndexBiasToLowFitness() const
