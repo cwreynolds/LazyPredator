@@ -19,7 +19,24 @@ public:
         fs.makeRandomTree(max_tree_size, tree_);
     }
     Individual(const GpTree& gp_tree) : Individual() { tree_ = gp_tree; }
-    ~Individual() { getSetInstanceCount()--; }
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//    ~Individual() { getSetInstanceCount()--; }
+    
+    ~Individual()
+    {
+//        if (tree().getType() == )
+        
+
+        std::cout << "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% ";
+        debugPrint(treeValue().type().name());
+        
+        Texture* texture = std::any_cast<Texture*>(treeValue());
+
+        delete texture;
+        
+        getSetInstanceCount()--;
+    }
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Read-only (const) access to this Individual's GpTree.
     const GpTree& tree() { return tree_; }
     // Overwrite this Individual's GpTree with "new_tree". Flush eval() cache.
