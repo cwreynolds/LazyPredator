@@ -24,16 +24,14 @@ public:
     
     ~Individual()
     {
-//        if (tree().getType() == )
-        
-
+/*
         std::cout << "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% ";
         debugPrint(treeValue().type().name());
         
         Texture* texture = std::any_cast<Texture*>(treeValue());
 
         delete texture;
-        
+*/
         getSetInstanceCount()--;
     }
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

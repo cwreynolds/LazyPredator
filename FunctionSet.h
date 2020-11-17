@@ -149,7 +149,12 @@ public:
     GpFunction(const std::string& name,
                const std::string& return_type_name,
                const std::vector<std::string>& parameter_type_names,
-               std::function<std::any(const GpTree& t)> eval)
+               //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+               // TODO 20201116 very experimental record result of eval() to
+               //               assist in deleting all of an Individual.
+//               std::function<std::any(const GpTree& t)> eval)
+               std::function<std::any(GpTree& t)> eval)
+               //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
       : name_(name),
         return_type_name_(return_type_name),
         parameter_type_names_(parameter_type_names),
@@ -180,9 +185,13 @@ public:
     // Minimum "size" required to terminate subtree with this function at root.
     int minSizeToTerminate() const { return min_size_to_terminate_; }
     void setMinSizeToTerminate(int s) { min_size_to_terminate_ = s; }
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // TODO 20201116 very experimental record result of eval() to
+    //               assist in deleting all of an Individual.
     // Evaluate (execute) a GpTree with this function at root
     // TODO probably should assert they match (this and tree root GpFunction)
-    std::any eval(const GpTree& tree) const { return eval_(tree);  }
+    std::any eval(GpTree& tree) const { return eval_(tree);  }
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Print description of this GpFunction to std::cout.
     void print() const
     {
@@ -203,7 +212,12 @@ private:
     std::vector<std::string> parameter_type_names_;
     std::vector<GpType*> parameter_types_;
     int min_size_to_terminate_ = std::numeric_limits<int>::max();
-    std::function<std::any(const GpTree& t)> eval_ = nullptr;
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // TODO 20201116 very experimental record result of eval() to
+    //               assist in deleting all of an Individual.
+//    std::function<std::any(const GpTree& t)> eval_ = nullptr;
+    std::function<std::any(GpTree& t)> eval_ = nullptr;
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 };
 
 // Down here because it requires both GpType and GpFunction to be defined.
@@ -279,13 +293,34 @@ public:
     bool isLeaf() const { return !root_function_; }
     // Evaluate this tree. Run/evaluate the GpFunction at the root, recursively
     // running evaluating each parameter subtree.
-    std::any eval() const
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    // TODO 20201116 very experimental record result of eval() to assist in
+    //               deleting all of an Individual.
+    
+//    std::any eval() const
+//    {
+//        return (isLeaf() ? getLeafValue() : getFunction().eval(*this));
+//    }
+
+    std::any eval() // const
     {
-        return (isLeaf() ? getLeafValue() : getFunction().eval(*this));
+        if (!isLeaf())
+        {
+            setLeafValue(getFunction().eval(*this),
+                         *getFunction().returnType());
+        }
+        return getLeafValue();
     }
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Evaluate i-th subtree, corresponds to i-th parameter of root function,
     // then cast the resulting std::any to the given concrete type T.
-    template <typename T> T evalSubtree(int i) const
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // TODO 20201116 very experimental record result of eval() to assist in
+    //               deleting all of an Individual.
+//    template <typename T> T evalSubtree(int i) const
+    template <typename T> T evalSubtree(int i)
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     {
         return std::any_cast<T>(getSubtree(i).eval());
     }
