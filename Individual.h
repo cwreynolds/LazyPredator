@@ -13,7 +13,11 @@
 class Individual
 {
 public:
-    Individual() { getSetInstanceCount()++; }
+    Individual()
+    {
+        getSetInstanceCount()++;
+        constructor_count_++;
+    }
     Individual(int max_tree_size, const FunctionSet& fs) : Individual()
     {
         fs.makeRandomTree(max_tree_size, tree_);
@@ -33,6 +37,7 @@ public:
         delete texture;
 */
         getSetInstanceCount()--;
+        destructor_count_++;
     }
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Read-only (const) access to this Individual's GpTree.
@@ -72,6 +77,16 @@ public:
     float getFitness() const { return (hasFitness() ?
                                        fitness_ :
                                        getTournamentsSurvived()); }
+
+    static void leakCheck()
+    {
+        std::cout << "Individual";
+        std::cout << ": constructions=" << constructor_count_;
+        std::cout << ", destructions=" << destructor_count_;
+        std::cout << ", leaked=" << constructor_count_ - destructor_count_;
+        std::cout << std::endl;
+    }
+
     //~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~
     static const int& getInstanceCount() { return getSetInstanceCount(); }
 private:
@@ -85,5 +100,8 @@ private:
     //~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~
     float fitness_ = 0;
     bool has_fitness_ = false;
+    
+    static inline int constructor_count_ = 0;
+    static inline int destructor_count_ = 0;
     //~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~
 };
