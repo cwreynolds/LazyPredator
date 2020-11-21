@@ -146,15 +146,28 @@ public:
             individuals_.push_back(new Individual(max_tree_size, fs));
         }
     }
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // TODO experimental "deleter" function. EG for Texture in TexSyn.
+//    ~Population()
+//    {
+//        while (!individuals_.empty())
+//        {
+//            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//            // TODO experimental "deleter" function. EG for Texture in TexSyn.
+//            debugPrint(individuals_.size());
+//            debugPrint(individuals_.back());
+//            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//            Individual* last = individuals_.back();
+//            individuals_.pop_back();
+//            delete last;
+//        }
+//    }
     ~Population()
     {
-        while (!individuals_.empty())
-        {
-            Individual* last = individuals_.back();
-            individuals_.pop_back();
-            delete last;
-        }
+        for (Individual* i : individuals_) delete i;
+        individuals_.clear();
     }
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Functions that implement tournaments, by transforming a TournamentGroup.
     typedef std::function<TournamentGroup(TournamentGroup)> TournamentFunction;
     // Return const reference to collection of Individuals in Population.

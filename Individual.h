@@ -17,6 +17,10 @@ public:
     {
         getSetInstanceCount()++;
         constructor_count_++;
+        //~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~
+        // TODO very temp, trying to debug delete of instances in tree
+        constructed_set_.insert(this);
+        //~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~
     }
     Individual(int max_tree_size, const FunctionSet& fs) : Individual()
     {
@@ -36,8 +40,27 @@ public:
 
         delete texture;
 */
+        //~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~
+        // TODO very temp, trying to debug delete of instances in tree
+        assert(constructed_set_.find(this) != constructed_set_.end());
+        assert(destructed_set_.find(this) == destructed_set_.end());
+        //~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~
+
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // TODO use experimental "deleter" function. EG for Texture in TexSyn.
+        tree_.deleteCachedValues();
+        
+//        // TODO nov 19 9:07pm experiment
+//        tree_value_cache_ = nullptr;
+
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
         getSetInstanceCount()--;
         destructor_count_++;
+        //~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~
+        // TODO very temp, trying to debug delete of instances in tree
+        destructed_set_.insert(this);
+        //~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~
     }
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Read-only (const) access to this Individual's GpTree.
@@ -103,5 +126,9 @@ private:
     
     static inline int constructor_count_ = 0;
     static inline int destructor_count_ = 0;
+    
+    // TODO very temp, trying to debug delete of instances in tree
+    static inline std::set<Individual*> constructed_set_;
+    static inline std::set<Individual*> destructed_set_;
     //~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~
 };

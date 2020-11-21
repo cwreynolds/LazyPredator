@@ -55,6 +55,12 @@ public:
     GpType(){}
     // Constructor for name only.
     GpType(const std::string& name) : name_(name) {}
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // TODO experimental version, with just name and "deleter" function
+    //      EG for Texture in TexSyn.
+    GpType(const std::string& name, std::function<void(std::any)> deleter)
+      : name_(name), deleter_(deleter) {}
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Full constructor, specify all parameters.
     GpType(const std::string& name,
            std::function<std::any()> ephemeral_generator,
@@ -94,6 +100,21 @@ public:
         assert(hasJiggler());
         return jiggle_(current_value);
     }
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // TODO experimental "deleter" function. EG for Texture in TexSyn.
+    
+    // Does this type have a deleter function?
+//    bool hasDeleter() const { return bool(deleter_); }
+    bool hasDeleter() const { return deleter_ != nullptr; }
+//    bool hasDeleter() const { return true; }
+    // Generate an ephemeral constant.
+    void deleteValue(std::any value) const
+    {
+        assert(hasDeleter());
+        deleter_(value);
+    }
+
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Access collection of (pointers to) GpFunction that return this type.
     const std::vector<GpFunction*>& functionsReturningThisType() const
         { return functions_returning_this_type_; }
@@ -139,6 +160,12 @@ private:
     std::vector<GpFunction*> functions_returning_this_type_;
     // Minimum "size" of tree returning this type from root;
     int min_size_to_terminate_ = std::numeric_limits<int>::max();
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // TODO experimental "deleter" function. EG for Texture in TexSyn.
+    std::function<void(std::any)> deleter_ = nullptr;
+//    // Nov 20 4:45pm default to a function that does nothing?
+//    std::function<void(std::any)> deleter_ = [](std::any){};
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 };
 
 // Class to represent functions in "strongly typed genetic programming".
@@ -448,6 +475,16 @@ public:
                  (std::any_cast<T>(a.leaf_value_) ==    //   both leaves match.
                   std::any_cast<T>(b.leaf_value_))));
     }
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // TODO use experimental "deleter" function. EG for Texture in TexSyn.
+    void deleteCachedValues()
+    {
+//        GpType type = getType();
+//        if (type.hasDeleter()) type.deleteValue(getLeafValue());
+        if (getType().hasDeleter()) getType().deleteValue(getLeafValue());
+        for (auto& subtree : subtrees()) subtree.deleteCachedValues();
+    }
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 private:
     // NOTE: if any more data members are added, compare them in equals().
     // Add (allocate) one subtree. addSubtrees() is external API.
