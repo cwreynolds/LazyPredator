@@ -18,8 +18,10 @@ public:
         getSetInstanceCount()++;
         constructor_count_++;
         //~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~
-        // TODO very temp, trying to debug delete of instances in tree
-        constructed_set_.insert(this);
+//        // TODO very temp, trying to debug delete of instances in tree
+//        std::cout << "construct Individual this=" << this << std::endl;
+//        assert(!set_contains(constructed_set_, this));
+//        constructed_set_.insert(this);
         //~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~
     }
     Individual(int max_tree_size, const FunctionSet& fs) : Individual()
@@ -32,9 +34,9 @@ public:
     ~Individual()
     {
         //~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~
-        // TODO very temp, trying to debug delete of instances in tree
-        assert(set_contains(constructed_set_, this));
-        assert(!set_contains(destructed_set_, this));
+//        // TODO very temp, trying to debug delete of instances in tree
+//        assert(set_contains(constructed_set_, this));
+//        assert(!set_contains(destructed_set_, this));
         //~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~
 
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -45,8 +47,9 @@ public:
         getSetInstanceCount()--;
         destructor_count_++;
         //~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~
-        // TODO very temp, trying to debug delete of instances in tree
-        destructed_set_.insert(this);
+//        // TODO very temp, trying to debug delete of instances in tree
+//        destructed_set_.insert(this);
+//        std::cout << "destruct Individual this=" << this << std::endl;
         //~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~
     }
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -114,8 +117,8 @@ private:
     static inline int constructor_count_ = 0;
     static inline int destructor_count_ = 0;
     
-    // TODO very temp, trying to debug delete of instances in tree
-    static inline std::set<Individual*> constructed_set_;
-    static inline std::set<Individual*> destructed_set_;
+//    // TODO very temp, trying to debug delete of instances in tree
+//    static inline std::set<Individual*> constructed_set_;
+//    static inline std::set<Individual*> destructed_set_;
     //~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~
 };

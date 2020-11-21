@@ -22,19 +22,35 @@ class TournamentGroupMember;
 // members of a group are kept in sorted order.
 // TODO maybe move to their own file rather than be distracting clutter here?
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// TODO 20201121 try converting Population over to std::shared_ptr
+
+// TODO maybe I should do a typedef for spIndividual or Individual_sp ?
+
 class TournamentGroupMember
 {
 public:
+//    TournamentGroupMember()
+//        : individual(nullptr), index(0), metric(0) {}
+//    TournamentGroupMember(Individual* individual_, int index_)
+//        : individual(individual_), index(index_), metric(0) {}
+//    TournamentGroupMember(Individual* individual_, int index_, float metric_)
+//        : individual(individual_), index(index_), metric(metric_) {}
+//    Individual* individual = nullptr;  // pointer to an Individual.
     TournamentGroupMember()
         : individual(nullptr), index(0), metric(0) {}
-    TournamentGroupMember(Individual* individual_, int index_)
+    TournamentGroupMember(std::shared_ptr<Individual> individual_, int index_)
         : individual(individual_), index(index_), metric(0) {}
-    TournamentGroupMember(Individual* individual_, int index_, float metric_)
+    TournamentGroupMember(std::shared_ptr<Individual> individual_, int index_, float metric_)
         : individual(individual_), index(index_), metric(metric_) {}
-    Individual* individual = nullptr;  // pointer to an Individual.
+    std::shared_ptr<Individual> individual = nullptr;  // pointer to Individual.
     int index = 0;                     // Individual's index in Population.
     float metric = 0;                  // Optional fitness metric.
 };
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// TODO 20201121 try converting Population over to std::shared_ptr
 
 class TournamentGroup
 {
@@ -48,15 +64,19 @@ public:
     size_t size() const { return members().size(); }
     // For "numerical fitness"-based tournaments, map a given scoring function
     // over all members to set the metric values. Sorts members afterward.
-    void setAllMetrics(std::function<float(Individual*)> scoring)
+//    void setAllMetrics(std::function<float(Individual*)> scoring)
+    void setAllMetrics(std::function<float(std::shared_ptr<Individual>)> scoring)
     {
         for (auto& m : members_) { m.metric = scoring(m.individual); }
         sort();
     }
     int worstIndex() const { return members().front().index; }
-    Individual* worstIndividual() const { return members().front().individual; }
-    Individual* bestIndividual() const { return members().back().individual; }
-    Individual* secondBestIndividual() const
+//    Individual* worstIndividual() const { return members().front().individual; }
+//    Individual* bestIndividual() const { return members().back().individual; }
+//    Individual* secondBestIndividual() const
+    std::shared_ptr<Individual> worstIndividual() const { return members().front().individual; }
+    std::shared_ptr<Individual> bestIndividual() const { return members().back().individual; }
+    std::shared_ptr<Individual> secondBestIndividual() const
     {
         return members().at(size() - 2).individual;
     }
@@ -75,7 +95,6 @@ public:
         }
         std::cout << "}" << std::endl;
     }
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Find largest tree size of all Individuals in this TournamentGroup.
     int maxTreeSize() const
     {
@@ -87,26 +106,22 @@ public:
         }
         return max_tree_size;
     }
-    
     // TODO maybe this is better suited to needs of CWE?
     // Find smallest tree size of all Individuals in this TournamentGroup.
     int minTreeSize() const
     {
-//        int max_tree_size = std::numeric_limits<int>::min();
         int min_tree_size = std::numeric_limits<int>::max();
         for (auto& m : members())
         {
             int tree_size = m.individual->tree().size();
-//            if (max_tree_size < tree_size) max_tree_size = tree_size;
             if (min_tree_size > tree_size) min_tree_size = tree_size;
         }
-//        return max_tree_size;
         return min_tree_size;
     }
-
     // Given an Individual, returns an int from 1 to members().size(),
     // rank 1 corresponds to bestIndividual().
-    int rankOfIndividual(Individual* individual)
+//    int rankOfIndividual(Individual* individual)
+    int rankOfIndividual(std::shared_ptr<Individual> individual)
     {
         int rank = 0;
         int count = int(members().size());
@@ -117,7 +132,6 @@ public:
         assert("given Individual not in TournamentGroup" && rank != 0);
         return rank;
     }
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 private:
     // Sort the members of this group by their "metric" value.
     void sort()
@@ -129,6 +143,7 @@ private:
     }
     std::vector<TournamentGroupMember> members_;
 };
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 class Population
 {
@@ -136,14 +151,24 @@ public:
     Population() {}
     Population(int size)
     {
-        for (int i = 0; i < size; i++) individuals_.push_back(new Individual);
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // TODO 20201121 try converting Population over to std::shared_ptr
+//        for (int i = 0; i < size; i++) individuals_.push_back(new Individual);
+        for (int i = 0; i < size; i++)
+            individuals_.push_back(std::make_shared<Individual>());
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     }
     // TODO combine constructors with and without fs?
     Population(int size, int max_tree_size, const FunctionSet& fs)
     {
         for (int i = 0; i < size; i++)
         {
-            individuals_.push_back(new Individual(max_tree_size, fs));
+            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            // TODO 20201121 try converting Population over to std::shared_ptr
+//            individuals_.push_back(new Individual(max_tree_size, fs));
+            auto individual = std::make_shared<Individual>(max_tree_size, fs);
+            individuals_.push_back(individual);
+            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         }
     }
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -164,21 +189,33 @@ public:
 //    }
     ~Population()
     {
-        for (Individual* i : individuals_) delete i;
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // TODO 20201121 try converting Population over to std::shared_ptr
+//        for (Individual* i : individuals_) delete i;
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         individuals_.clear();
     }
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Functions that implement tournaments, by transforming a TournamentGroup.
     typedef std::function<TournamentGroup(TournamentGroup)> TournamentFunction;
     // Return const reference to collection of Individuals in Population.
-    const std::vector<Individual*>& individuals() const { return individuals_; }
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // TODO 20201121 try converting Population over to std::shared_ptr
+//    const std::vector<Individual*>& individuals() const { return individuals_; }
+    const std::vector<std::shared_ptr<Individual>>& individuals() const
+        { return individuals_; }
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Perform one step of the "steady state" evolutionary computation. Hold a
     // tournament with three randomly selected Individuals. The "loser" is
     // replaced in the Population by a new "offspring" created by crossing over
     // the two "winners" and mutating the result
     //~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~
     
-    typedef std::function<float(Individual&)> FitnessFunction;
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // TODO 20201121 try converting Population over to std::shared_ptr
+//    typedef std::function<float(Individual&)> FitnessFunction;
+    typedef std::function<float(std::shared_ptr<Individual>)> FitnessFunction;
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     // TODO very experimental non-tournament version for simple fitness
     void evolutionStep(FitnessFunction fitness_function,
@@ -194,8 +231,13 @@ public:
         int offspring_index = randomIndexBiasToLowFitness();
         int index_a = randomIndexBiasToHighFitness();
         int index_b = randomIndexBiasToHighFitness();
-        Individual* parent_a = individual(index_a);
-        Individual* parent_b = individual(index_b);
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // TODO 20201121 try converting Population over to std::shared_ptr
+//        Individual* parent_a = individual(index_a);
+//        Individual* parent_b = individual(index_b);
+        auto parent_a = individual(index_a);
+        auto parent_b = individual(index_b);
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
         // TODO copied from previous overload of evolutionStep()
         //      should it be a function to prevent duplication?
@@ -207,9 +249,15 @@ public:
         // Mutate constants in new tree.
         new_tree.mutate();
         // Create new offspring Individual from new tree.
-        Individual* offspring = new Individual(new_tree);
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // TODO 20201121 try converting Population over to std::shared_ptr
+//        Individual* offspring = new Individual(new_tree);
+        auto offspring = std::make_shared<Individual>(new_tree);
         
-        offspring->setFitness(fitness_function(*offspring));
+//        offspring->setFitness(fitness_function(*offspring));
+        offspring->setFitness(fitness_function(offspring));
+
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         
         // Delete tournament loser from Population, replace with new offspring.
 //        replaceIndividual(loser_index, offspring);
@@ -228,12 +276,21 @@ public:
         TournamentGroup random_group = selectTournamentGroup();
         // Run tournament amoung the three, return ranked group.
         TournamentGroup ranked_group = tournament_function(random_group);
-        Individual* loser = ranked_group.worstIndividual();
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // TODO 20201121 try converting Population over to std::shared_ptr
+//        Individual* loser = ranked_group.worstIndividual();
+//        int loser_index = ranked_group.worstIndex();
+//        assert(loser);
+//        // Other two become parents of new offspring.
+//        Individual* parent_0 = ranked_group.secondBestIndividual();
+//        Individual* parent_1 = ranked_group.bestIndividual();
+        std::shared_ptr<Individual> loser = ranked_group.worstIndividual();
         int loser_index = ranked_group.worstIndex();
         assert(loser);
         // Other two become parents of new offspring.
-        Individual* parent_0 = ranked_group.secondBestIndividual();
-        Individual* parent_1 = ranked_group.bestIndividual();
+        std::shared_ptr<Individual> parent_0 = ranked_group.secondBestIndividual();
+        std::shared_ptr<Individual> parent_1 = ranked_group.bestIndividual();
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // Both parent's rank increases because they survived the tournament.
         parent_0->incrementTournamentsSurvived();
         parent_1->incrementTournamentsSurvived();
@@ -243,7 +300,11 @@ public:
         // Mutate constants in new tree.
         new_tree.mutate();
         // Create new offspring Individual from new tree.
-        Individual* offspring = new Individual(new_tree);
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // TODO 20201121 try converting Population over to std::shared_ptr
+//        Individual* offspring = new Individual(new_tree);
+        auto offspring = std::make_shared<Individual>(new_tree);
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // Delete tournament loser from Population, replace with new offspring.
         replaceIndividual(loser_index, offspring);
         // TODO TEMP for debugging
@@ -255,15 +316,27 @@ public:
     }
 
     // TODO TEMP for debugging
-    static inline Individual* last_individual_added = nullptr;
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // TODO 20201121 try converting Population over to std::shared_ptr
+//    static inline Individual* last_individual_added = nullptr;
+    static inline std::shared_ptr<Individual> last_individual_added = nullptr;
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     
     // Delete Individual at index i, then overwrite pointer with replacement.
     // TODO merge this with code now in ~Population()
-    void replaceIndividual(int i, Individual* new_individual)
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // TODO 20201121 try converting Population over to std::shared_ptr
+//    void replaceIndividual(int i, Individual* new_individual)
+//    {
+//        delete individuals_.at(i);
+//        individuals_.at(i) = new_individual;
+//    }
+    void replaceIndividual(int i, std::shared_ptr<Individual> new_individual)
     {
-        delete individuals_.at(i);
+//        delete individuals_.at(i);
         individuals_.at(i) = new_individual;
     }
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // TournamentGroup with three Individuals selected randomly from Population.
     TournamentGroup selectTournamentGroup()
     {
@@ -342,29 +415,25 @@ public:
     }
 
     // Ad hoc elitism
-//    int randomIndexWithBias(std::function<bool(int, int)> sorter_function) const
     int randomIndexWithBiasAndElitism(std::function<bool(int, int)> sorter_function) const
     {
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // TODO 20201121 try converting Population over to std::shared_ptr
+
         int index = -1;
         // TODO must be cached if calling this 9 times per step.
-        Individual* best = nTopFitness(1).at(0);
-        Individual* selection = best;
-//        // The previous version: uniform distribution across whole population
-//        auto non_elite_select = [&]()
-//        {
-//            auto ri = [&](){ return LPRS().randomN(individuals().size()); };
-//            std::vector<int> indices = { ri(), ri(), ri() };
-//            std::sort(indices.begin(), indices.end(), sorter_function);
-//            return indices.front();
-//        };
+//        Individual* best = nTopFitness(1).at(0);
+//        Individual* selection = best;
+        std::shared_ptr<Individual> best = nTopFitness(1).at(0);
+        std::shared_ptr<Individual> selection = best;
         // Loop until "best" is not the "selection", usually just one time.
         while (selection == best)
         {
-//            index = non_elite_select();
             index = randomIndexWithBias(sorter_function);
             selection = individuals().at(index);
         }
         return index;
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     }
     
     int randomIndexBiasToHighFitness() const
@@ -418,13 +487,34 @@ public:
 
     
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // TODO 20201121 try converting Population over to std::shared_ptr
+
+    
     // Find the best Individual in Population, defined as having survived the
     // most tournaments. TODO name?
-    Individual* findBestIndividual() const
+//    Individual* findBestIndividual() const
+//    {
+//        assert(!individuals().empty()); // Or just return nullptr in this case?
+//        int most_survived = std::numeric_limits<int>::min();
+//        Individual* best_individual = nullptr;
+//        for (auto& individual : individuals())
+//        {
+//            int survived = individual->getTournamentsSurvived();
+//            if (most_survived < survived)
+//            {
+//                most_survived = survived;
+//                best_individual = individual;
+//            }
+//        }
+//        return best_individual;
+//    }
+    std::shared_ptr<Individual> findBestIndividual() const
     {
         assert(!individuals().empty()); // Or just return nullptr in this case?
         int most_survived = std::numeric_limits<int>::min();
-        Individual* best_individual = nullptr;
+        std::shared_ptr<Individual> best_individual = nullptr;
         for (auto& individual : individuals())
         {
             int survived = individual->getTournamentsSurvived();
@@ -436,6 +526,10 @@ public:
         }
         return best_individual;
     }
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    
+    
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Returns (by value, eg copied) a vector of "n" Individual* pointers having
     // the largest values of getTournamentsSurvived(). These are, in some sense,
@@ -450,19 +544,29 @@ public:
 //        return collection;
 //    }
     
-    std::vector<Individual*> nTopFitness(int n) const
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // TODO 20201121 try converting Population over to std::shared_ptr
+
+//    std::vector<Individual*> nTopFitness(int n) const
+//    {
+//        std::vector<Individual*> collection = individuals();
+//        auto best_fitness = [](Individual* a, Individual* b)
+//            {return a->getFitness() > b->getFitness();};
+//        std::sort(collection.begin(), collection.end(), best_fitness);
+//        if (n < individuals().size()) { collection.resize(n); }
+//        return collection;
+//    }
+    std::vector<std::shared_ptr<Individual>> nTopFitness(int n) const
     {
-        std::vector<Individual*> collection = individuals();
-        auto best_fitness = [](Individual* a, Individual* b)
-            {return a->getFitness() > b->getFitness();};
+        std::vector<std::shared_ptr<Individual>> collection = individuals();
+        auto best_fitness = [](std::shared_ptr<Individual> a,
+                               std::shared_ptr<Individual> b)
+            { return a->getFitness() > b->getFitness(); };
         std::sort(collection.begin(), collection.end(), best_fitness);
         if (n < individuals().size()) { collection.resize(n); }
         return collection;
     }
-
-    
-//    std::cout << "pop ave size=" << population->averageTreeSize();
-//    std::cout << " won=" << population->averageTournamentsSurvived();
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     // Average of "tree size" over all Individuals.
     int averageTreeSize() const
@@ -516,42 +620,31 @@ public:
         std::chrono::duration<double>
             elapsed_time = now_time - population.start_time_;
         population.start_time_ = now_time;
-        
-//        std::vector<Individual*> tops = population.nMostTournamentsSurvived(10);
-        std::vector<Individual*> tops = population.nTopFitness(10);
-
-        
-//        std::cout << population.step_count_ << ": ";
-//        std::cout << "t=" << elapsed_time.count() << ", ";
-        
-//        auto default_precision = std::cout.precision();
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // TODO 20201121 try converting Population over to std::shared_ptr
+//        std::vector<Individual*> tops = population.nTopFitness(10);
+        std::vector<std::shared_ptr<Individual>> tops = population.nTopFitness(10);
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         int default_precision = int(std::cout.precision());
         std::cout << population.step_count_ << ": t=";
         std::cout << std::setprecision(3) << elapsed_time.count() << ", ";
         std::cout << std::setprecision(default_precision);
-
-        
-//        std::cout << "winner size=" << best->tree().size();
-//        std::cout << " won=" << best->getTournamentsSurvived() << ", ";
         std::cout << "pop ave size=" << population.averageTreeSize();
-//        std::cout << " won=" << population.averageTournamentsSurvived() << ", ";
         std::cout << " fit=" << population.averageFitness() << ", ";
-        
-//            std::vector<float> fits;
-//    //        for (auto i : tops) fits.push_back(i->getTournamentsSurvived());
-//            for (auto i : tops) fits.push_back(i->getFitness());
-//            std::cout << "pop best (" << vec_to_string(fits) << ")";
-
         std::cout << "pop best (" << std::setprecision(2);
         for (auto i : tops) std::cout << i->getFitness() << " ";
-//        std::cout << ")";
         std::cout << ")" << std::setprecision(default_precision);
         std::cout << std::endl;
     }
     //~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~
 private:
-    Individual* individual(int i) { return individuals_.at(i); }
-    std::vector<Individual*> individuals_;
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // TODO 20201121 try converting Population over to std::shared_ptr
+//    Individual* individual(int i) { return individuals_.at(i); }
+//    std::vector<Individual*> individuals_;
+    std::shared_ptr<Individual> individual(int i) { return individuals_.at(i); }
+    std::vector<std::shared_ptr<Individual>> individuals_;
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     //~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~
     std::function<void(Population&)> logger_function_ = basicLogger;
     std::chrono::time_point<std::chrono::high_resolution_clock> start_time_;
