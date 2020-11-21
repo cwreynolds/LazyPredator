@@ -29,30 +29,17 @@ public:
     Individual(const GpTree& gp_tree) : Individual() { tree_ = gp_tree; }
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //    ~Individual() { getSetInstanceCount()--; }
-    
     ~Individual()
     {
-/*
-        std::cout << "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% ";
-        debugPrint(treeValue().type().name());
-        
-        Texture* texture = std::any_cast<Texture*>(treeValue());
-
-        delete texture;
-*/
         //~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~
         // TODO very temp, trying to debug delete of instances in tree
-        assert(constructed_set_.find(this) != constructed_set_.end());
-        assert(destructed_set_.find(this) == destructed_set_.end());
+        assert(set_contains(constructed_set_, this));
+        assert(!set_contains(destructed_set_, this));
         //~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~
 
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // TODO use experimental "deleter" function. EG for Texture in TexSyn.
         tree_.deleteCachedValues();
-        
-//        // TODO nov 19 9:07pm experiment
-//        tree_value_cache_ = nullptr;
-
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
         getSetInstanceCount()--;

@@ -104,16 +104,14 @@ public:
     // TODO experimental "deleter" function. EG for Texture in TexSyn.
     
     // Does this type have a deleter function?
-//    bool hasDeleter() const { return bool(deleter_); }
-    bool hasDeleter() const { return deleter_ != nullptr; }
-//    bool hasDeleter() const { return true; }
-    // Generate an ephemeral constant.
+    bool hasDeleter() const { return bool(deleter_); }
+    // Delete a value (e.g. cached in a GpTree) produced by this GpType.
+    // Only needed for pointer/reference to generated instance.
     void deleteValue(std::any value) const
     {
         assert(hasDeleter());
         deleter_(value);
     }
-
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Access collection of (pointers to) GpFunction that return this type.
     const std::vector<GpFunction*>& functionsReturningThisType() const
@@ -163,8 +161,6 @@ private:
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // TODO experimental "deleter" function. EG for Texture in TexSyn.
     std::function<void(std::any)> deleter_ = nullptr;
-//    // Nov 20 4:45pm default to a function that does nothing?
-//    std::function<void(std::any)> deleter_ = [](std::any){};
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 };
 
@@ -421,7 +417,7 @@ public:
     {
         GpTree* result = this;
         auto gp_type_ok = [&](GpTree* tree)
-            { return types.find(&(tree->getType())) != types.end(); };
+            { return set_contains(types, &(tree->getType())); };
         if (size() > min_size)
         {
             std::vector<GpTree*> all_subtrees;
@@ -479,8 +475,6 @@ public:
     // TODO use experimental "deleter" function. EG for Texture in TexSyn.
     void deleteCachedValues()
     {
-//        GpType type = getType();
-//        if (type.hasDeleter()) type.deleteValue(getLeafValue());
         if (getType().hasDeleter()) getType().deleteValue(getLeafValue());
         for (auto& subtree : subtrees()) subtree.deleteCachedValues();
     }
