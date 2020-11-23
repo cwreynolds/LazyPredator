@@ -27,21 +27,28 @@ public:
     Individual(int max_tree_size, const FunctionSet& fs) : Individual()
     {
         fs.makeRandomTree(max_tree_size, tree_);
+        
+        // TODO 20201121 random experiment, is it possible the GpTree of some
+        //               Individual is not evaluated/cached?
+        assert(treeValue().has_value());
+        
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // TODO 20201122 -- very temp -- validate
+        Texture* texture = std::any_cast<Texture*>(treeValue());
+        assert(texture->valid());
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     }
     Individual(const GpTree& gp_tree) : Individual() { tree_ = gp_tree; }
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //    ~Individual() { getSetInstanceCount()--; }
     ~Individual()
     {
-        //~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~
-//        // TODO very temp, trying to debug delete of instances in tree
-//        assert(set_contains(constructed_set_, this));
-//        assert(!set_contains(destructed_set_, this));
-        //~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~
-
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // TODO use experimental "deleter" function. EG for Texture in TexSyn.
         tree_.deleteCachedValues();
+        
+        // TODO 20201121 experimental clear all state
+        tree_.clear();
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
         getSetInstanceCount()--;
@@ -67,18 +74,31 @@ public:
     {
         // TODO need to delete value?
         std::cout << "WARNING: flushTreeValueCache() called" << std::endl;
-        tree_value_cache_ = nullptr;
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//        // TODO 20201122 change to just get cached state from GpTree
+//        tree_value_cache_ = nullptr;
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         tree_evaluated_ = false;
     }
     // Return/cache the result of running/evaluating this Individual's GpTree.
     std::any treeValue()
     {
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // TODO 20201122 change to just get cached state from GpTree
+//        if (!tree_evaluated_)
+//        {
+//            tree_value_cache_ = tree_.eval();
+//            tree_evaluated_ = true;
+//        }
+//        return tree_value_cache_;
+                
         if (!tree_evaluated_)
         {
-            tree_value_cache_ = tree_.eval();
+            tree_.eval();
             tree_evaluated_ = true;
         }
-        return tree_value_cache_;
+        return tree_.getLeafValue();
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     }
     // Get/inc count of tournament Individual has survived (did not "lose").
     int getTournamentsSurvived() const { return tournaments_survived_; }
@@ -106,7 +126,10 @@ private:
     static int& getSetInstanceCount() { static int count = 0;  return count; }
     GpTree tree_;
     // Resettable cache for result of tree evaluation.
-    std::any tree_value_cache_ = nullptr;
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//    // TODO 20201122 change to just get cached state from GpTree
+//    std::any tree_value_cache_ = nullptr;
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     bool tree_evaluated_ = false;
     // Number of tournament this Individual has survived (did not "lose").
     int tournaments_survived_ = 0;

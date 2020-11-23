@@ -192,6 +192,12 @@ public:
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // TODO 20201121 try converting Population over to std::shared_ptr
 //        for (Individual* i : individuals_) delete i;
+        
+        //last_individual_added = nullptr;
+        //last_individual_added.reset(nullptr);
+        // TODO 20201122 remove old unused hack
+//        last_individual_added.reset();
+
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         individuals_.clear();
     }
@@ -263,7 +269,8 @@ public:
 //        replaceIndividual(loser_index, offspring);
         replaceIndividual(offspring_index, offspring);
         // TODO TEMP for debugging
-        last_individual_added = offspring;
+        // TODO 20201122 remove old unused hack
+//        last_individual_added = offspring;
         //~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~
         step_count_++;
         logger();
@@ -308,7 +315,8 @@ public:
         // Delete tournament loser from Population, replace with new offspring.
         replaceIndividual(loser_index, offspring);
         // TODO TEMP for debugging
-        last_individual_added = offspring;
+        // TODO 20201122 remove old unused hack
+//        last_individual_added = offspring;
         //~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~
         step_count_++;
         logger();
@@ -319,7 +327,8 @@ public:
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // TODO 20201121 try converting Population over to std::shared_ptr
 //    static inline Individual* last_individual_added = nullptr;
-    static inline std::shared_ptr<Individual> last_individual_added = nullptr;
+    // TODO 20201122 remove old unused hack
+//    static inline std::shared_ptr<Individual> last_individual_added = nullptr;
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     
     // Delete Individual at index i, then overwrite pointer with replacement.

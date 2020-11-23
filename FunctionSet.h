@@ -330,6 +330,8 @@ public:
     {
         if (!isLeaf())
         {
+//            std::cout << "in GpTree::eval() -- ";
+//            std::cout << to_string() << std::endl;
             setLeafValue(getFunction().eval(*this),
                          *getFunction().returnType());
         }
@@ -478,6 +480,9 @@ public:
         if (getType().hasDeleter()) getType().deleteValue(getLeafValue());
         for (auto& subtree : subtrees()) subtree.deleteCachedValues();
     }
+
+    // TODO 20201121 experimental clear all state
+    void clear() { *this = GpTree(); }
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 private:
     // NOTE: if any more data members are added, compare them in equals().
