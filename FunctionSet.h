@@ -330,10 +330,24 @@ public:
     {
         if (!isLeaf())
         {
-//            std::cout << "in GpTree::eval() -- ";
-//            std::cout << to_string() << std::endl;
-            setLeafValue(getFunction().eval(*this),
+            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            // TODO 20201124 make sure we have valid value here
+//            setLeafValue(getFunction().eval(*this),
+//                         *getFunction().returnType());
+            
+            std::any value = getFunction().eval(*this);
+            
+            if (getType().name() == "Texture")
+            {
+                Texture* texture = std::any_cast<Texture*>(value);
+                assert(texture->valid());
+            }
+            
+            assert(&getType() == getFunction().returnType());
+            
+            setLeafValue(value,
                          *getFunction().returnType());
+            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         }
         return getLeafValue();
     }
@@ -480,9 +494,34 @@ public:
         if (getType().hasDeleter()) getType().deleteValue(getLeafValue());
         for (auto& subtree : subtrees()) subtree.deleteCachedValues();
     }
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // TODO 20201121 experimental clear all state
     void clear() { *this = GpTree(); }
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // TODO 20201123 temporary for testing (specific to TexSyn).
+    void verifyTexturePointers() const
+    {
+        if (getType().name() == "Texture")
+        {
+            if (!getLeafValue().has_value())
+            {
+                std::cout << "GpTree::verifyTexturePointers() no value ";
+                std::cout << to_string() << std::endl;
+            }
+            Texture* texture = std::any_cast<Texture*>(getLeafValue());
+            if (!texture->valid())
+            {
+                std::cout << "GpTree::verifyTexturePointers() invalid Texture ";
+                std::cout << to_string() << std::endl;
+            }
+            assert(texture->valid());
+        }
+        for (auto& subtree : subtrees()) subtree.verifyTexturePointers();
+    }
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 private:
     // NOTE: if any more data members are added, compare them in equals().

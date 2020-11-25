@@ -28,17 +28,52 @@ public:
     {
         fs.makeRandomTree(max_tree_size, tree_);
         
-        // TODO 20201121 random experiment, is it possible the GpTree of some
-        //               Individual is not evaluated/cached?
-        assert(treeValue().has_value());
+//        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//        // TODO 20201121 random experiment, is it possible the GpTree of some
+//        //               Individual is not evaluated/cached?
+//        assert(treeValue().has_value());
+//        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//
+//        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//        // TODO 20201123 temporary for testing (specific to TexSyn).
+//        tree().verifyTexturePointers();
+//        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//
+//        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//        // TODO 20201122 -- very temp -- validate
+//        Texture* texture = std::any_cast<Texture*>(treeValue());
+//        assert(texture->valid());
+//        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // TODO 20201122 -- very temp -- validate
-        Texture* texture = std::any_cast<Texture*>(treeValue());
-        assert(texture->valid());
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // TODO 20201124 qqq
+        debugPrint(Individual::constructor_count_);
+//        Texture* texture = std::any_cast<Texture*>(treeValue());
+//        assert(texture->valid());
+        
+        assert(getTexture()->valid());
+        
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // TODO 20201123 temporary for testing (specific to TexSyn).
+        assert(treeValue().has_value());
+        validateInitialTreeValue();
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     }
-    Individual(const GpTree& gp_tree) : Individual() { tree_ = gp_tree; }
+    
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // TODO 20201123 temporary for testing (specific to TexSyn).
+
+//    Individual(const GpTree& gp_tree) : Individual() { tree_ = gp_tree; }
+    Individual(const GpTree& gp_tree) : Individual()
+    {
+        tree_ = gp_tree;
+        validateInitialTreeValue();
+    }
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //    ~Individual() { getSetInstanceCount()--; }
     ~Individual()
@@ -59,9 +94,18 @@ public:
 //        std::cout << "destruct Individual this=" << this << std::endl;
         //~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~
     }
+    
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // TODO 20201123 temporary for testing (specific to TexSyn).
+    //               validate value of initial GpTree
+    void validateInitialTreeValue() const
+    {
+        tree().verifyTexturePointers();
+    }
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Read-only (const) access to this Individual's GpTree.
-    const GpTree& tree() { return tree_; }
+//    const GpTree& tree() { return tree_; }
+    const GpTree& tree() const { return tree_; }
     // Overwrite this Individual's GpTree with "new_tree". Flush eval() cache.
     // TODO Is this ever needed?
     void setTree(const GpTree& new_tree)
@@ -94,8 +138,10 @@ public:
                 
         if (!tree_evaluated_)
         {
+            assert(tree_eval_counter_ == 0);
             tree_.eval();
             tree_evaluated_ = true;
+            tree_eval_counter_++;
         }
         return tree_.getLeafValue();
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -122,6 +168,16 @@ public:
 
     //~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~
     static const int& getInstanceCount() { return getSetInstanceCount(); }
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // TODO 20201123 temporary utility for testing (specific to TexSyn).
+    // like GP::textureFromIndividual()
+    Texture* getTexture()
+    {
+        Texture* texture = std::any_cast<Texture*>(tree_.eval());
+        assert(texture->valid());
+        return texture;
+    }
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 private:
     static int& getSetInstanceCount() { static int count = 0;  return count; }
     GpTree tree_;
@@ -131,6 +187,10 @@ private:
 //    std::any tree_value_cache_ = nullptr;
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     bool tree_evaluated_ = false;
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // TODO 20201124 make sure we don't eval() the tree more than once.
+    int tree_eval_counter_ = 0;
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Number of tournament this Individual has survived (did not "lose").
     int tournaments_survived_ = 0;
     //~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~
