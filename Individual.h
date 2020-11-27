@@ -51,13 +51,22 @@ public:
 //        Texture* texture = std::any_cast<Texture*>(treeValue());
 //        assert(texture->valid());
         
-        assert(getTexture()->valid());
+//        assert(getTexture()->valid());
         
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // TODO 20201123 temporary for testing (specific to TexSyn).
+        // TODO 20201126 compare to_string() before and after.
+        std::string before = tree().to_string();//20201126 compare before/after.
+        // OH! but this is only looking at the top level, the bad_any is inside
         assert(treeValue().has_value());
+        std::string after = tree().to_string();//20201126 compare before/after.
+        assert(before == after);               //20201126 compare before/after.
+        
+        // TODO 20201126 see whole tree.
+        if (constructor_count_ == 10) debugPrint(after);
+        
         validateInitialTreeValue();
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     }
