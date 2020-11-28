@@ -408,40 +408,24 @@ CotsMap(Vec2(0.892051, -4.40526),
         return std::any_cast<T>(getSubtree(i).eval());
     }
     
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // TODO 20201127 prototype version of to_string() with indentation
-
     // Convert this GpTree to "source code" format as a string. It is either a
     // single constant "leaf" value, or the root function's name followed by a
     // parenthesized, comma separated, list of parameter trees.
-//    std::string to_string() const
-//    {
-//        std::string s;
-//        if (isLeaf())
-//        {
-//            s += getType().to_string(getLeafValue());
-//        }
-//        else
-//        {
-//            s += getFunction().name() + "(";
-//            bool comma = false;
-//            for (auto& subtree : subtrees())
-//            {
-//                if (comma) s += ", "; else comma = true;
-//                s += subtree.to_string();
-//            }
-//            s += ")";
-//        }
-//        return s;
-//    }
-    
-    std::string to_string() const { return to_string(false, ""); }
+    //
+    // Optional "indent" flag to include line breaks and indentation.
+    // Optional "prefix" string to include at beginning of each line.
+    //
+    std::string to_string() const { return to_string_helper(false, "", 0); }
+    std::string to_string(bool indent) const
+        { return to_string_helper(indent, "", 0); }
     std::string to_string(bool indent, const std::string& prefix) const
+        { return to_string_helper(indent, prefix, 0); }
+    std::string to_string_helper(bool indent,
+                                 const std::string& prefix,
+                                 int indentation) const
     {
-//        std::string s;
-        std::string s = prefix;
-
-        int indentation = 0;
+        std::string s;
+        if (indentation == 0) s = prefix;
         auto new_line = [&]()
         {
             if (indent)
@@ -455,36 +439,35 @@ CotsMap(Vec2(0.892051, -4.40526),
                 s += " ";
             }
         };
-        
+        auto all_leaves = [&]()
+        {
+            bool all = true;
+            for (auto& subtree : subtrees()) if (!subtree.isLeaf()) all = false;
+            return all;
+        };
         if (isLeaf())
         {
             s += getType().to_string(getLeafValue());
-            new_line();
         }
         else
         {
+            bool indent_before = indent;
+            if (all_leaves()) { indent = false; }
             size_t additional_indent = getFunction().name().size() + 1;
             indentation += additional_indent;
-            
             s += getFunction().name() + "(";
             bool comma = false;
             for (auto& subtree : subtrees())
             {
-//                if (comma) s += ", "; else comma = true;
-//                if (comma) { s += ", "; new_line(); } else comma = true;
-//                if (comma) { new_line(); s += ","; } else { comma = true; }
                 if (comma) { s += ","; new_line(); } else { comma = true; }
-
-                s += subtree.to_string();
+                s += subtree.to_string_helper(indent, prefix, indentation);
             }
             s += ")";
-            
             indentation -= additional_indent;
-
+            indent = indent_before;
         }
         return s;
     }
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     // Collect all subtrees into an std::vector. Recursively traverses tree from
     // this root down, storing pointers to each subtree into vector.
