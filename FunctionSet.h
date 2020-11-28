@@ -337,23 +337,23 @@ public:
             
             std::any value = getFunction().eval(*this);
             
-            if (getType().name() == "Texture")
-            {
-                Texture* texture = std::any_cast<Texture*>(value);
-                assert(texture->valid());
-            }
+//            if (getType().name() == "Texture")
+//            {
+//                Texture* texture = std::any_cast<Texture*>(value);
+//                assert(texture->valid());
+//            }
             
             assert(&getType() == getFunction().returnType());
             
             setLeafValue(value,
                          *getFunction().returnType());
             
-            // TODO 20201127 read back from "LeafValue" and verify again:
-            if (getType().name() == "Texture")
-            {
-                Texture* texture = std::any_cast<Texture*>(getLeafValue());
-                assert(texture->valid());
-            }
+//            // TODO 20201127 read back from "LeafValue" and verify again:
+//            if (getType().name() == "Texture")
+//            {
+//                Texture* texture = std::any_cast<Texture*>(getLeafValue());
+//                assert(texture->valid());
+//            }
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         }
         return getLeafValue();

@@ -47,7 +47,7 @@ public:
         
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // TODO 20201124 qqq
-        debugPrint(Individual::constructor_count_);
+//        debugPrint(Individual::constructor_count_);
 //        Texture* texture = std::any_cast<Texture*>(treeValue());
 //        assert(texture->valid());
         
@@ -58,14 +58,14 @@ public:
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // TODO 20201123 temporary for testing (specific to TexSyn).
         // TODO 20201126 compare to_string() before and after.
-        std::string before = tree().to_string();//20201126 compare before/after.
+//        std::string before = tree().to_string();//20201126 compare before/after.
         // OH! but this is only looking at the top level, the bad_any is inside
         assert(treeValue().has_value());
-        std::string after = tree().to_string();//20201126 compare before/after.
-        assert(before == after);               //20201126 compare before/after.
+//        std::string after = tree().to_string();//20201126 compare before/after.
+//        assert(before == after);               //20201126 compare before/after.
         
-        // TODO 20201126 see whole tree.
-        if (constructor_count_ == 10) debugPrint(after);
+//        // TODO 20201126 see whole tree.
+//        if (constructor_count_ == 10) debugPrint(after);
         
         validateInitialTreeValue();
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -178,14 +178,14 @@ public:
     //~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~
     static const int& getInstanceCount() { return getSetInstanceCount(); }
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // TODO 20201123 temporary utility for testing (specific to TexSyn).
-    // like GP::textureFromIndividual()
-    Texture* getTexture()
-    {
-        Texture* texture = std::any_cast<Texture*>(tree_.eval());
-        assert(texture->valid());
-        return texture;
-    }
+//    // TODO 20201123 temporary utility for testing (specific to TexSyn).
+//    // like GP::textureFromIndividual()
+//    Texture* getTexture()
+//    {
+//        Texture* texture = std::any_cast<Texture*>(tree_.eval());
+//        assert(texture->valid());
+//        return texture;
+//    }
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 private:
     static int& getSetInstanceCount() { static int count = 0;  return count; }
