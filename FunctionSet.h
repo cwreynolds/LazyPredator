@@ -347,10 +347,54 @@ public:
             
             setLeafValue(value,
                          *getFunction().returnType());
+            
+            // TODO 20201127 read back from "LeafValue" and verify again:
+            if (getType().name() == "Texture")
+            {
+                Texture* texture = std::any_cast<Texture*>(getLeafValue());
+                assert(texture->valid());
+            }
             //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         }
         return getLeafValue();
     }
+/*
+CotsMap(Vec2(0.892051, -4.40526),
+        Vec2(-1.47191, -2.02357),
+        Vec2(4.63949, 3.77843),
+        Vec2(-0.16577, 0.321014),
+        BrightnessWrap(0.870146,
+                       0.287024,
+                       CotsMap(Vec2(3.42375, 4.19349),
+                               Vec2(1.66137, -3.19668),
+                               Vec2(4.58946, 3.44947),
+                               Vec2(4.83578, -0.0130839),
+                               AdjustSaturation(0.308915,
+                                                SoftThreshold(0.517497,
+                                                              0.888609,
+                                                              EdgeEnhance(0.444165,
+                                                                          0.640568,
+                                                                          Uniform(0.818802, 0.578085, 0.739911)))),
+                               SliceToRadial(Vec2(3.21953, 1.71481),
+                                             Vec2(2.83933, -2.44467),
+                                             Blur(0.0317348,
+                                                  AdjustBrightness(0.993949,
+                                                                   Uniform(0.143607, 0.216632, 0.422456)))))),
+        Min(Hyperbolic(Vec2(1.0756, -3.6193),
+                       4.50368, 2.14707, 4.18609,
+                       BrightnessToHue(0.669276,
+                                       Uniform(0.406692, 0.187125, 0.171398)),
+                       AdjustBrightness(0.0865375,
+                                        EdgeDetect(0.726261,
+                                                   Uniform(0.82633, 0.607977, 0.859245)))),
+            SliceGrating(Vec2(-3.18242, -1.31686),
+                         Vec2(-2.3444, -1.69134),
+                         Min(SoftThreshold(0.298399, 0.727319,
+                                           Uniform(0.316524, 0.303335, 0.568433)),
+                             BrightnessWrap(0.28252, 0.863896,
+                                            Uniform(0.784091, 0.452963, 0.820982))))))
+*/
+    
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Evaluate i-th subtree, corresponds to i-th parameter of root function,
     // then cast the resulting std::any to the given concrete type T.
@@ -363,30 +407,85 @@ public:
     {
         return std::any_cast<T>(getSubtree(i).eval());
     }
+    
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // TODO 20201127 prototype version of to_string() with indentation
+
     // Convert this GpTree to "source code" format as a string. It is either a
     // single constant "leaf" value, or the root function's name followed by a
     // parenthesized, comma separated, list of parameter trees.
-    std::string to_string() const
+//    std::string to_string() const
+//    {
+//        std::string s;
+//        if (isLeaf())
+//        {
+//            s += getType().to_string(getLeafValue());
+//        }
+//        else
+//        {
+//            s += getFunction().name() + "(";
+//            bool comma = false;
+//            for (auto& subtree : subtrees())
+//            {
+//                if (comma) s += ", "; else comma = true;
+//                s += subtree.to_string();
+//            }
+//            s += ")";
+//        }
+//        return s;
+//    }
+    
+    std::string to_string() const { return to_string(false, ""); }
+    std::string to_string(bool indent, const std::string& prefix) const
     {
-        std::string s;
+//        std::string s;
+        std::string s = prefix;
+
+        int indentation = 0;
+        auto new_line = [&]()
+        {
+            if (indent)
+            {
+                s += "\n";
+                s += prefix;
+                for (int i = 0; i < indentation; i++) s += " ";
+            }
+            else
+            {
+                s += " ";
+            }
+        };
+        
         if (isLeaf())
         {
             s += getType().to_string(getLeafValue());
+            new_line();
         }
         else
         {
+            size_t additional_indent = getFunction().name().size() + 1;
+            indentation += additional_indent;
+            
             s += getFunction().name() + "(";
             bool comma = false;
             for (auto& subtree : subtrees())
             {
-                if (comma) s += ", "; else comma = true;
+//                if (comma) s += ", "; else comma = true;
+//                if (comma) { s += ", "; new_line(); } else comma = true;
+//                if (comma) { new_line(); s += ","; } else { comma = true; }
+                if (comma) { s += ","; new_line(); } else { comma = true; }
+
                 s += subtree.to_string();
             }
             s += ")";
+            
+            indentation -= additional_indent;
+
         }
         return s;
     }
-    
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
     // Collect all subtrees into an std::vector. Recursively traverses tree from
     // this root down, storing pointers to each subtree into vector.
     // NOTE: assumes vector is empty before initial call.
