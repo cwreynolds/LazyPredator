@@ -105,6 +105,46 @@
       details of the implementation. On the other hand, I do want it to be more
       prose-like than the terse <code>git commit</code> messages.)</p>
     <br style="##########################################################################">
+    <div class="post" id="20201127"> <a href="#20201127" class="date">November
+        27, 2020</a> 🍗
+      <h1><code>GpTree</code> with “phantom limb”</h1>
+      <p>Toward the end of November I was tracking down a memory leak. As
+        described <a href="https://cwreynolds.github.io/TexSyn/#20201203">here</a>,
+        the leak was actually in OpenCV. It took me a while to track that down
+        because of an unrelated “confounding bug” in TexSyn's <code>FunctionSet</code>
+        defined in <code>GP.h</code>. The actual code, a <code>GpFunction</code>
+        initializer, is shown here, with the bug in red:</p>
+      <pre>...
+{
+    "CotsMap",
+    "Texture",
+    {"Vec2", "Vec2", "Vec2", "Vec2", "Texture"<strong><span style="color: red;">, "Texture"</span></strong>},
+    evalTexture(CotsMap(argVec2(),
+                        argVec2(),
+                        argVec2(),
+                        argVec2(),
+                        argTexture()))
+}
+...</pre>
+      <p>The problem is that the third line has a typo, an extra <code>GpType</code>
+        specification for a <code>Texture</code>. It is saying that the <code>GpFunction</code>
+        for <code>CotsMap</code> has six parameters: four of <code>GpType</code>
+        <code>Vec2</code> and <strong>two</strong> of <code>Texture</code>. In
+        fact, as seen in the next line, <code>CotsMap</code> actually has five
+        parameters, four <code>Vec2</code> and <strong>one</strong> <code>Texture</code>.
+        The result of this specification mismatch is that any occurrence of <code>CotsMap</code>
+        in a <code>GpTree</code> would generate <strong>six</strong> subtrees.
+        One of them would be ignored, specifically by <code>GpTree::eval()</code>,
+        leading to uninitialized values, which caused an error in the
+        destructor. This mismatch caused no end of confusion, especially
+        appearing as it did during my hunt for the memory leak.</p>
+      <p>To avoid this confusion in the future I need a way to validate that
+        these two different ways of specifying the parameters to a <code>GpFunction</code>
+        match. One side has to do with actual C++ code definitions and one has
+        to do with the abstractions used by <code>FunctionSet</code>. The lack
+        of “introspection” in C++ makes this difficult. For example it would be
+        straightforward in Lisp.</p>
+    </div>
     <div class="post" id="20201031"> <a href="#20201031" class="date">October
         31, 2020 🎃</a>
       <h1>Progress report: <code>TournamentGroup</code> and bug fix</h1>
@@ -145,8 +185,8 @@
         it looked much better. Not only are the “population best” green/blue
         values very close to the bounds, but the “population average” are within
         about 5% of the bounds. Also this run is 1000 evolution steps long. The
-        run on October 19 was five times longer and never got this close to
-        its goal.</p>
+        run on October 19 was five times longer and never got this close to its
+        goal.</p>
       <img src="images/20201031_yg_run_5.png" alt="yellow/green run 5" title="yellow/green run 5"
         height="399" width="1000"> </div>
     <div class="post" id="20201019"> <a href="#20201019" class="date">October
