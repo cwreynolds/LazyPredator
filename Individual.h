@@ -78,7 +78,11 @@ public:
     Individual(const GpTree& gp_tree) : Individual()
     {
         tree_ = gp_tree;
-        validateInitialTreeValue();
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // TODO 20201207 -- tracking down Texture::valid() issue
+        // Does this even make sense? why would it be valid before an eval()?
+//        validateInitialTreeValue();
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     }
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

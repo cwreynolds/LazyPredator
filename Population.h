@@ -255,6 +255,14 @@ public:
         // Mutate constants in new tree.
         new_tree.mutate();
         // Create new offspring Individual from new tree.
+        
+//        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//        // TODO 20201207 -- tracking down Texture::valid() issue
+//        // experiment: clear out old cached values from new tree
+//        new_tree.clearCachedValues();
+//        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+        
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // TODO 20201121 try converting Population over to std::shared_ptr
 //        Individual* offspring = new Individual(new_tree);
