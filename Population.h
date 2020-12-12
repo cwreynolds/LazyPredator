@@ -423,18 +423,40 @@ public:
 //        return indices.front();
 //    }
 
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // TODO 20201211 verify this is doing what I expect
+    
+//    int randomIndexWithBias(std::function<bool(int, int)> sorter_function) const
+//    {
+//        auto ri = [&](){ return LPRS().randomN(individuals().size()); };
+//        std::vector<int> indices = { ri(), ri(), ri() };
+//        std::sort(indices.begin(), indices.end(), sorter_function);
+//        return indices.front();
+//    }
+    
     int randomIndexWithBias(std::function<bool(int, int)> sorter_function) const
     {
         auto ri = [&](){ return LPRS().randomN(individuals().size()); };
         std::vector<int> indices = { ri(), ri(), ri() };
         std::sort(indices.begin(), indices.end(), sorter_function);
+        
+        // TODO 20201211 verify this is doing what I expect
+        std::vector<float> fitnesses;
+        for (auto& i : indices)
+        {
+            fitnesses.push_back(individuals().at(i)->getFitness());
+        }
+        std::cout << vec_to_string(fitnesses);
+        
         return indices.front();
     }
+
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     // Ad hoc elitism
     int randomIndexWithBiasAndElitism(std::function<bool(int, int)> sorter_function) const
     {
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        //~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
         // TODO 20201121 try converting Population over to std::shared_ptr
 
         int index = -1;
@@ -450,7 +472,7 @@ public:
             selection = individuals().at(index);
         }
         return index;
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        //~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
     }
     
     int randomIndexBiasToHighFitness() const
@@ -460,18 +482,41 @@ public:
             return (individuals().at(a)->getFitness() >
                     individuals().at(b)->getFitness());
         };
-        return randomIndexWithBias(high_fit);
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // TODO 20201211 verify this is doing what I expect
+//        return randomIndexWithBias(high_fit);
+        std::cout << "        in randomIndexBiasToHighFitness(): ";
+        int result = randomIndexWithBias(high_fit);
+        std::cout << std::endl;
+        return result;
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     }
     int randomIndexBiasToLowFitness() const
     {
         auto low_fit = [&](int a, int b)
         {
-            return (individuals().at(a)->getFitness() >
+            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            // TODO 20201211 verify this is doing what I expect
+            // SHIT!!! SHIT!!! SHIT!!! It is NOT!!!
+//            return (individuals().at(a)->getFitness() >
+            return (individuals().at(a)->getFitness() <
+            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                     individuals().at(b)->getFitness());
         };
 //        return randomIndexWithBias(low_fit);
-        return randomIndexWithBiasAndElitism(low_fit);
+        
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // TODO 20201211 verify this is doing what I expect
+//        return randomIndexWithBiasAndElitism(low_fit);
+        std::cout << "        in randomIndexBiasToLowFitness(): ";
+        int result = randomIndexWithBiasAndElitism(low_fit);
+        std::cout << std::endl;
+        return result;
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     }
+    
+    
+    
 //    // Ad hoc elitism
 //    int randomIndexBiasToLowFitness() const
 //    {
@@ -652,6 +697,15 @@ public:
         for (auto i : tops) std::cout << i->getFitness() << " ";
         std::cout << ")" << std::setprecision(default_precision);
         std::cout << std::endl;
+        
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // TODO 20201211 verify this is doing what I expect
+        
+        for (int i = 0; i < 20; i++)
+            std::cout << population.individual(i)->getFitness() << " ";
+        std::cout << std::endl;
+
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     }
     //~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~
 private:
