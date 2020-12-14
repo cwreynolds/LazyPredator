@@ -918,21 +918,21 @@ int main(int argc, const char * argv[])
 
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     
-    // Test jiggle for mutation.
-    std::cout << "October 18, 2020" << std::endl;
-    std::string path = "/Users/cwr/Desktop/TexSyn_temp/20201018_";
-    
-    GpType slow("Float", 0.0f, 1.0f);       // slow +/- 5%
-    GpType fast("Float", 0.0f, 1.0f, 0.2);  // fast +/- 10%
-    std::any vs = 0.5f;
-    std::any vf = 0.5f;
-    for (int k = 0; k < 500; k++)
-    {
-        std::cout << slow.to_string(vs) << ", ";
-        std::cout << fast.to_string(vf) << std::endl;
-        vs = slow.jiggleConstant(vs);
-        vf = fast.jiggleConstant(vf);
-    }
+//    // Test jiggle for mutation.
+//    std::cout << "October 18, 2020" << std::endl;
+//    std::string path = "/Users/cwr/Desktop/TexSyn_temp/20201018_";
+//    
+//    GpType slow("Float", 0.0f, 1.0f);       // slow +/- 5%
+//    GpType fast("Float", 0.0f, 1.0f, 0.2);  // fast +/- 10%
+//    std::any vs = 0.5f;
+//    std::any vf = 0.5f;
+//    for (int k = 0; k < 500; k++)
+//    {
+//        std::cout << slow.to_string(vs) << ", ";
+//        std::cout << fast.to_string(vf) << std::endl;
+//        vs = slow.jiggleConstant(vs);
+//        vf = fast.jiggleConstant(vf);
+//    }
     
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     return EXIT_SUCCESS;

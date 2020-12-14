@@ -534,6 +534,13 @@ public:
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     }
     //~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~
+    // This utility allows modification of Individuals inside a Population. It
+    // is currently used only by UnitTests, to get around "const" protection of
+    // Individuals inside a Population. Think hard before using it elsewhere.
+    void applyToIndividual(int i, std::function<void(Individual*)> func)
+    {
+        func(individual(i));
+    }
 private:
     Individual* individual(int i) { return individuals_.at(i); }
     std::vector<Individual*> individuals_;

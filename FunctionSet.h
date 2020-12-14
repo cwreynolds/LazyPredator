@@ -569,14 +569,18 @@ CotsMap(Vec2(0.892051, -4.40526),
                  (std::any_cast<T>(a.leaf_value_) ==    //   both leaves match.
                   std::any_cast<T>(b.leaf_value_))));
     }
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // TODO use experimental "deleter" function. EG for Texture in TexSyn.
+
+    
     void deleteCachedValues()
     {
-        if (getType().hasDeleter()) getType().deleteValue(getLeafValue());
+        // TODO 20201213 root_type_ and getType() refer to same value, but can't
+        //  convert a ref back to a point BECAUSE it might be nullptr. Redesign?
+        if (root_type_ && getType().hasDeleter())
+        {
+            getType().deleteValue(getLeafValue());
+        }
         for (auto& subtree : subtrees()) subtree.deleteCachedValues();
     }
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // TODO 20201207 -- tracking down Texture::valid() issue

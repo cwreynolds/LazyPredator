@@ -86,26 +86,19 @@ public:
     }
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//    ~Individual() { getSetInstanceCount()--; }
     ~Individual()
     {
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // TODO 20201214 maybe these should both be moved to ~GpTree()?
+        
         // TODO use experimental "deleter" function. EG for Texture in TexSyn.
         tree_.deleteCachedValues();
         
         // TODO 20201121 experimental clear all state
         tree_.clear();
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
         getSetInstanceCount()--;
         destructor_count_++;
-        //~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~
-//        // TODO very temp, trying to debug delete of instances in tree
-//        destructed_set_.insert(this);
-//        std::cout << "destruct Individual this=" << this << std::endl;
-        //~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~
     }
     
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

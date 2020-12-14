@@ -77,6 +77,34 @@ bool select_three_indices()
     return all_ok;
 }
 
+bool selection_for_tournament()
+{
+    // Make a Population with 100 default Individuals.
+    int size = 100;
+    Population population(size);
+    // Assign a random "absolute" fitness to each.
+    RandomSequence rs(56251551);
+    auto random_fitness = [&](Individual* i){ i->setFitness(rs.frandom01()); };
+    for (int i = 0; i < size; i++)
+    {
+        population.applyToIndividual(i, random_fitness);
+    }
+    // Call randomIndexBiasToLowFitness() and randomIndexBiasToHighFitness() 100
+    // times, keeping track of average fitness of Individuals returned by both.
+    float average_low = 0;
+    float average_high = 0;
+    for (int i = 0; i < size; i++)
+    {
+        int low_index = population.randomIndexBiasToLowFitness();
+        int high_index = population.randomIndexBiasToHighFitness();
+        average_low += population.individuals().at(low_index)->getFitness();
+        average_high += population.individuals().at(high_index)->getFitness();
+    }
+    average_low /= size;
+    average_high /= size;
+    return average_low < (average_high / 2);
+}
+
 bool random_program_size_limit()
 {
     bool all_ok = true;
@@ -211,6 +239,7 @@ bool UnitTests::allTestsOK()
     
     logAndTally(population_allocation_of_individuals);
     logAndTally(select_three_indices);
+    logAndTally(selection_for_tournament);
     logAndTally(random_program_size_limit);
     logAndTally(gp_tree_construction);
     logAndTally(gp_tree_eval_simple);
