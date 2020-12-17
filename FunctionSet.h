@@ -55,21 +55,26 @@ public:
     GpType(){}
     // Constructor for name only.
     GpType(const std::string& name) : name_(name) {}
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // TODO experimental version, with just name and "deleter" function
-    //      EG for Texture in TexSyn.
+    // Constructor for name and deleter only.
     GpType(const std::string& name, std::function<void(std::any)> deleter)
-      : name_(name), deleter_(deleter) {}
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // Full constructor, specify all parameters.
+      : GpType(name, nullptr, nullptr, nullptr, deleter) {}
+    // Constructor for all parameters except deleter.
     GpType(const std::string& name,
            std::function<std::any()> ephemeral_generator,
            std::function<std::string(std::any a)> to_string,
            std::function<std::any(std::any)> jiggle)
+      : GpType(name, ephemeral_generator, to_string, jiggle, nullptr) {}
+    // Full constructor, specify all parameters.
+    GpType(const std::string& name,
+           std::function<std::any()> ephemeral_generator,
+           std::function<std::string(std::any a)> to_string,
+           std::function<std::any(std::any)> jiggle,
+           std::function<void(std::any)> deleter)
       : name_(name),
         ephemeral_generator_(ephemeral_generator),
         to_string_(to_string),
-        jiggle_(jiggle) {}
+        jiggle_(jiggle),
+        deleter_(deleter) {}
     // Constructor for ranged numeric types (name, range_min, range_max).
     template <typename T>
     GpType(const std::string& name, T range_min, T range_max)

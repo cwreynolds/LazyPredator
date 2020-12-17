@@ -24,17 +24,12 @@ public:
     }
     Individual(const GpTree& gp_tree) : Individual() { tree_ = gp_tree; }
 
-    ~Individual()
+    virtual ~Individual()
     {
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // TODO 20201214 maybe these should both be moved to ~GpTree()?
-        
-        // TODO use experimental "deleter" function. EG for Texture in TexSyn.
+        // Tell tree to delete any heap-allocated cached values it created when
+        // it last did eval(). This happens via the optional "deleter" function
+        // on a GpType.
         tree_.deleteCachedValues();
-        
-        // TODO 20201121 experimental clear all state
-        tree_.clear();
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         getSetInstanceCount()--;
         destructor_count_++;
     }

@@ -229,7 +229,13 @@ bool gp_tree_eval_objects()
     std::any result_as_any = gp_tree.eval();
     TestFS::ClassA* result = std::any_cast<TestFS::ClassA*>(result_as_any);
     std::string expected = "ClassA(ClassB(0.5), ClassC(1, 2))";
-    return st(expected == result->to_string());
+    bool tree_as_expected = st(expected == result->to_string());
+    
+    // Delete any heap-allocated cached values created during tree's eval()
+    // This happens via the optional "deleter" function on a GpType.
+    gp_tree.deleteCachedValues();
+    bool no_instances_leaked = st(0 == TestFS::ClassA::getLeakCount());
+    return (tree_as_expected && no_instances_leaked);
 }
 
 bool UnitTests::allTestsOK()

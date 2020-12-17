@@ -48,7 +48,18 @@ public:
     class ClassA
     {
     public:
-        ClassA(const ClassB& b, ClassC c) : b_(b), c_(c) {}
+        ClassA(const ClassB& b, ClassC c) : b_(b), c_(c)
+        {
+            constructor_count_++;
+        }
+        ~ClassA()
+        {
+            destructor_count_++;
+        }
+        static int getLeakCount()
+        {
+            return constructor_count_ - destructor_count_;
+        }
         std::string to_string() const
         {
             return ("ClassA(" + b_.to_string() + ", " + c_.to_string() + ")");
@@ -56,6 +67,9 @@ public:
     private:
         const ClassB& b_;
         const ClassC c_;
+        // Leak check. Count constructor/destructor calls. Should match at exit.
+        static inline int constructor_count_ = 0;
+        static inline int destructor_count_ = 0;
     };
 private:
     static inline const FunctionSet tree_eval_objects =
@@ -65,12 +79,24 @@ private:
             { "Int", 0, 9 },
             {
                 "ClassA",
+                // ephemeral generator
                 nullptr,
+                // to_string
                 [](std::any a)
                 {
                     return std::any_cast<ClassA&>(a).to_string();
                 },
-                nullptr
+                // jiggler
+                nullptr,
+                // deleter
+                [](std::any a)
+                {
+                    if (a.has_value())
+                    {
+                        ClassA* t = std::any_cast<ClassA*>(a);
+                        if (t) delete t;
+                    }
+                }
             },
             {
                 "ClassB",
