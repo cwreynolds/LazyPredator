@@ -75,8 +75,6 @@ private:
     static inline const FunctionSet tree_eval_objects =
     {
         {
-            { "Float", 0.0f, 1.0f },
-            { "Int", 0, 9 },
             {
                 "ClassA",
                 // ephemeral generator
@@ -116,6 +114,8 @@ private:
                 },
                 nullptr
             },
+            { "Float", 0.0f, 1.0f },
+            { "Int", 0, 9 }
         },
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // TODO 20201116 very experimental record result of eval() to

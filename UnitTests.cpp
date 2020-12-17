@@ -230,12 +230,29 @@ bool gp_tree_eval_objects()
     TestFS::ClassA* result = std::any_cast<TestFS::ClassA*>(result_as_any);
     std::string expected = "ClassA(ClassB(0.5), ClassC(1, 2))";
     bool tree_as_expected = st(expected == result->to_string());
-    
-    // Delete any heap-allocated cached values created during tree's eval()
-    // This happens via the optional "deleter" function on a GpType.
-    gp_tree.deleteCachedValues();
-    bool no_instances_leaked = st(0 == TestFS::ClassA::getLeakCount());
-    return (tree_as_expected && no_instances_leaked);
+    gp_tree.deleteCachedValues();           // Clean up: run GpType deleters.
+    return (tree_as_expected);
+}
+
+bool gp_type_deleter()
+{
+    int individuals = 100;
+    int max_tree_size = 100;
+    LPRS().setSeed(65053574);
+    bool constructed, destructed;
+    // Block to contain lifetime of Population "p".
+    {
+        // Make a Population of Individuals from FunctionSet "treeEvalObjects".
+        Population p(individuals, max_tree_size, TestFS::treeEvalObjects());
+        // Evaluate GpTree of each Individual.
+        for (int k = 0; k < individuals; k++)
+            { p.applyToIndividual(k, [](Individual* i){ i->treeValue(); }); }
+        // Verify instances of ClassA have been constructed.
+        constructed = st(TestFS::ClassA::getLeakCount() > 0);
+    }
+    // Verify all objects of ClassA that were constructed were also destroyed.
+    destructed = st(TestFS::ClassA::getLeakCount() == 0);
+    return constructed && destructed;
 }
 
 bool UnitTests::allTestsOK()
@@ -250,6 +267,7 @@ bool UnitTests::allTestsOK()
     logAndTally(gp_tree_construction);
     logAndTally(gp_tree_eval_simple);
     logAndTally(gp_tree_eval_objects);
+    logAndTally(gp_type_deleter);
 
     std::cout << std::endl;
     std::cout << (all_tests_passed ? "All tests PASS." : "Some tests FAIL.");
