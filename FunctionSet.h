@@ -586,48 +586,6 @@ CotsMap(Vec2(0.892051, -4.40526),
         }
         for (auto& subtree : subtrees()) subtree.deleteCachedValues();
     }
-
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // TODO 20201207 -- tracking down Texture::valid() issue
-    // experiment: clear out old cached values from new tree
-    void clearCachedValues()
-    {
-        if (!isLeaf())
-        {
-            std::any not_any;
-            setLeafValue(not_any, getType());
-            for (auto& subtree : subtrees()) subtree.clearCachedValues();
-        }
-    }
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // TODO 20201121 experimental clear all state
-    void clear() { *this = GpTree(); }
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // TODO 20201123 temporary for testing (specific to TexSyn).
-    void verifyTexturePointers() const
-    {
-        if (getType().name() == "Texture")
-        {
-            if (!getLeafValue().has_value())
-            {
-                std::cout << "GpTree::verifyTexturePointers() no value ";
-                std::cout << to_string() << std::endl;
-            }
-            Texture* texture = std::any_cast<Texture*>(getLeafValue());
-            if (!texture->valid())
-            {
-                std::cout << "GpTree::verifyTexturePointers() invalid Texture ";
-                std::cout << to_string() << std::endl;
-            }
-            assert(texture->valid());
-        }
-        for (auto& subtree : subtrees()) subtree.verifyTexturePointers();
-    }
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 private:
     // NOTE: if any more data members are added, compare them in equals().
     // Add (allocate) one subtree. addSubtrees() is external API.
@@ -925,14 +883,6 @@ public:
         GpTree& o_subtree = offspring.selectCrossoverSubtree(1, donor_type);
         // Set offspring subtree to copy of donor subtree.
         o_subtree = d_subtree;
-        
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // TODO 20201207 -- tracking down Texture::valid() issue
-        
-        // Clear out any old cached values from parents in offspring tree.
-        offspring.clearCachedValues();
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
     }
 
     // The smallest size for a subtree (GpTree) to be exchanged between parent

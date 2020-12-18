@@ -34,14 +34,6 @@ public:
         destructor_count_++;
     }
     
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // TODO 20201123 temporary for testing (specific to TexSyn).
-    //               validate value of initial GpTree
-    void validateInitialTreeValue() const
-    {
-        tree().verifyTexturePointers();
-    }
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Read-only (const) access to this Individual's GpTree.
 //    const GpTree& tree() { return tree_; }
     const GpTree& tree() const { return tree_; }
