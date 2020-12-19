@@ -31,6 +31,9 @@
 /* Begin PBXFileReference section */
 		8458EECF250AA3FF0079DF1D /* TestFS.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = TestFS.cpp; sourceTree = "<group>"; };
 		8458EED0250AA3FF0079DF1D /* TestFS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestFS.h; sourceTree = "<group>"; };
+		84685395258D982400A7F6D2 /* GpType.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GpType.h; sourceTree = "<group>"; };
+		84685397258D9BAC00A7F6D2 /* GpFunction.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GpFunction.h; sourceTree = "<group>"; };
+		84685399258D9E0000A7F6D2 /* GpTree.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GpTree.h; sourceTree = "<group>"; };
 		849C0FF124DB689400590B1D /* LazyPredator */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = LazyPredator; sourceTree = BUILT_PRODUCTS_DIR; };
 		849C0FF424DB689400590B1D /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		84F2452624DCA87E00001C0A /* Population.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Population.cpp; sourceTree = "<group>"; };
@@ -62,6 +65,9 @@
 			children = (
 				84F2453724E072FB00001C0A /* FunctionSet.h */,
 				84F2453624E072FB00001C0A /* FunctionSet.cpp */,
+				84685397258D9BAC00A7F6D2 /* GpFunction.h */,
+				84685399258D9E0000A7F6D2 /* GpTree.h */,
+				84685395258D982400A7F6D2 /* GpType.h */,
 				84F2452A24DCA8A300001C0A /* Individual.h */,
 				84F2452924DCA8A300001C0A /* Individual.cpp */,
 				84F2453224DE172000001C0A /* LazyPredator.h */,
