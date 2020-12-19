@@ -20,12 +20,7 @@ public:
     GpFunction(const std::string& name,
                const std::string& return_type_name,
                const std::vector<std::string>& parameter_type_names,
-               //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-               // TODO 20201116 very experimental record result of eval() to
-               //               assist in deleting all of an Individual.
-//               std::function<std::any(const GpTree& t)> eval)
                std::function<std::any(GpTree& t)> eval)
-               //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
       : name_(name),
         return_type_name_(return_type_name),
         parameter_type_names_(parameter_type_names),
@@ -56,13 +51,9 @@ public:
     // Minimum "size" required to terminate subtree with this function at root.
     int minSizeToTerminate() const { return min_size_to_terminate_; }
     void setMinSizeToTerminate(int s) { min_size_to_terminate_ = s; }
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // TODO 20201116 very experimental record result of eval() to
-    //               assist in deleting all of an Individual.
     // Evaluate (execute) a GpTree with this function at root
     // TODO probably should assert they match (this and tree root GpFunction)
     std::any eval(GpTree& tree) const { return eval_(tree);  }
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Print description of this GpFunction to std::cout.
     void print() const
     {
@@ -83,12 +74,7 @@ private:
     std::vector<std::string> parameter_type_names_;
     std::vector<GpType*> parameter_types_;
     int min_size_to_terminate_ = std::numeric_limits<int>::max();
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // TODO 20201116 very experimental record result of eval() to
-    //               assist in deleting all of an Individual.
-//    std::function<std::any(const GpTree& t)> eval_ = nullptr;
     std::function<std::any(GpTree& t)> eval_ = nullptr;
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 };
 
 // Down here because it requires both GpType and GpFunction to be defined.
