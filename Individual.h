@@ -15,7 +15,6 @@ class Individual
 public:
     Individual()
     {
-        getSetInstanceCount()++;
         constructor_count_++;
     }
     Individual(int max_tree_size, const FunctionSet& fs) : Individual()
@@ -30,7 +29,6 @@ public:
         // it last did eval(). This happens via the optional "deleter" function
         // on a GpType.
         tree_.deleteCachedValues();
-        getSetInstanceCount()--;
         destructor_count_++;
     }
     
@@ -78,14 +76,15 @@ public:
         std::cout << "Individual";
         std::cout << ": constructions=" << constructor_count_;
         std::cout << ", destructions=" << destructor_count_;
-        std::cout << ", leaked=" << constructor_count_ - destructor_count_;
+        std::cout << ", leaked=" << getLeakCount();
         std::cout << std::endl;
     }
-
-    //~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~
-    static const int& getInstanceCount() { return getSetInstanceCount(); }
+    // Return difference between constructor_count_ and destructor_count_
+    static int getLeakCount()
+    {
+        return constructor_count_ - destructor_count_;
+    }
 private:
-    static int& getSetInstanceCount() { static int count = 0;  return count; }
     GpTree tree_;
     // Resettable cache for result of tree evaluation.
     bool tree_evaluated_ = false;
