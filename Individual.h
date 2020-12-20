@@ -31,24 +31,8 @@ public:
         tree_.deleteCachedValues();
         destructor_count_++;
     }
-    
     // Read-only (const) access to this Individual's GpTree.
-//    const GpTree& tree() { return tree_; }
     const GpTree& tree() const { return tree_; }
-    // Overwrite this Individual's GpTree with "new_tree". Flush eval() cache.
-    // TODO Is this ever needed?
-    void setTree(const GpTree& new_tree)
-    {
-        tree_ = new_tree;
-        flushTreeValueCache();
-    }
-    // TODO Is this ever needed?
-    void flushTreeValueCache()
-    {
-        // TODO need to delete value?
-        std::cout << "WARNING: flushTreeValueCache() called" << std::endl;
-        tree_evaluated_ = false;
-    }
     // Return/cache the result of running/evaluating this Individual's GpTree.
     std::any treeValue()
     {

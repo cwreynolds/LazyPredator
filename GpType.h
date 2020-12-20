@@ -70,19 +70,15 @@ public:
         assert(hasJiggler());
         return jiggle_(current_value);
     }
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // TODO experimental "deleter" function. EG for Texture in TexSyn.
-    
-    // Does this type have a deleter function?
+    // Does this GpType have a deleter function?
     bool hasDeleter() const { return bool(deleter_); }
-    // Delete a value (e.g. cached in a GpTree) produced by this GpType.
+    // Delete a value (e.g. one cached in a GpTree) produced by this GpType.
     // Only needed for pointer/reference to generated instance.
     void deleteValue(std::any value) const
     {
         assert(hasDeleter());
         deleter_(value);
     }
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Access collection of (pointers to) GpFunction that return this type.
     const std::vector<GpFunction*>& functionsReturningThisType() const
         { return functions_returning_this_type_; }
@@ -128,8 +124,7 @@ private:
     std::vector<GpFunction*> functions_returning_this_type_;
     // Minimum "size" of tree returning this type from root;
     int min_size_to_terminate_ = std::numeric_limits<int>::max();
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // TODO experimental "deleter" function. EG for Texture in TexSyn.
+    // Optional function to delete a heap-allocated value of this GpType, e.g.
+    // instance constructed during GpTree::eval(). Called during ~Individual().
     std::function<void(std::any)> deleter_ = nullptr;
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 };
