@@ -101,8 +101,7 @@ public:
         // Build per-GpType collections of GpFunctions returning that type.
         for (auto& [name, gp_function] : nameToGpFunctionMap())
         {
-            GpType& gp_type = *gp_function.returnType();
-            gp_type.addFunctionReturningThisType(&gp_function);
+            gp_function.linkToReturnType();
         }
         // Set minSizeToTerminate() for each GpFunction.
         for (auto& [name, gp_function] : nameToGpFunctionMap())

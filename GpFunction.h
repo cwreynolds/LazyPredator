@@ -54,6 +54,11 @@ public:
     // Evaluate (execute) a GpTree with this function at root
     // TODO probably should assert they match (this and tree root GpFunction)
     std::any eval(GpTree& tree) const { return eval_(tree);  }
+    // Called by FunctionSet init while linking types and functions.
+    void linkToReturnType()
+    {
+        returnType()->addFunctionReturningThisType(this, name());
+    }
     // Print description of this GpFunction to std::cout.
     void print() const
     {
@@ -76,26 +81,3 @@ private:
     int min_size_to_terminate_ = std::numeric_limits<int>::max();
     std::function<std::any(GpTree& t)> eval_ = nullptr;
 };
-
-// Down here because it requires both GpType and GpFunction to be defined.
-// TODO 20201218 REALLY needs to be redesigned. Maybe with a GpBase class?
-inline void GpType::print() const
-{
-    std::cout << "GpType: " << name();
-    std::cout << ", min size to terminate: " << minSizeToTerminate();
-    std::cout << ", " << (hasEphemeralGenerator() ? "has" : "no");
-    std::cout << " ephemeral generator";
-    std::cout << ", " << (to_string_ ? "has" : "no");
-    std::cout << " to_string";
-    if (functions_returning_this_type_.size() > 0)
-    {
-        bool first = true;
-        std::cout << ", functions returning this type: ";
-        for (auto& f : functions_returning_this_type_)
-        {
-            if (first) first = false; else std::cout << ", ";
-            std::cout << f->name();
-        }
-    }
-    std::cout << "." << std::endl;
-}

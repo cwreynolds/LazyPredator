@@ -83,12 +83,36 @@ public:
     const std::vector<GpFunction*>& functionsReturningThisType() const
         { return functions_returning_this_type_; }
     // Add a GpFunction to the collection of those that return this type.
-    void addFunctionReturningThisType(GpFunction* gp_function_pointer)
-        { functions_returning_this_type_.push_back(gp_function_pointer); }
+    // Use redundent name arg to avoid needing GpFunction definition here.
+    void addFunctionReturningThisType(GpFunction* func, const std::string& name)
+    {
+        functions_returning_this_type_.push_back(func);
+        names_of_functions_returning_this_type_.push_back(name);
+    }
     // Minimum "size" of tree returning this type from root;
     int minSizeToTerminate() const { return min_size_to_terminate_; }
     void setMinSizeToTerminate(int s) { min_size_to_terminate_ = s; }
-    void print() const;
+    // Print out a description of this GpType.
+    void print() const
+    {
+        std::cout << "GpType: " << name();
+        std::cout << ", min size to terminate: " << minSizeToTerminate();
+        std::cout << ", " << (hasEphemeralGenerator() ? "has" : "no");
+        std::cout << " ephemeral generator";
+        std::cout << ", " << (to_string_ ? "has" : "no");
+        std::cout << " to_string";
+        if (names_of_functions_returning_this_type_.size() > 0)
+        {
+            bool first = true;
+            std::cout << ", functions returning this type: ";
+            for (auto& f : names_of_functions_returning_this_type_)
+            {
+                if (first) first = false; else std::cout << ", ";
+                std::cout << f;
+            }
+        }
+        std::cout << "." << std::endl;
+    }
     bool valid() const
     {
         return ((!name().empty()) &&
@@ -120,8 +144,9 @@ private:
     std::function<std::string(std::any a)> to_string_ = nullptr;
     // Function to jiggle/jitter an ephemeral constant.
     std::function<std::any(std::any)> jiggle_ = nullptr;
-    // Collection of pointers to GpFunctions which return this type.
+    // Pointers to (and names of) GpFunctions which return this type.
     std::vector<GpFunction*> functions_returning_this_type_;
+    std::vector<std::string> names_of_functions_returning_this_type_;
     // Minimum "size" of tree returning this type from root;
     int min_size_to_terminate_ = std::numeric_limits<int>::max();
     // Optional function to delete a heap-allocated value of this GpType, e.g.
