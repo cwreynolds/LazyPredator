@@ -187,9 +187,9 @@ bool gp_tree_eval_simple()  // For simple case of "plain old data" types.
     st10.setLeafValue(leaf25, type_float);// Subtree 1,0 is leaf Float 2.5.
     st1.setFunction(gp_func_floor);       // Subtree 1 has function Floor.
 
-    return (st(&gp_tree.getType() == &type_int) &&
+    return (st(gp_tree.getRootType() == &type_int) &&
             st(&gp_tree.getFunction() == &gp_func_addint) &&
-            st(&st1.getType() == &type_int) &&
+            st(st1.getRootType() == &type_int) &&
             st(&st1.getFunction() == &gp_func_floor) &&
             st(std::any_cast<int>(gp_tree.eval()) == expected));
 }

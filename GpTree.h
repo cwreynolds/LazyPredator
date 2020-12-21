@@ -33,8 +33,8 @@ public:
         root_function_ = &function;
         root_type_ = function.returnType();
     }
-    // Get GpType returned by the root of this GpTree.
-    const GpType& getType() const { return *root_type_; }
+    // Get const pointer to GpType returned by this GpTree node/subtree.
+    const GpType* getRootType() const { return root_type_; }
     // Add (allocate) "count" new subtrees. Should only be called once.
     // TODO maybe instead of "add" call it "declare" or "init"?
     void addSubtrees(size_t count)
@@ -116,7 +116,7 @@ public:
         };
         if (isLeaf())
         {
-            s += getType().to_string(getLeafValue());
+            s += getRootType()->to_string(getLeafValue());
         }
         else
         {
@@ -153,7 +153,7 @@ public:
     // NOTE: assumes set is empty before initial call.
     void collectSetOfTypes(std::set<const GpType*>& set_of_types_output) const
     {
-        set_of_types_output.insert(&getType());
+        set_of_types_output.insert(getRootType());
         for (auto& subtree : subtrees())
             subtree.collectSetOfTypes(set_of_types_output);
     }
@@ -184,7 +184,7 @@ public:
     {
         GpTree* result = this;
         auto gp_type_ok = [&](GpTree* tree)
-            { return set_contains(types, &(tree->getType())); };
+            { return set_contains(types, tree->getRootType()); };
         if (size() > min_size)
         {
             std::vector<GpTree*> all_subtrees;
@@ -212,7 +212,8 @@ public:
     {
         if (isLeaf())
         {
-            setLeafValue(getType().jiggleConstant(getLeafValue()), getType());
+            setLeafValue(getRootType()->jiggleConstant(getLeafValue()),
+                         *getRootType());
         }
         else
         {
@@ -242,12 +243,8 @@ public:
     
     void deleteCachedValues()
     {
-        // TODO 20201213 root_type_ and getType() refer to same value, but can't
-        //  convert a ref back to a point BECAUSE it might be nullptr. Redesign?
-        if (root_type_ && getType().hasDeleter())
-        {
-            getType().deleteValue(getLeafValue());
-        }
+        auto rt = getRootType();
+        if (rt && rt->hasDeleter()) { rt->deleteValue(getLeafValue()); }
         for (auto& subtree : subtrees()) subtree.deleteCachedValues();
     }
 private:

@@ -313,7 +313,7 @@ public:
         int min_size = getCrossoverMinSize();
         GpTree& d_subtree = donor.selectCrossoverSubtree(min_size, types);
         // Select random subtree from offspring (any size, same type as dst).
-        std::set<const GpType*> donor_type = {&d_subtree.getType()};
+        std::set<const GpType*> donor_type = { d_subtree.getRootType() };
         GpTree& o_subtree = offspring.selectCrossoverSubtree(1, donor_type);
         // Set offspring subtree to copy of donor subtree.
         o_subtree = d_subtree;
