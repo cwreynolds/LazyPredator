@@ -27,8 +27,8 @@ public:
     GpTree& getSubtree(int i) { return subtrees().at(i); }
     const GpTree& getSubtree(int i) const { return subtrees().at(i); }
     // Get/set reference to GpFunction object at root of this tree.
-    const GpFunction& getFunction() const { return *root_function_; }
-    void setFunction(const GpFunction& function)
+    const GpFunction& getRootFunction() const { return *root_function_; }
+    void setRootFunction(const GpFunction& function)
     {
         root_function_ = &function;
         root_type_ = function.returnType();
@@ -49,12 +49,17 @@ public:
         for (auto& subtree : subtrees()) count += subtree.size();
         return count;
     }
-    // Get/set the value of this GpTree with no subtrees. This "leaf value" of
-    // the tree is typically a terminal constant or varible. Note that setting
-    // the value requires a GpType be specified.
-    std::any getLeafValue() const { return leaf_value_; }
-    void setLeafValue(std::any value, const GpType& gp_type)
+    // Get/set the value at the root of this GpTree. This can be either:
+    // (a) a constant "leaf value" of a GpTree with no subtrees and no root
+    //     function, as set during makeRandomTree().
+    // (b) a cached value at the root of a GpTree with a "root function" that
+    //     is calculated during eval().
+    // Note that setting the value requires a GpType be specified.
+    std::any getRootValue() const { return leaf_value_; }
+    void setRootValue(std::any value, const GpType& gp_type)
     {
+        // Verify new type matches old type, if any.
+        if (getRootType()) assert(getRootType() == &gp_type);
         leaf_value_ = value;
         root_type_ = &gp_type;
     }
@@ -66,10 +71,10 @@ public:
     {
         if (!isLeaf())
         {
-            setLeafValue(getFunction().eval(*this),
-                         *getFunction().returnType());
+            setRootValue(getRootFunction().eval(*this),
+                         *getRootFunction().returnType());
         }
-        return getLeafValue();
+        return getRootValue();
     }
     // Evaluate i-th subtree, corresponds to i-th parameter of root function,
     // then cast the resulting std::any to the given concrete type T.
@@ -116,15 +121,15 @@ public:
         };
         if (isLeaf())
         {
-            s += getRootType()->to_string(getLeafValue());
+            s += getRootType()->to_string(getRootValue());
         }
         else
         {
             bool indent_before = indent;
             if (all_leaves()) { indent = false; }
-            size_t additional_indent = getFunction().name().size() + 1;
+            size_t additional_indent = getRootFunction().name().size() + 1;
             indentation += additional_indent;
-            s += getFunction().name() + "(";
+            s += getRootFunction().name() + "(";
             bool comma = false;
             for (auto& subtree : subtrees())
             {
@@ -212,7 +217,7 @@ public:
     {
         if (isLeaf())
         {
-            setLeafValue(getRootType()->jiggleConstant(getLeafValue()),
+            setRootValue(getRootType()->jiggleConstant(getRootValue()),
                          *getRootType());
         }
         else
@@ -244,7 +249,7 @@ public:
     void deleteCachedValues()
     {
         auto rt = getRootType();
-        if (rt && rt->hasDeleter()) { rt->deleteValue(getLeafValue()); }
+        if (rt && rt->hasDeleter()) { rt->deleteValue(getRootValue()); }
         for (auto& subtree : subtrees()) subtree.deleteCachedValues();
     }
 private:

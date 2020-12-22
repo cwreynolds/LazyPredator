@@ -168,7 +168,7 @@ public:
             output_actual_size++;
             // TODO should pass rs() into the generator for repeatability.
             std::any leaf_value = return_type.generateEphemeralConstant();
-            gp_tree.setLeafValue(leaf_value, return_type);
+            gp_tree.setRootValue(leaf_value, return_type);
         }
         else
         {
@@ -224,7 +224,7 @@ public:
         int size_used = 0;
         int count = int(root_function.parameterTypes().size());
         // Set root function in given GpTree object
-        gp_tree.setFunction(root_function);
+        gp_tree.setRootFunction(root_function);
         // For each parameter of root, add/allocate a subtree in the GpTree.
         // Important this happen first so no iterators are invalidated later.
         gp_tree.addSubtrees(root_function.parameterTypes().size());

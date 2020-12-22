@@ -43,7 +43,7 @@ public:
             tree_evaluated_ = true;
             tree_eval_counter_++;
         }
-        return tree_.getLeafValue();
+        return tree_.getRootValue();
     }
     // Get/inc count of tournament Individual has survived (did not "lose").
     int getTournamentsSurvived() const { return tournaments_survived_; }
