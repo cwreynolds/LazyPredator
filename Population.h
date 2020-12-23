@@ -151,6 +151,9 @@ public:
     // replaced in the Population by a new "offspring" created by crossing over
     // the two "winners" and mutating the result
     typedef std::function<float(Individual&)> FitnessFunction;
+    
+    // TODO 20201222 temporary use_uniform_selection_for_absolute_fitness
+    static inline bool use_uniform_selection_for_absolute_fitness = false;
 
     // TODO very experimental non-tournament version for simple fitness
     void evolutionStep(FitnessFunction fitness_function,
@@ -166,6 +169,14 @@ public:
         int offspring_index = randomIndexBiasToLowFitness();
         int index_a = randomIndexBiasToHighFitness();
         int index_b = randomIndexBiasToHighFitness();
+        // TODO 20201222 temporary use_uniform_selection_for_absolute_fitness
+        if (use_uniform_selection_for_absolute_fitness)
+        {
+            offspring_index = randomIndex();
+            index_a = randomIndex();
+            index_b = randomIndex();
+        }
+        
         Individual* parent_a = individual(index_a);
         Individual* parent_b = individual(index_b);
 
@@ -235,12 +246,10 @@ public:
     // population for Individuals to be used in a three way tournament.
     // (TODO later: is there really ANY advantage to ensuring the indices
     //       are unique? Say they were all the same number. So what?)
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    
+    //
     // TODO was thinking about flat/uniform selection, and given that comment
     // above (who cares about uniqueness?) here is a new version of this which
     // does 3x "tournament" selection based on tournament survivial.
-    
     std::tuple<int, int, int> selectThreeIndices()
     {
         int count = static_cast<int>(individuals().size()) - 1;
@@ -252,77 +261,26 @@ public:
                                LPRS().random2(two_thirds + 1, count));
     };
   
-//        // Consider three random Individuals from Population, return the one with
-//        // the largest "tournaments survived".
-//        int randomIndexFromTournamentsSurvival() const
-//        {
-//            auto ri = [&](){ return LPRS().randomN(individuals().size()); };
-//            std::vector<int> indices = { ri(), ri(), ri() };
-//            auto i2ts = [&](int i)
-//                { return individuals().at(i)->getTournamentsSurvived(); };
-//            auto most_survived = [&](int a, int b) { return i2ts(a) > i2ts(b); };
-//    //        debugPrint(vec_to_string(indices));
-//            std::sort(indices.begin(), indices.end(), most_survived);
-//    //        debugPrint(vec_to_string(indices));
-//    //        debugPrint(i2ts(indices.at(0)));
-//    //        debugPrint(i2ts(indices.at(1)));
-//    //        debugPrint(i2ts(indices.at(2)));
-//            return indices.front();
-//        }
     
-    // Returns a random index int0 individuals() with a bias expressed by a sort
-    // compare function of two indices. The index sorted to the FRONT of the
-    // list is the one selected.
-//        int randomIndexWithBias(std::function<bool(int, int)> sorter_function) const
-//        {
-//            auto ri = [&](){ return LPRS().randomN(individuals().size()); };
-//            std::vector<int> indices = { ri(), ri(), ri() };
-//    //        auto i2ts = [&](int i)
-//    //        { return individuals().at(i)->getTournamentsSurvived(); };
-//    //        auto most_survived = [&](int a, int b) { return i2ts(a) > i2ts(b); };
-//            std::sort(indices.begin(), indices.end(), sorter_function);
-//            return indices.front();
-//        }
-//    // Ad hoc elitism
-//    int randomIndexWithBias(std::function<bool(int, int)> sorter_function) const
-//    {
-//        auto ri = [&](){ return LPRS().randomN(individuals().size()); };
-//        std::vector<int> indices = { ri(), ri(), ri() };
-//        std::sort(indices.begin(), indices.end(), sorter_function);
-//        return indices.front();
-//    }
+    // TODO 20201222 temporary use_uniform_selection_for_absolute_fitness
 
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // TODO 20201211 verify this is doing what I expect
+    int randomIndex() const { return LPRS().randomN(individuals().size()); }
     
-//    int randomIndexWithBias(std::function<bool(int, int)> sorter_function) const
-//    {
-//        auto ri = [&](){ return LPRS().randomN(individuals().size()); };
-//        std::vector<int> indices = { ri(), ri(), ri() };
-//        std::sort(indices.begin(), indices.end(), sorter_function);
-//        return indices.front();
-//    }
-    
+    // Chose 3 random indicies. Sort them by given sorter_function, which can
+    // look at the Individuals at those indices. Return index sorted to front.
     int randomIndexWithBias(std::function<bool(int, int)> sorter_function) const
     {
-        auto ri = [&](){ return LPRS().randomN(individuals().size()); };
-        std::vector<int> indices = { ri(), ri(), ri() };
+//        auto ri = [&](){ return LPRS().randomN(individuals().size()); };
+//        std::vector<int> indices = { ri(), ri(), ri() };
+        std::vector<int> indices = {randomIndex(),randomIndex(),randomIndex()};
         std::sort(indices.begin(), indices.end(), sorter_function);
-        
-//        // TODO 20201211 verify this is doing what I expect
-//        std::vector<float> fitnesses;
-//        for (auto& i : indices)
-//        {
-//            fitnesses.push_back(individuals().at(i)->getFitness());
-//        }
-//        std::cout << vec_to_string(fitnesses);
-        
         return indices.front();
     }
 
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    // Ad hoc elitism
+    // Ad hoc elitism. Does biased selection while explicitely excluding the
+    // Individual with the best fitness.
+    // TODO maybe instead of looping here, randomIndexWithBias() should take
+    // parameters to allow excluding (say) the top 5 fitness Individuals
     int randomIndexWithBiasAndElitism(std::function<bool(int, int)> sorter_function) const
     {
         int index = -1;
@@ -337,86 +295,31 @@ public:
         }
         return index;
     }
-    
+    // Returns random index, biased toward Individuals with higher fitness.
     int randomIndexBiasToHighFitness() const
     {
-        auto high_fit = [&](int a, int b)
+        auto high_fitness = [&](int a, int b)
         {
             return (individuals().at(a)->getFitness() >
                     individuals().at(b)->getFitness());
         };
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // TODO 20201211 verify this is doing what I expect
-        return randomIndexWithBias(high_fit);
-//        std::cout << "        in randomIndexBiasToHighFitness(): ";
-//        int result = randomIndexWithBias(high_fit);
-//        std::cout << std::endl;
-//        return result;
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        return randomIndexWithBias(high_fitness);
     }
+    // Returns random index, biased toward Individuals with lower fitness.
     int randomIndexBiasToLowFitness() const
     {
-        auto low_fit = [&](int a, int b)
+        auto low_fitness = [&](int a, int b)
         {
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            // TODO 20201211 verify this is doing what I expect
-            // SHIT!!! SHIT!!! SHIT!!! It is NOT!!!
-//            return (individuals().at(a)->getFitness() >
             return (individuals().at(a)->getFitness() <
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                     individuals().at(b)->getFitness());
         };
-//        return randomIndexWithBias(low_fit);
-        
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // TODO 20201211 verify this is doing what I expect
-        return randomIndexWithBiasAndElitism(low_fit);
-//        std::cout << "        in randomIndexBiasToLowFitness(): ";
-//        int result = randomIndexWithBiasAndElitism(low_fit);
-//        std::cout << std::endl;
-//        return result;
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        return randomIndexWithBiasAndElitism(low_fitness);
     }
-    
-    
-    
-//    // Ad hoc elitism
-//    int randomIndexBiasToLowFitness() const
-//    {
-//        int index = -1;
-//        Individual* best = nTopFitness(1).at(0);
-//        Individual* selection = best;
-//
-//        auto low_fit = [&](int a, int b)
-//        {
-//            return (individuals().at(a)->getFitness() >
-//                    individuals().at(b)->getFitness());
-//        };
-//
-//        while (selection == best)
-//        {
-//            index = randomIndexWithBias(low_fit);
-//            selection = individuals().at(index);
-//        }
-//
-//        return index;
-//    }
-
-    
-//    std::tuple<int, int, int> selectThreeIndices()
-//    {
-//        return std::make_tuple(randomIndexFromTournamentsSurvival(),
-//                               randomIndexFromTournamentsSurvival(),
-//                               randomIndexFromTournamentsSurvival());
-//    };
-
-    
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    
     
     // Find the best Individual in Population, defined as having survived the
     // most tournaments. TODO name?
     // TODO 20201212 should this use the nTopFitness().at(0) approach?
+    // TODO 20201222 note that this is not currently called anywhere.
     Individual* findBestIndividual() const
     {
         assert(!individuals().empty()); // Or just return nullptr in this case?
@@ -434,8 +337,6 @@ public:
         return best_individual;
     }
 
-    
-    
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Returns (by value, eg copied) a vector of "n" Individual* pointers having
     // the largest values of getTournamentsSurvived(). These are, in some sense,
@@ -449,7 +350,6 @@ public:
 //        if (n < individuals().size()) { collection.resize(n); }
 //        return collection;
 //    }
-    
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     std::vector<Individual*> nTopFitness(int n) const
@@ -525,13 +425,6 @@ public:
         for (auto i : tops) std::cout << i->getFitness() << " ";
         std::cout << ")" << std::setprecision(default_precision);
         std::cout << std::endl;
-        
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // TODO 20201211 verify this is doing what I expect
-//        for (int i = 0; i < 20; i++)
-//            std::cout << population.individual(i)->getFitness() << " ";
-//        std::cout << std::endl;
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     }
     //~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~
     // This utility allows modification of Individuals inside a Population. It

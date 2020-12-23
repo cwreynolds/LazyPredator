@@ -940,7 +940,7 @@ int main(int argc, const char * argv[])
     std::cout << "December 20, 2020" << std::endl;
     std::string path = "/Users/cwr/Desktop/TexSyn_temp/20201220_";
     
-    TestFS::treeEval().print();
+//    TestFS::treeEval().print();
 
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     return EXIT_SUCCESS;
