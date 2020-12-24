@@ -172,9 +172,18 @@ public:
         // TODO 20201222 temporary use_uniform_selection_for_absolute_fitness
         if (use_uniform_selection_for_absolute_fitness)
         {
-            offspring_index = randomIndex();
-            index_a = randomIndex();
-            index_b = randomIndex();
+            // TODO 20201223 make this named member function (high ver also).
+            auto low_fitness = [&](int a, int b)
+            {
+                return (individuals().at(a)->getFitness() <
+                        individuals().at(b)->getFitness());
+            };
+            std::vector<int> indices;
+            for (int i = 0; i < 3; i++) { indices.push_back(randomIndex()); }
+            std::sort(indices.begin(), indices.end(), low_fitness);
+            offspring_index = indices.at(0);
+            index_a = indices.at(1);
+            index_b = indices.at(2);
         }
         
         Individual* parent_a = individual(index_a);
