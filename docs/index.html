@@ -105,6 +105,99 @@
       details of the implementation. On the other hand, I do want it to be more
       prose-like than the terse <code>git commit</code> messages.)</p>
     <br style="##########################################################################">
+    <div class="post" id="20201223"> <a href="#20201223" class="date">December
+        23, 2020</a> 🎄
+      <h1>Fitting “absolute fitness” back into the framework of relative
+        tournaments</h1>
+      <p>As discussed in the TexSyn blog on <a href="https://cwreynolds.github.io/TexSyn/#20201118">November
+          18</a>, I went off on a side quest related to “absolute” fitness. This
+        is the more common way of thinking about evolutionary computation, where
+        an individual is tested or rated according to a fitness function,
+        resulting in a numeric value. The goal of the optimization is then to
+        maximize this fitness (or minimize, if you consider it an <em>error</em>
+        or <em>loss</em> metric). LazyPredator is meant to deal primarily with
+        “relative” fitness, as determined by competitive tournaments. (Recall
+        the analogy: while speculative ratings can be assigned <em>a priori</em>
+        to (say) athletes, it is not until they compete in a tournament that a
+        winner is actually determined.)</p>
+      <p>However, based on what seemed like lackluster optimization based on
+        tournaments, as a basis of comparison, I set off to re-implement the
+        traditional evolutionary optimization, as I had done in earlier work. So
+        instead of using tournament-based contests, I added a parallel facility
+        for absolute numeric fitness, judging <code>Individuals</code> in
+        isolation. The tournament-based evolution step looked like:</p>
+      <ul>
+        <li>Randomly select (with uniform distribution) three <code>Individuals</code>
+          from the <code>Population</code>.</li>
+        <li>Place them in a competitive tournament to produce a fitness ranking.</li>
+        <li>The first and second place finishers are selected as “parents.”</li>
+        <li>Use <em>crossover</em> and <em>mutation</em> to produce a new
+          “offspring” from the parents.</li>
+        <li>The third place finisher is removed for the population (“dies”) and
+          replaced with the offspring.</li>
+      </ul>
+      <p>The more traditional “absolute fitness” based evolution step was:</p>
+      <ul>
+        <li>Randomly select two parents from the population <em>biased</em>
+          toward high fitness. </li>
+        <ul>
+          <li>This was done by making a uniform selection of three individuals
+            then choosing the one with highest fitness.</li>
+        </ul>
+        <li>Randomly select one individual from the population, biased toward
+          low fitness, to be replaced by the new offspring.</li>
+        <ul>
+          <li>This was done by making a uniform selection of three individuals
+            then choosing the one with lowest fitness.</li>
+        </ul>
+        <li>Use <em>crossover</em> and <em>mutation</em> to produce a new
+          “offspring” from the parents.</li>
+        <li>Replace the low fitness individual with the new offspring.</li>
+      </ul>
+      <p>Note that absolute fitness for a given individual does not change, so
+        is computed one per individual then cached. This is generally not the
+        case for competitive fitness.</p>
+      <p>I got to thinking about the selection procedure. In the absolute case,
+        nine individuals are selected then used as bias to winnow down to the
+        three actually used in the update step. I wondered if this level of
+        “elitism” was good or bad. Parents would always be selected from the top
+        ranked individuals in the population, because the best-of-three
+        selection is strongly biased toward them. Conversely, all the “deaths”
+        would be among the the very low ranked individuals. This sort of elitism
+        may cause the evolutionary optimization to be “greedy” — to concentrate
+        on low hanging fruit — and perhaps be short-sighted.</p>
+      <p>So I considered a different selection procedure: uniformly select
+        three, rank those as in the competitive tournament case, the top two are
+        the parents, and the “loser” is replaced by the new offspring. That is,
+        the absolute fitness case is implemented <strong>as</strong> a
+        simplistic tournament where rankings are just sorting by fitness. Unlike
+        the nine-way selection, it is possible that all three participants (two
+        parents, and loser) could be from the very bottom, or the very top, of
+        the rankings. I set up a comparison framework to run four rounds of both
+        conditions (both beginning from the same random seed). Each Population
+        consisted of 100 Individuals, each with a maximum initial size of 100.
+        Each optimization was for for 2000 steps (which is 20 “generation
+        equivalents”). The entire comparison of eight runs took abut 5.5 hours.</p>
+      <p>For each run, I recorded the fitness as best-of-population and
+        average-of-population, for each of the 2000 steps. These are shown in
+        the plot below. There are 16 lines, best and average for each of eight
+        runs. They are color coded by condition: (a) the nine-way selection with
+        stronger bias are in the magenta-to-red range, (b) the three-way
+        selection with less bias are in the green-to-cyan range. The “best” at
+        the top are monotone increasing steps, the “ave” plots are lower and
+        noisy.</p>
+      <p>After all that, what I see in the plot is <strong>no obvious
+          difference</strong> in performance between the a/red runs and the
+        b/green runs. The best-of-population fitnesses end up around 0.85 to
+        0.90, with the averages around 0.75.&nbsp; The averages of the b/green
+        runs are closer together, possibly indicating less variance, but that is
+        just a supposition. </p>
+      <p>I will take all this as evidence that LazyPredator's support for
+        “absolute fitness” should be refactored to be based on top of
+        tournament-style evolution steps.</p>
+      <img src="images/20201223_LimitHue_comparison.png" alt="LimitHue::comparison()"
+        title="LimitHue::comparison()" height="588" width="650">
+    </div>
     <div class="post" id="20201127"> <a href="#20201127" class="date">November
         27, 2020</a> 🍗
       <h1><code>GpTree</code> with “phantom limb”</h1>
