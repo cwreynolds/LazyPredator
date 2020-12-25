@@ -105,8 +105,35 @@
       details of the implementation. On the other hand, I do want it to be more
       prose-like than the terse <code>git commit</code> messages.)</p>
     <br style="##########################################################################">
+    <div class="post" id="20201224"> <a href="#20201224" class="date">December
+        24, 2020</a> 🎄
+      <h1>Tree size and bloat</h1>
+      <p>Speaking of data from those <code>LimitHue::comparison()</code> runs,
+        I also recorded average-of-population tree size for each evolution step.
+        Recall each run was initialized with 100 individuals, each with a
+        maximum initial tree size of 100. </p>
+      <p>(Tree size is equivalent to the number of function names and constant
+        leaf values in the corresponding textual program notation. An
+        interesting tidbit is that all runs start with an average tree size very
+        close to 80. This ratio between average and maximum tree size (e.g.
+        80/100) probably depends on the <code>FunctionSet</code> being used.)</p>
+      <p>Most of the average-of-population sizes seem to end up between 200 and
+        400. While the first of these eight runs—the black trace in this
+        plot—wandered into the land of giant trees, peaking up near size 1100.
+        This occasional misbehavior of GP systems is called <strong>bloat</strong>.
+        Tree size does not directly correlate with execution time, via <code>GpTree::eval()</code>,
+        since some <code>GpFunctions</code> may run slower than others. But it
+        is a safe bet that, in general, a big tree will be slower than a small
+        tree. Larger programs certainly take up more memory, but in my
+        applications that is not a issue. There is also a theory, a GP “folk
+        belief”, that large trees can dilute the effectiveness of crossover.</p>
+      <p>I have a design sketched out that I hope will allow controlling tree
+        size to avoid bloat in what I think is a fairly natural way that will
+        not interfere with fitness measurement.</p>
+      <img src="images/20201223_LimitHue_Comparison_Size.png" alt="LimitHue::comparison() sizes"
+        title="LimitHue::comparison() sizes" height="535" width="784"> </div>
     <div class="post" id="20201223"> <a href="#20201223" class="date">December
-        23, 2020</a> 🎄
+        23, 2020</a>
       <h1>Fitting “absolute fitness” back into the framework of relative
         tournaments</h1>
       <p>As discussed in the TexSyn blog on <a href="https://cwreynolds.github.io/TexSyn/#20201118">November
@@ -196,8 +223,7 @@
         “absolute fitness” should be refactored to be based on top of
         tournament-style evolution steps.</p>
       <img src="images/20201223_LimitHue_comparison.png" alt="LimitHue::comparison()"
-        title="LimitHue::comparison()" height="588" width="650">
-    </div>
+        title="LimitHue::comparison()" height="588" width="650"> </div>
     <div class="post" id="20201127"> <a href="#20201127" class="date">November
         27, 2020</a> 🍗
       <h1><code>GpTree</code> with “phantom limb”</h1>
