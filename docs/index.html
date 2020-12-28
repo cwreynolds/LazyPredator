@@ -111,18 +111,18 @@
       <p>I had noticed, in TexSyn's prototype GUI, that right at the start of a
         run, some of the “top ten” fitness textures listed fitness of zero,
         which seemed incorrect. (That is, it “looked like” they ought to have
-        higher fitness.) I first assumes this was just a bug in the GUI, but
-        looking closer, it seemed to be a real bug. In the original
+        higher fitness.) I first assumed this was just a bug in the GUI, but
+        looking closer, it seemed to be a <em>real</em> bug. In the original
         tournament-based relative fitness approach, a relative fitness ranking
         is determined each evolution step (<code>Population</code> update) for
         the three randomly chosen <code>Individuals</code>. This was not
-        happening for the later prototype absolute fitness. </p>
+        happening for the later prototype absolute fitness.</p>
       <p>The runs plotted below are like those on <a href="#20201223">December
-          23</a> but a pass is made over the <code>Population</code> computing
-        fitness for all <code>Individual</code>s. It may be just random
-        variation between runs, but it looks like there is generally less
-        variance between runs, and that the best of the best are a bit higher.
-        The overall best is 0.924 in run 3a.</p>
+          23</a> but an initial pass is made over the <code>Population</code>
+        computing initial fitness for all <code>Individual</code>s. It may be
+        just random variation between runs, but it looks like there is now
+        generally less variance between runs, and that the best of the best are
+        a bit higher. The overall best is 0.924 in run 3a.</p>
       <p>I will fold this change into refactoring <em>absolute fitness</em> to
         be a layer on top of tournament-based <em>relative fitness</em>.</p>
       <img src="images/20201226_LimitHue_Comparison.png" alt="LimitHue::comparison() fix init fitness"
@@ -183,7 +183,7 @@
         <li>The first and second place finishers are selected as “parents.”</li>
         <li>Use <em>crossover</em> and <em>mutation</em> to produce a new
           “offspring” from the parents.</li>
-        <li>The third place finisher is removed for the population (“dies”) and
+        <li>The third place finisher is removed from the population (“dies”) and
           replaced with the offspring.</li>
       </ul>
       <p>The more traditional “absolute fitness” based evolution step was:</p>
