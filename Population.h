@@ -146,72 +146,15 @@ public:
     typedef std::function<TournamentGroup(TournamentGroup)> TournamentFunction;
     // Return const reference to collection of Individuals in Population.
     const std::vector<Individual*>& individuals() const { return individuals_; }
+
     // Perform one step of the "steady state" evolutionary computation. Hold a
     // tournament with three randomly selected Individuals. The "loser" is
     // replaced in the Population by a new "offspring" created by crossing over
     // the two "winners" and mutating the result
-    typedef std::function<float(Individual&)> FitnessFunction;
-    
-    // TODO 20201222 temporary use_uniform_selection_for_absolute_fitness
-    static inline bool use_uniform_selection_for_absolute_fitness = false;
-
-    // TODO very experimental non-tournament version for simple fitness
-    void evolutionStep(FitnessFunction fitness_function,
-                       const FunctionSet& function_set)
-    {
-//        auto [index_a, index_b, offspring_index] = selectThreeIndices();
-//        Individual* parent_a = individual(index_a);
-//        Individual* parent_b = individual(index_b);
-        
-//        int randomIndexBiasToHighFitness() const {}
-//        int randomIndexBiasToLowFitness() const {}
-
-        int offspring_index = randomIndexBiasToLowFitness();
-        int index_a = randomIndexBiasToHighFitness();
-        int index_b = randomIndexBiasToHighFitness();
-        // TODO 20201222 temporary use_uniform_selection_for_absolute_fitness
-        if (use_uniform_selection_for_absolute_fitness)
-        {
-            // TODO 20201223 make this named member function (high ver also).
-            auto low_fitness = [&](int a, int b)
-            {
-                return (individuals().at(a)->getFitness() <
-                        individuals().at(b)->getFitness());
-            };
-            std::vector<int> indices;
-            for (int i = 0; i < 3; i++) { indices.push_back(randomIndex()); }
-            std::sort(indices.begin(), indices.end(), low_fitness);
-            offspring_index = indices.at(0);
-            index_a = indices.at(1);
-            index_b = indices.at(2);
-        }
-        
-        Individual* parent_a = individual(index_a);
-        Individual* parent_b = individual(index_b);
-
-        // TODO copied from previous overload of evolutionStep()
-        //      should it be a function to prevent duplication?
-        
-        // Create new offspring tree by crossing-over these two parents.
-        GpTree new_tree;
-//        function_set.crossover(parent_0->tree(), parent_1->tree(), new_tree);
-        function_set.crossover(parent_a->tree(), parent_b->tree(), new_tree);
-        // Mutate constants in new tree.
-        new_tree.mutate();
-        // Create new offspring Individual from new tree.
-        Individual* offspring = new Individual(new_tree);
-        offspring->setFitness(fitness_function(*offspring));
-        
-        // Delete tournament loser from Population, replace with new offspring.
-        replaceIndividual(offspring_index, offspring);
-        step_count_++;
-        logger();
-    }
-    //~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~
     void evolutionStep(TournamentFunction tournament_function,
                        const FunctionSet& function_set)
     {
-        TournamentGroup random_group = selectTournamentGroup();
+        TournamentGroup random_group = randomTournamentGroup();
         // Run tournament amoung the three, return ranked group.
         TournamentGroup ranked_group = tournament_function(random_group);
         Individual* loser = ranked_group.worstIndividual();
@@ -230,6 +173,8 @@ public:
         new_tree.mutate();
         // Create new offspring Individual from new tree.
         Individual* offspring = new Individual(new_tree);
+        // Construct and cache the result of evaluating new offspring's GpTree.
+        offspring->treeValue();
         // Delete tournament loser from Population, replace with new offspring.
         replaceIndividual(loser_index, offspring);
         // TODO TEMP for debugging
@@ -237,6 +182,40 @@ public:
         step_count_++;
         logger();
     }
+    
+    // Type for "fitness function" used below.
+    typedef std::function<float(Individual*)> FitnessFunction;
+    // Perform one step of the "steady state" evolutionary computation using
+    // "absolute fitness" (rather than "relative tournament-based fitness").
+    // Takes a FitnessFunction which maps a given Individual to a numeric
+    // "absolute fitness" value. Converts this into a TournamentFunction for
+    // use in the "relative fitness" version of evolutionStep().
+    void evolutionStep(FitnessFunction fitness_function,
+                       const FunctionSet& function_set)
+    {
+        // Wrap given FitnessFunction to ensure Individual has cached fitness.
+        auto augmented_fitness_function = [&](Individual* individual)
+        {
+            // In case Individual does not already have a cached fitness value.
+            if (!(individual->hasFitness()))
+            {
+                // Tree value should be previously cached, but just to be sure.
+                individual->treeValue();
+                // Cache fitness on Individual using given FitnessFunction.
+                individual->setFitness(fitness_function(individual));
+            }
+            return individual->getFitness();
+        };
+        // Create a TournamentFunction based on the augmented FitnessFunction.
+        auto tournament_function = [&](TournamentGroup group)
+        {
+            group.setAllMetrics(augmented_fitness_function);
+            return group;
+        };
+        // Finally do a tournament based evolution step.
+        evolutionStep(tournament_function, function_set);
+    }
+    
     // Delete Individual at index i, then overwrite pointer with replacement.
     void replaceIndividual(int i, Individual* new_individual)
     {
@@ -244,35 +223,17 @@ public:
         individuals_.at(i) = new_individual;
     }
     // TournamentGroup with three Individuals selected randomly from Population.
-    TournamentGroup selectTournamentGroup()
+    TournamentGroup randomTournamentGroup()
     {
-        auto [i, j, k] = selectThreeIndices();
+        int i = randomIndex();
+        int j = randomIndex();
+        int k = randomIndex();
         return TournamentGroup({ {individual(i), i},
                                  {individual(j), j},
                                  {individual(k), k} });
     }
-    // Select three random (but guaranteed to be unique) indices into the
-    // population for Individuals to be used in a three way tournament.
-    // (TODO later: is there really ANY advantage to ensuring the indices
-    //       are unique? Say they were all the same number. So what?)
-    //
-    // TODO was thinking about flat/uniform selection, and given that comment
-    // above (who cares about uniqueness?) here is a new version of this which
-    // does 3x "tournament" selection based on tournament survivial.
-    std::tuple<int, int, int> selectThreeIndices()
-    {
-        int count = static_cast<int>(individuals().size()) - 1;
-        assert("fewer than 3 in population" && (count >= 2));
-        int one_third = count / 3;
-        int two_thirds = (count * 2) / 3;
-        return std::make_tuple(LPRS().random2(0, one_third),
-                               LPRS().random2(one_third + 1, two_thirds),
-                               LPRS().random2(two_thirds + 1, count));
-    };
-  
-    
-    // TODO 20201222 temporary use_uniform_selection_for_absolute_fitness
 
+    // Select a unifromly distributed random index of Population's Individuals.
     int randomIndex() const { return LPRS().randomN(individuals().size()); }
     
     // Chose 3 random indicies. Sort them by given sorter_function, which can
@@ -346,21 +307,6 @@ public:
         return best_individual;
     }
 
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // Returns (by value, eg copied) a vector of "n" Individual* pointers having
-    // the largest values of getTournamentsSurvived(). These are, in some sense,
-    // the "best" n Individuals in the population.
-//    std::vector<Individual*> nMostTournamentsSurvived(int n)
-//    {
-//        std::vector<Individual*> collection = individuals();
-//        auto best_survior = [](Individual* a, Individual* b)
-//            {return a->getTournamentsSurvived() > b->getTournamentsSurvived();};
-//        std::sort(collection.begin(), collection.end(), best_survior);
-//        if (n < individuals().size()) { collection.resize(n); }
-//        return collection;
-//    }
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
     std::vector<Individual*> nTopFitness(int n) const
     {
         std::vector<Individual*> collection = individuals();
@@ -380,19 +326,13 @@ public:
     }
 
     // Average of "tournaments survived" over all Individuals.
-//    float averageTournamentsSurvived() const
-//    {
-//        int total = 0;
-//        for (auto& i : individuals()) { total += i->getTournamentsSurvived(); }
-//        return float(total) / individuals().size();
-//    }
     float averageFitness() const
     {
         float total = 0;
         for (auto& i : individuals()) { total += i->getFitness(); }
         return total / individuals().size();
     }
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
     // Run "steps" of evolution, given "function_set" and "tournament_function".
     void run(int steps,
              const FunctionSet& function_set,
@@ -405,7 +345,7 @@ public:
             evolutionStep(tournament_function, function_set);
         }
     }
-    //~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~
+    
     // Called at the end of each evolutionStep(). Can override by subclassing or
     // with setLoggerFunction().
     virtual void logger()
@@ -435,7 +375,7 @@ public:
         std::cout << ")" << std::setprecision(default_precision);
         std::cout << std::endl;
     }
-    //~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~
+
     // This utility allows modification of Individuals inside a Population. It
     // is currently used only by UnitTests, to get around "const" protection of
     // Individuals inside a Population. Think hard before using it elsewhere.
@@ -446,9 +386,7 @@ public:
 private:
     Individual* individual(int i) { return individuals_.at(i); }
     std::vector<Individual*> individuals_;
-    //~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~
     std::function<void(Population&)> logger_function_ = basicLogger;
     std::chrono::time_point<std::chrono::high_resolution_clock> start_time_;
     int step_count_ = 0;
-    //~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~   ~
 };
