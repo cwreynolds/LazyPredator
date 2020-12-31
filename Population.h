@@ -236,56 +236,6 @@ public:
     // Select a unifromly distributed random index of Population's Individuals.
     int randomIndex() const { return LPRS().randomN(individuals().size()); }
     
-    // Chose 3 random indicies. Sort them by given sorter_function, which can
-    // look at the Individuals at those indices. Return index sorted to front.
-    int randomIndexWithBias(std::function<bool(int, int)> sorter_function) const
-    {
-//        auto ri = [&](){ return LPRS().randomN(individuals().size()); };
-//        std::vector<int> indices = { ri(), ri(), ri() };
-        std::vector<int> indices = {randomIndex(),randomIndex(),randomIndex()};
-        std::sort(indices.begin(), indices.end(), sorter_function);
-        return indices.front();
-    }
-
-    // Ad hoc elitism. Does biased selection while explicitely excluding the
-    // Individual with the best fitness.
-    // TODO maybe instead of looping here, randomIndexWithBias() should take
-    // parameters to allow excluding (say) the top 5 fitness Individuals
-    int randomIndexWithBiasAndElitism(std::function<bool(int, int)> sorter_function) const
-    {
-        int index = -1;
-        // TODO must be cached if calling this 9 times per step.
-        Individual* best = nTopFitness(1).at(0);
-        Individual* selection = best;
-        // Loop until "best" is not the "selection", usually just one time.
-        while (selection == best)
-        {
-            index = randomIndexWithBias(sorter_function);
-            selection = individuals().at(index);
-        }
-        return index;
-    }
-    // Returns random index, biased toward Individuals with higher fitness.
-    int randomIndexBiasToHighFitness() const
-    {
-        auto high_fitness = [&](int a, int b)
-        {
-            return (individuals().at(a)->getFitness() >
-                    individuals().at(b)->getFitness());
-        };
-        return randomIndexWithBias(high_fitness);
-    }
-    // Returns random index, biased toward Individuals with lower fitness.
-    int randomIndexBiasToLowFitness() const
-    {
-        auto low_fitness = [&](int a, int b)
-        {
-            return (individuals().at(a)->getFitness() <
-                    individuals().at(b)->getFitness());
-        };
-        return randomIndexWithBiasAndElitism(low_fitness);
-    }
-    
     // Find the best Individual in Population, defined as having survived the
     // most tournaments. TODO name?
     // TODO 20201212 should this use the nTopFitness().at(0) approach?
