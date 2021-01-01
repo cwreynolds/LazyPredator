@@ -129,6 +129,7 @@ public:
     Population(int size)
     {
         for (int i = 0; i < size; i++) individuals_.push_back(new Individual);
+        updateSortedCollectionOfIndividuals();
     }
     // TODO combine constructors with and without fs?
     Population(int size, int max_tree_size, const FunctionSet& fs)
@@ -137,6 +138,7 @@ public:
         {
             individuals_.push_back(new Individual(max_tree_size, fs));
         }
+        updateSortedCollectionOfIndividuals();
     }
     virtual ~Population()
     {
@@ -180,6 +182,7 @@ public:
         // TODO TEMP for debugging
         // TODO 20201122 remove old unused hack
         step_count_++;
+        updateSortedCollectionOfIndividuals();
         logger();
     }
     
@@ -236,36 +239,23 @@ public:
     // Select a unifromly distributed random index of Population's Individuals.
     int randomIndex() const { return LPRS().randomN(individuals().size()); }
     
-    // Find the best Individual in Population, defined as having survived the
-    // most tournaments. TODO name?
-    // TODO 20201212 should this use the nTopFitness().at(0) approach?
-    // TODO 20201222 note that this is not currently called anywhere.
-    Individual* findBestIndividual() const
+    // Called each step to update/maintain fitness sorted list of Individuals.
+    // TODO 20201231 once we have demes they need to be merged here.
+    void updateSortedCollectionOfIndividuals()
     {
-        assert(!individuals().empty()); // Or just return nullptr in this case?
-        int most_survived = std::numeric_limits<int>::min();
-        Individual* best_individual = nullptr;
-        for (auto& individual : individuals())
-        {
-            int survived = individual->getTournamentsSurvived();
-            if (most_survived < survived)
-            {
-                most_survived = survived;
-                best_individual = individual;
-            }
-        }
-        return best_individual;
+        // Update cached collection of all Individuals.
+        sorted_collection_ = individuals();
+        // Sort with largest fitness Individuals at the front.
+        std::sort(sorted_collection_.begin(),
+                  sorted_collection_.end(),
+                  [](Individual* a, Individual* b)
+                  { return a->getFitness() > b->getFitness(); });
     }
-
-    std::vector<Individual*> nTopFitness(int n) const
-    {
-        std::vector<Individual*> collection = individuals();
-        auto best_fitness = [](Individual* a, Individual* b)
-            {return a->getFitness() > b->getFitness();};
-        std::sort(collection.begin(), collection.end(), best_fitness);
-        if (n < individuals().size()) { collection.resize(n); }
-        return collection;
-    }
+    
+    // Return pointer to Individual with best fitness.
+    Individual* bestFitness() const { return nthBestFitness(0); }
+    // Return pointer to Individual with nth best fitness (0 -> best).
+    Individual* nthBestFitness(int n) const { return sorted_collection_.at(n); }
 
     // Average of "tree size" over all Individuals.
     int averageTreeSize() const
@@ -313,7 +303,6 @@ public:
         std::chrono::duration<double>
             elapsed_time = now_time - population.start_time_;
         population.start_time_ = now_time;
-        std::vector<Individual*> tops = population.nTopFitness(10);
         int default_precision = int(std::cout.precision());
         std::cout << population.step_count_ << ": t=";
         std::cout << std::setprecision(3) << elapsed_time.count() << ", ";
@@ -321,7 +310,11 @@ public:
         std::cout << "pop ave size=" << population.averageTreeSize();
         std::cout << " fit=" << population.averageFitness() << ", ";
         std::cout << "pop best (" << std::setprecision(2);
-        for (auto i : tops) std::cout << i->getFitness() << " ";
+        for (int i = 0; i < 10; i++)
+        {
+            if (i > 0) std::cout << " ";
+            std::cout << population.nthBestFitness(i)->getFitness();
+        }
         std::cout << ")" << std::setprecision(default_precision);
         std::cout << std::endl;
     }
@@ -339,4 +332,6 @@ private:
     std::function<void(Population&)> logger_function_ = basicLogger;
     std::chrono::time_point<std::chrono::high_resolution_clock> start_time_;
     int step_count_ = 0;
+    // Cached collection of all Individuals sorted by fitness.
+    std::vector<Individual*> sorted_collection_;
 };
