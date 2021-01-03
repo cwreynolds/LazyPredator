@@ -39,8 +39,11 @@ bool population_allocation_of_individuals()
     // These brackets serve to delimit the lifetime of Population "p".
     {
         Population p(target_count);
-        match_target_count = (st(p.individuals().size() == target_count) &&
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // 20210101 demes / subpopulations
+        match_target_count = (st(p.getIndividualCount() == target_count) &&
                               st(Individual::getLeakCount() == target_count));
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     }
     bool end_with_none = st(Individual::getLeakCount() == 0);
     return start_with_none && match_target_count && end_with_none;
@@ -186,8 +189,12 @@ bool gp_type_deleter()
         // Make a Population of Individuals from FunctionSet "treeEvalObjects".
         Population p(individuals, max_tree_size, TestFS::treeEvalObjects());
         // Evaluate GpTree of each Individual.
-        for (int k = 0; k < individuals; k++)
-            { p.applyToIndividual(k, [](Individual* i){ i->treeValue(); }); }
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // 20210101 demes / subpopulations
+//        for (int k = 0; k < individuals; k++)
+//            { p.applyToIndividual(k, [](Individual* i){ i->treeValue(); }); }
+        p.applyToAllIndividuals([](Individual* i){ i->treeValue(); });
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // Verify instances of ClassA have been constructed.
         constructed = st(TestFS::ClassA::getLeakCount() > 0);
     }
