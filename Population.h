@@ -15,27 +15,6 @@
 class Population
 {
 public:
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // 20210101 demes / subpopulations
-
-//    Population() {}
-//    Population(int size)
-//    {
-//        for (int i = 0; i < size; i++) individuals_.push_back(new Individual);
-//        updateSortedCollectionOfIndividuals();
-//    }
-//    // TODO combine constructors with and without fs?
-//    Population(int size, int max_tree_size, const FunctionSet& fs)
-//    {
-//        for (int i = 0; i < size; i++)
-//        {
-//            individuals_.push_back(new Individual(max_tree_size, fs));
-//        }
-//        updateSortedCollectionOfIndividuals();
-//    }
-    
-    // TODO new prototype
-
     Population() : Population(0, 1, 0, nullptr) {}
     Population(int individual_count)
       : Population(individual_count, 1, 0, nullptr) {}
@@ -58,120 +37,39 @@ public:
             Individual* new_individual = ((max_tree_size == 0) ?
                                           new Individual :
                                           new Individual(max_tree_size, *fs));
-//            individuals_.push_back(new_individual); // TODO to be removed
             subpopulation(i % subpopulation_count).push_back(new_individual);
         }
         updateSortedCollectionOfIndividuals();
-        
-        
+        // TODO keep or remove?
         assert(individual_count == sorted_collection_.size());
         assert(individual_count == getIndividualCount());
-
     }
     
-//    virtual ~Population()
-//    {
-//        for (Individual* individual : individuals_) { delete individual; }
-//    }
-
     virtual ~Population()
     {
         applyToAllIndividuals([](Individual* i){ delete i; });
     }
 
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    
-    
-    
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // 20210101 demes / subpopulations
-    // TODO move elsewhere in this file if kept
-    // std::vector<std::vector<Individual*>> subpopulations_;
-    
+    // A subpopulation (deme): just an std::vector of Individual pointers.
     typedef std::vector<Individual*> SubPop;
-    
-    // Return (writable/non-const) reference to i-th subpopulation.
-    // Maybe this should be private, perhaps with a const public version?
-//    std::vector<Individual*>& subpopulation(int s)
-    SubPop& subpopulation(int s)
-    {
-        return subpopulations_.at(s);
-    }
-    
-    // Returns total number of Individuals contained in this Population
-//    int size() const
-//    int individualCount() const
-//    int countOfIndividuals() const
-    int getIndividualCount() const
-    {
-        int count = 0;
-        for (auto& subpop : subpopulations_) { count += subpop.size(); }
-        return count;
-    }
-        
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
     // Functions that implement tournaments, by transforming a TournamentGroup.
     typedef std::function<TournamentGroup(TournamentGroup)> TournamentFunction;
-    
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // 20210101 demes / subpopulations
-    // Return const reference to collection of Individuals in Population.
-//    const std::vector<Individual*>& individuals() const { return individuals_; }
-//    const std::vector<Individual*>& delete_me_individuals() const
-//        { return individuals_; }
-//    const SubPop& delete_me_individuals() const { return individuals_; }
+    // Functions that measure "absolute" fitness of an Individual in isolation.
+    // (A shortcut for fitnesses that can be measured this way. Many cannot.)
+    typedef std::function<float(Individual*)> FitnessFunction;
 
-//    // Perform one step of the "steady state" evolutionary computation. Hold a
-//    // tournament with three randomly selected Individuals. The "loser" is
-//    // replaced in the Population by a new "offspring" created by crossing over
-//    // the two "winners" and mutating the result
-//    void evolutionStep(TournamentFunction tournament_function,
-//                       const FunctionSet& function_set)
-//    {
-//        TournamentGroup random_group = randomTournamentGroup();
-//        // Run tournament amoung the three, return ranked group.
-//        TournamentGroup ranked_group = tournament_function(random_group);
-//        Individual* loser = ranked_group.worstIndividual();
-//        int loser_index = ranked_group.worstIndex();
-//        assert(loser);
-//        // Other two become parents of new offspring.
-//        Individual* parent_0 = ranked_group.secondBestIndividual();
-//        Individual* parent_1 = ranked_group.bestIndividual();
-//        // Both parent's rank increases because they survived the tournament.
-//        parent_0->incrementTournamentsSurvived();
-//        parent_1->incrementTournamentsSurvived();
-//        // Create new offspring tree by crossing-over these two parents.
-//        GpTree new_tree;
-//        function_set.crossover(parent_0->tree(), parent_1->tree(), new_tree);
-//        // Mutate constants in new tree.
-//        new_tree.mutate();
-//        // Create new offspring Individual from new tree.
-//        Individual* offspring = new Individual(new_tree);
-//        // Construct and cache the result of evaluating new offspring's GpTree.
-//        offspring->treeValue();
-//        // Delete tournament loser from Population, replace with new offspring.
-//        replaceIndividual(loser_index, offspring);
-//        // TODO TEMP for debugging
-//        // TODO 20201122 remove old unused hack
-//        step_count_++;
-//        updateSortedCollectionOfIndividuals();
-//        logger();
-//    }
-
-    // Perform one step of the "steady state" evolutionary computation. Hold a
-    // tournament with three randomly selected Individuals. The "loser" is
-    // replaced in the Population by a new "offspring" created by crossing over
-    // the two "winners" and mutating the result
+    // Perform one step of the "steady state" evolutionary computation. Three
+    // Individuals are selected randomly, from a random subpopulation. Holds a
+    // "tournament" to determine their relative fitness ordering. The "loser" is
+    // removed from the Population and replaced by a new "offspring" created by
+    // crossing over the two "winners" and mutating the result. Handle migration
+    // between subpopulations and maintain sorted index of Individuals.
     void evolutionStep(TournamentFunction tournament_function,
                        const FunctionSet& function_set)
     {
         // Choose a random subpopulation, and a random TournamentGroup from it.
-//        std::vector<Individual*>& subpopulation = randomSubpopulation();
         SubPop& subpop = randomSubpopulation();
-//        TournamentGroup random_group = randomTournamentGroup();
         TournamentGroup random_group = randomTournamentGroup(subpop);
-        
         // Run tournament amoung the three, return ranked group.
         TournamentGroup ranked_group = tournament_function(random_group);
         Individual* loser = ranked_group.worstIndividual();
@@ -192,19 +90,15 @@ public:
         Individual* offspring = new Individual(new_tree);
         // Construct and cache the result of evaluating new offspring's GpTree.
         offspring->treeValue();
-        
         // Delete tournament loser from Population, replace with new offspring.
-//        replaceIndividual(loser_index, offspring);
         replaceIndividual(loser_index, offspring, subpop);
-
+        // Occasionally migrate Individuals between subpopulations.
+        subpopulationMigration();
         step_count_++;
         updateSortedCollectionOfIndividuals();
         logger();
     }
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    // Type for "fitness function" used below.
-    typedef std::function<float(Individual*)> FitnessFunction;
     // Perform one step of the "steady state" evolutionary computation using
     // "absolute fitness" (rather than "relative tournament-based fitness").
     // Takes a FitnessFunction which maps a given Individual to a numeric
@@ -236,60 +130,19 @@ public:
         evolutionStep(tournament_function, function_set);
     }
     
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // 20210101 demes / subpopulations
-
-//    // Delete Individual at index i, then overwrite pointer with replacement.
-//    void replaceIndividual(int i, Individual* new_individual)
-//    {
-//        delete individuals_.at(i);
-//        individuals_.at(i) = new_individual;
-//    }
-
     // Delete Individual at index i, then overwrite pointer with replacement.
-    void replaceIndividual(int i, Individual* new_individual, SubPop subpop)
+    void replaceIndividual(int i, Individual* new_individual, SubPop& subpop)
     {
-//        delete individuals_.at(i);
-//        individuals_.at(i) = new_individual;
-        
-        std::cout << "replaceIndividual() ";
-        debugPrint(&subpop);
-        std::cout << "replaceIndividual() i = " << i << std::endl;
-        assert(&subpop == &(subpopulations_.at(0)));
-        assert(&subpop == &(subpopulation(0)));
-
-
         delete subpop.at(i);
         subpop.at(i) = new_individual;
     }
     
-
-//    // TournamentGroup with three Individuals selected randomly from Population.
-//    TournamentGroup randomTournamentGroup()
-//    {
-//        int i = randomIndex();
-//        int j = randomIndex();
-//        int k = randomIndex();
-//        return TournamentGroup({ {individual(i), i},
-//                                 {individual(j), j},
-//                                 {individual(k), k} });
-//    }
-    
-    // TournamentGroup with three Individuals selected randomly from Population.
-//    TournamentGroup randomTournamentGroup(const std::vector<Individual*>& individuals)
+    // TournamentGroup with three Individuals selected randomly from "subpop".
     TournamentGroup randomTournamentGroup(const SubPop& subpop)
     {
         int i = randomIndex(subpop);
         int j = randomIndex(subpop);
         int k = randomIndex(subpop);
-        
-        std::cout << "randomTournamentGroup() ";
-        debugPrint(&subpop);
-        assert(&subpop == &subpopulation(0));
-
-        std::cout << "randomTournamentGroup() i,j,k = "
-                  << i << ", " << j << ", " << k << std::endl;
-        
         return TournamentGroup({ {subpop.at(i), i},
                                  {subpop.at(j), j},
                                  {subpop.at(k), k} });
@@ -297,66 +150,29 @@ public:
     
 
     // Select a unifromly distributed random index of Population's Individuals.
-//    int randomIndex() const { return LPRS().randomN(individuals().size()); }
-//    int randomIndex(const std::vector<Individual*>& individuals) const
     int randomIndex(const SubPop& subpop) const
     {
         return LPRS().randomN(subpop.size());
     }
     
-    
-//    std::vector<Individual*>& randomSubpopulation() const
-//    std::vector<Individual*>& randomSubpopulation()
+    // Return a reference to a randomly selected subpopulation
     SubPop& randomSubpopulation()
     {
-//        return subpopulations_.at(LPRS().randomN(subpopulations_.size()));
-
-        int n = LPRS().randomN(subpopulations_.size());
-        
-        auto& subpop = subpopulations_.at(n);
-        std::cout << "randomSubpopulation() ";
-        debugPrint(&subpop);
-        assert(&subpop == &subpopulation(0));
-
-        std::cout << "randomSubpopulation() n = " << n << std::endl;
-        return subpopulations_.at(n);
-
+        return subpopulations_.at(LPRS().randomN(subpopulations_.size()));
     }
 
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // 20210101 demes / subpopulations
-    
-//    // Called each step to update/maintain fitness sorted list of Individuals.
-//    // TODO 20201231 once we have demes they need to be merged here.
-//    void updateSortedCollectionOfIndividuals()
-//    {
-//        // Update cached collection of all Individuals.
-//        sorted_collection_ = individuals();
-//        // Sort with largest fitness Individuals at the front.
-//        std::sort(sorted_collection_.begin(),
-//                  sorted_collection_.end(),
-//                  [](Individual* a, Individual* b)
-//                  { return a->getFitness() > b->getFitness(); });
-//    }
-
-    // Called each step to update/maintain fitness sorted list of Individuals.
-    // TODO 20201231 once we have demes they need to be merged here.
+    // Called each step to update/maintain fitness sorted index of Individuals.
+    // TODO 20201231 this should MERGE the sorted index of each subpopulation.
     void updateSortedCollectionOfIndividuals()
     {
         //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         // TODO 20210101 demes / subpopulations VERY TEMP just for prototyping
-        
-//        // Update cached collection of all Individuals.
-//        sorted_collection_ = individuals();
-
+        // // Update cached collection of all Individuals.
+        // sorted_collection_ = individuals();
         sorted_collection_.clear();
         applyToAllIndividuals([&]
                               (Individual* i)
                               { sorted_collection_.push_back(i); });
-        
         // TODO should rather merge together presorted lists from each deme.
         //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         // Sort with largest fitness Individuals at the front.
@@ -365,57 +181,61 @@ public:
                   [](Individual* a, Individual* b)
                   { return a->getFitness() > b->getFitness(); });
     }
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+    // TODO 20210103 maybe we want a flag to indicate then the sorted index
+    // needs to be re-cached. replaceIndividual() would clear the flag. The
+    // bestFitness() functions could call a ensureSorted() which would call
+    // updateSortedCollectionOfIndividuals() when needed.
+    
     // Return pointer to Individual with best fitness.
     Individual* bestFitness() const { return nthBestFitness(0); }
     // Return pointer to Individual with nth best fitness (0 -> best).
     Individual* nthBestFitness(int n) const { return sorted_collection_.at(n); }
 
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // 20210101 demes / subpopulations
-
-//    // Average of "tree size" over all Individuals.
-//    int averageTreeSize() const
-//    {
-//        int total = 0;
-//        for (auto& i : individuals()) { total += i->tree().size(); }
-//        return total / individuals().size();
-//    }
-//
-//    // Average of "tournaments survived" over all Individuals.
-//    float averageFitness() const
-//    {
-//        float total = 0;
-//        for (auto& i : individuals()) { total += i->getFitness(); }
-//        return total / individuals().size();
-//    }
-
-    // Average over all Individuals of "tree size".
+    // Average of "tree size" over all Individuals.
     int averageTreeSize() const
     {
         int total = 0;
-//        auto f = [&](Individual* i){ total += i->tree().size(); };
-        auto f = [&](Individual* i)
-        {
-//            i->treeValue();
-            assert(i);
-            total += i->tree().size();
-        };
+        auto f = [&](Individual* i){ total += i->tree().size(); };
         applyToAllIndividuals(f);
         return total / getIndividualCount();
     }
     
-    // Average over all Individuals of "tournaments survived" (or abs fitness).
+    // Average of "tournaments survived" (or abs fitness) over all Individuals.
     float averageFitness() const
     {
-        int total = 0;
+        float total = 0;
         auto f = [&](Individual* i){ total += i->getFitness(); };
         applyToAllIndividuals(f);
         return total / getIndividualCount();
     }
 
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // Occasionally migrate Individuals between subpopulations.
+    // (Swaps two Individuals between "adjacent" subpopulations.)
+    void subpopulationMigration()
+    {
+        // TODO this rate should be adjustable, fixed for this prototype.
+        float subpop_count = subpopulations_.size();
+        float likelihood = subpop_count / getIndividualCount();
+        if ((LPRS().frandom01() < likelihood) && (subpop_count > 1))
+        {
+            // Randomly pick two "adjacent" SubPop. (Reconsider "adjacent".)
+            // Maybe this should be a utility related to randomSubpopulation()?
+            int pm = LPRS().randomBool() ? -1 : 1;
+            int subpop_index_1 = LPRS().randomN(subpopulations_.size());
+            int subpop_index_2 = (subpop_index_1 + pm) % subpopulations_.size();
+            SubPop& subpop1 = subpopulation(subpop_index_1);
+            SubPop& subpop2 = subpopulation(subpop_index_2);
+            // Randomly pick an Individual in each SubPop.
+            int individual_index_1 = randomIndex(subpop1);
+            int individual_index_2 = randomIndex(subpop2);
+            Individual* individual_1 = subpop1.at(individual_index_1);
+            Individual* individual_2 = subpop2.at(individual_index_2);
+            // Swap them.
+            subpop1.at(individual_index_1) = individual_2;
+            subpop2.at(individual_index_2) = individual_1;
+        }
+    }
 
     // Run "steps" of evolution, given "function_set" and "tournament_function".
     void run(int steps,
@@ -462,51 +282,34 @@ public:
         std::cout << ")" << std::setprecision(default_precision);
         std::cout << std::endl;
     }
-
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // 20210101 demes / subpopulations
-
-//    // This utility allows modification of Individuals inside a Population. It
-//    // is currently used only by UnitTests, to get around "const" protection of
-//    // Individuals inside a Population. Think hard before using it elsewhere.
-//    void applyToIndividual(int i, std::function<void(Individual*)> func)
-//    {
-//        func(individual(i));
-//    }
     
     // Apply the given function to all Individuals in this Population.
-    
     void applyToAllIndividuals(std::function<void(Individual*)> func) const
     {
         for (auto& subpop : subpopulations_)
         {
             for (auto& individual : subpop) { func(individual); }
-//            for (auto& individual : subpop)
-//            {
-//                assert(individual);
-//                assert(individual->tree().getRootValue().has_value());
-//                func(individual);
-//
-//            }
         }
     }
     
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // Return (writable/non-const) reference to i-th subpopulation.
+    // Maybe this should be private, perhaps with a const public version?
+    SubPop& subpopulation(int s) { return subpopulations_.at(s); }
+    
+    // Returns total number of Individuals contained in this Population
+    int getIndividualCount() const
+    {
+        int count = 0;
+        for (auto& subpop : subpopulations_) { count += subpop.size(); }
+        return count;
+    }
 
 private:
-//    Individual* individual(int i) { return individuals_.at(i); }
-//    std::vector<Individual*> individuals_;
     std::function<void(Population&)> logger_function_ = basicLogger;
     std::chrono::time_point<std::chrono::high_resolution_clock> start_time_;
     int step_count_ = 0;
     // Cached collection of all Individuals sorted by fitness.
-//    std::vector<Individual*> sorted_collection_;
     SubPop sorted_collection_;
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // 20210101 demes / subpopulations
-    
     // One or more collections of Individual*, each a subpopulation (deme).
-//    std::vector<std::vector<Individual*>> subpopulations_;
     std::vector<SubPop> subpopulations_;
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 };
