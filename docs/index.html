@@ -51,6 +51,7 @@
       <h1>Title</h1>
       <p>...</p>
       <pre>x</pre>
+      <img src="images/xxx" alt="" title="" height="" width="">
     </div>
     <!-- --------------------------------------------------------------------------- -->
     </style>
@@ -105,6 +106,47 @@
       details of the implementation. On the other hand, I do want it to be more
       prose-like than the terse <code>git commit</code> messages.)</p>
     <br style="##########################################################################">
+    <div class="post" id="20210103"> <a href="#20210103" class="date">January
+        3, 2021</a>
+      <h1>GP with subpopulations — “demes”</h1>
+      <p>For a while now <em>subpopulations</em> had been on my to-do list of
+        features. This is the idea that instead of a population with, say, 100
+        individuals, we divide them into four subpopulations of 25 individuals
+        each. The evolutionary computation proceeds pretty much the same as
+        before, except that each <code>Population::evolutionStep()</code>
+        starts by selecting one of the subpopulations at random. Then as before,
+        it selects three individuals from that subpopulation, ranks them by
+        tournament, the two top ranked individuals produce an offspring, which
+        replaces the lowest ranked individual in the subpopulation. In addition,
+        individuals occasionally <em>migrate</em> between subpopulations.</p>
+      <p>The notion is that running multiple populations in parallel allows each
+        of them to climb a different hill in fitness space, allowing the
+        population spread out its investment. Some of those hills might be
+        higher than others, so multiple populations allows exploring more
+        territory. Subpopulations are sometimes called “demes” (“from the Greek”
+        as James Rice, my early GP mentor, told me when I asked about the term)
+        as used in biology “
+        <meta charset="utf-8">
+        a subdivision of a population consisting of closely related plants,
+        animals, or people, typically breeding mainly within the group.”
+        Similarly a single population GP, as LazyPredator had been before now,
+        is sometimes called “panmixia” from biology meaning “random mating
+        within a breeding population.”</p>
+      <p>I refactored <code>Population</code> to support subpopulation and took
+        it out for a test drive. I used the same <code>LimitHue::comparison()</code>
+        framework as before, making four pairs of runs, each run in a pair
+        starting from the same random seed, one run with a single population,
+        and one run with four subpopulations. Each run takes 2000 steps. I hoped
+        for a clear fitness advantage for the multiple subpopulation case. I did
+        not find it. This plot is an excellent illustration of the null
+        hypothesis. The plots in red have a single large population, those in
+        blue have four subpopulations ¼ as large. It would be hard to guess
+        which was which if they were not colored. Also puzzling is that the <em>average
+          fitness</em> for all eight populations are around 0.55 while in
+        previous runa (below) they were near 0.75. </p>
+      <img src="images/20210103_LimitHue_Comparison.png" alt="LimitHue::comparison() subpopulations"
+        title="LimitHue::comparison() subpopulations" height="588" width="710">
+    </div>
     <div class="post" id="20201226"> <a href="#20201226" class="date">December
         26, 2020</a>
       <h1>Oops, now computing initial “absolute fitness”</h1>
