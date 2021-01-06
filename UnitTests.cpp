@@ -203,6 +203,46 @@ bool gp_type_deleter()
     return constructed && destructed;
 }
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// TODO 20210105 unit tests for subpopulations, etc.
+bool subpopulation_and_migration()
+{
+    bool ok = true;
+    LPRS().setSeed(239473519);
+
+//    {
+//        int count = 12;
+//        int demes = 3;
+//        Population p0(count, demes, 10, TestFS::treeEval());
+//        ok = (ok &&
+//              st(p0.getSubpopulationCount() == demes) &&
+//              st(p0.subpopulation(0).size() == count / demes) &&
+//              st(p0.subpopulation(1).size() == count / demes)&&
+//              st(p0.subpopulation(2).size() == count / demes));
+//    }
+    
+    for (int i = 0; i < 20; i++)
+    {
+        int count = LPRS().random2(5, 25);
+        int demes = LPRS().random2(1, count);
+        Population p(count, demes, 10, TestFS::treeEval());
+        ok = ok && st(p.getSubpopulationCount() == demes);
+        for (int s = 0; s < p.getSubpopulationCount(); s++)
+        {
+            int size_of_subpop = int(p.subpopulation(s).size());
+            int fair_share = count / demes;
+            ok = ok && st(std::abs(size_of_subpop - fair_share) <= 1);
+        }
+//        debugPrint(count);
+//        debugPrint(demes);
+    }
+    // Make sure all of the Individuals have been properly cleaned up.
+    ok = ok && st(Individual::getLeakCount() == 0);
+    return ok;
+}
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 bool UnitTests::allTestsOK()
 {
     Timer timer("Run time for unit test suite: ", "");
@@ -214,6 +254,10 @@ bool UnitTests::allTestsOK()
     logAndTally(gp_tree_eval_simple);
     logAndTally(gp_tree_eval_objects);
     logAndTally(gp_type_deleter);
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // TODO 20210105 unit tests for subpopulations, etc.
+    logAndTally(subpopulation_and_migration);
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     std::cout << std::endl;
     std::cout << (all_tests_passed ? "All tests PASS." : "Some tests FAIL.");
