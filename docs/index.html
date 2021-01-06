@@ -106,6 +106,20 @@
       details of the implementation. On the other hand, I do want it to be more
       prose-like than the terse <code>git commit</code> messages.)</p>
     <br style="##########################################################################">
+    <div class="post" id="20210105"> <a href="#20210105" class="date">January
+        5, 2021</a>
+      <h1>Another day, another tweak, another ambiguous plot</h1>
+      <p>I changed the choice of which subpopulation is selected on each update
+        step. It had been a random selection, now it simply rotates through them
+        in order. Probably no difference for large runs, but in short test of
+        100 steps, I saw one (of four) get about 30% of the updates. I also
+        tested the migration policy and added some other unit tests. This test
+        is not obviously different from the previous one, although one of the 4
+        subpopulation runs got up to 95% which I think is the highest value I
+        have seen. On the other hand, runs with 4 subpopulations ended at 87.6%.</p>
+      <img src="images/20210105_LimitHue_Comparison.png" alt="LimitHue::comparison() subpop selection tweak"
+        title="LimitHue::comparison() subpop selection tweak" height="555" width="705">
+    </div>
     <div class="post" id="20210103"> <a href="#20210103" class="date">January
         3, 2021</a>
       <h1>GP with subpopulations — “demes”</h1>
