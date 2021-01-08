@@ -94,11 +94,18 @@ public:
         replaceIndividual(loser_index, offspring, subpop);
         // Occasionally migrate Individuals between subpopulations.
         subpopulationMigration();
-        step_count_++;
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // TODO 20210107 replace randomSubpopulation() add unit tests.
+//        step_count_++;
+        incrementStepCount();
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+        
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // TODO 20210105 unit tests for subpopulations, etc.
 //        updateSortedCollectionOfIndividuals();
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         logger();
     }
 
@@ -462,7 +469,11 @@ public:
             elapsed_time = now_time - population.start_time_;
         population.start_time_ = now_time;
         int default_precision = int(std::cout.precision());
-        std::cout << population.step_count_ << ": t=";
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // TODO 20210107 replace randomSubpopulation() add unit tests.
+//        std::cout << population.step_count_ << ": t=";
+        std::cout << population.getStepCount() << ": t=";
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         std::cout << std::setprecision(3) << elapsed_time.count() << ", ";
         std::cout << std::setprecision(default_precision);
         std::cout << "pop ave size=" << population.averageTreeSize();
@@ -504,6 +515,15 @@ public:
     // Returns number of subpopulations.
     int getSubpopulationCount() const { return int(subpopulations_.size()); }
 
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    
+    
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // TODO 20210107 replace randomSubpopulation() add unit tests.
+    
+    // Returns number of evolution steps already taken in this Population.
+    int getStepCount() const { return step_count_; }
+    void incrementStepCount() { step_count_++; }
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 private:

@@ -205,27 +205,28 @@ bool gp_type_deleter()
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // TODO 20210105 unit tests for subpopulations, etc.
-bool subpopulation_and_migration()
+bool subpopulation_and_stats()
 {
     bool ok = true;
     LPRS().setSeed(239473519);
-
-//    {
-//        int count = 12;
-//        int demes = 3;
-//        Population p0(count, demes, 10, TestFS::treeEval());
-//        ok = (ok &&
-//              st(p0.getSubpopulationCount() == demes) &&
-//              st(p0.subpopulation(0).size() == count / demes) &&
-//              st(p0.subpopulation(1).size() == count / demes)&&
-//              st(p0.subpopulation(2).size() == count / demes));
-//    }
+    const FunctionSet& fs = TestFS::treeEval();
     
+    // Test getStepCount().
+    {
+        Population p(10, 2, 10, fs);
+        p.setLoggerFunction([](Population& p){});  // Do nothing logger.
+        int steps = 10;
+        p.run(steps, fs, [](TournamentGroup tg){ return tg; });  // Identity tf.
+        ok = ok && st(p.getStepCount() == steps);
+    }
+    
+    // Test that each subpopulation has correct count of Individuals,
+    // given random total numbers of Individuals and subpopulations.
     for (int i = 0; i < 20; i++)
     {
         int count = LPRS().random2(5, 25);
         int demes = LPRS().random2(1, count);
-        Population p(count, demes, 10, TestFS::treeEval());
+        Population p(count, demes, 10, fs);
         ok = ok && st(p.getSubpopulationCount() == demes);
         for (int s = 0; s < p.getSubpopulationCount(); s++)
         {
@@ -233,9 +234,51 @@ bool subpopulation_and_migration()
             int fair_share = count / demes;
             ok = ok && st(std::abs(size_of_subpop - fair_share) <= 1);
         }
-//        debugPrint(count);
-//        debugPrint(demes);
     }
+    
+    // Test averageTreeSize(). Compute average three ways, ensure they match.
+    {
+        int individual_count = 100;
+        Population p(individual_count, 2, 20, fs);
+        float sum1 = 0;
+        float sum2 = 0;
+        p.applyToAllIndividuals([&](Individual* i){sum1+=(i->tree().size());});
+        for (int i = 0; i < p.getSubpopulationCount(); i++)
+        {
+            for (auto& j : p.subpopulation(i)) { sum2 += j->tree().size(); }
+        }
+        float average_tree_size_1 = sum1 / p.getIndividualCount();
+        float average_tree_size_2 = sum2 / p.getIndividualCount();
+        ok = ok && st(p.averageTreeSize() == average_tree_size_1);
+        ok = ok && st(p.averageTreeSize() == average_tree_size_2);
+    }
+    
+    // Test averageFitness(). Compute average three ways, ensure they match.
+    {
+        int individual_count = 100;
+        Population p(individual_count);
+        float sum1 = 0;
+        float sum2 = 0;
+        // Function to set each Individual to next value of counter.
+        float counter = 0;
+        auto set_fitnesses_keep_sum = [&](Individual* i)
+                                      {
+                                          sum1 += counter;
+                                          i->setFitness(counter++);
+                                      };
+        p.applyToAllIndividuals(set_fitnesses_keep_sum);
+        // Directly iterate through all individuals in Population
+        for (int i = 0; i < p.getSubpopulationCount(); i++)
+        {
+            for (auto& j : p.subpopulation(i)) { sum2 += j->getFitness(); }
+        }
+        float average_fitness_1 = sum1 / p.getIndividualCount();
+        float average_fitness_2 = sum2 / p.getIndividualCount();
+        ok = ok && st(p.averageFitness() == average_fitness_1);
+        ok = ok && st(p.averageFitness() == average_fitness_2);
+    }
+    
+
     // Make sure all of the Individuals have been properly cleaned up.
     ok = ok && st(Individual::getLeakCount() == 0);
     return ok;
@@ -256,7 +299,7 @@ bool UnitTests::allTestsOK()
     logAndTally(gp_type_deleter);
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // TODO 20210105 unit tests for subpopulations, etc.
-    logAndTally(subpopulation_and_migration);
+    logAndTally(subpopulation_and_stats);
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     std::cout << std::endl;
