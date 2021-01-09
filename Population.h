@@ -67,8 +67,10 @@ public:
     void evolutionStep(TournamentFunction tournament_function,
                        const FunctionSet& function_set)
     {
-        // Choose a random subpopulation, and a random TournamentGroup from it.
-        SubPop& subpop = randomSubpopulation();
+//        // Choose a random subpopulation, and a random TournamentGroup from it.
+//        SubPop& subpop = randomSubpopulation();
+        // Get current subpopulation, create a random TournamentGroup from it.
+        SubPop& subpop = currentSubpopulation();
         TournamentGroup random_group = randomTournamentGroup(subpop);
         // Run tournament amoung the three, return ranked group.
         TournamentGroup ranked_group = tournament_function(random_group);
@@ -198,16 +200,41 @@ public:
 //            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //        }
 
-    // TODO 20210105 prototype, try doing simple round robin for SubPop selection
-    int next_subpop_ = 0;
+//    // TODO 20210105 prototype, try doing simple round robin for SubPop selection
+//    int next_subpop_ = 0;
+//
+//    // Return a reference to a randomly selected subpopulation
+//    SubPop& randomSubpopulation()
+//    {
+//        int random_subpop_index = (next_subpop_++) % subpopulations_.size();
+//        debugPrint(random_subpop_index);
+//        return subpopulations_.at(random_subpop_index);
+//    }
     
-    // Return a reference to a randomly selected subpopulation
-    SubPop& randomSubpopulation()
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // TODO 20210108 refactor subpopulationMigration(), fixed likelihood
+
+    // Return index of the subpopulation to be updated this step.
+    int currentSubpopulationIndex() const
     {
-        int random_subpop_index = (next_subpop_++) % subpopulations_.size();
-        debugPrint(random_subpop_index);
-        return subpopulations_.at(random_subpop_index);
+        return getStepCount() % getSubpopulationCount();
     }
+    
+//        // Return a reference to the subpopulation to be updated this step.
+//        SubPop& currentSubpopulation()
+//        {
+//    //        int random_subpop_index = (next_subpop_++) % subpopulations_.size();
+//            int subpop_index = getStepCount() % getSubpopulationCount();
+//            debugPrint(subpop_index);
+//            return subpopulations_.at(subpop_index);
+//        }
+    
+    // Return a reference to the subpopulation to be updated this step.
+    SubPop& currentSubpopulation()
+    {
+        return subpopulations_.at(getStepCount() % getSubpopulationCount());
+    }
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     
 //    // Called each step to update/maintain fitness sorted index of Individuals.
@@ -398,27 +425,79 @@ public:
     // TODO very temp
     int migrate_consider = 0;
     int migrate_perform = 0;
+    
 
-    // Occasionally migrate Individuals between subpopulations.
-    // (Swaps two Individuals between "adjacent" subpopulations.)
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // TODO 20210108 refactor subpopulationMigration(), fixed likelihood
+
+//    // Occasionally migrate Individuals between subpopulations.
+//    // (Swaps two Individuals between "adjacent" subpopulations.)
+//    void subpopulationMigration()
+//    {
+//        migrate_consider++;  // TODO very temp
+//
+//        // TODO this rate should be adjustable, fixed for this prototype.
+//        float subpop_count = subpopulations_.size();
+//        float likelihood = subpop_count / getIndividualCount();
+//        if ((LPRS().frandom01() < likelihood) && (subpop_count > 1))
+//        {
+//            migrate_perform++;  // TODO very temp
+//
+//            // Randomly pick two "adjacent" SubPop. (Reconsider "adjacent".)
+//            // Maybe this should be a utility related to randomSubpopulation()?
+//            int pm = LPRS().randomBool() ? -1 : 1;
+//            int subpop_index_1 = LPRS().randomN(subpopulations_.size());
+//            int subpop_index_2 = (subpop_index_1 + pm) % subpopulations_.size();
+//            SubPop& subpop1 = subpopulation(subpop_index_1);
+//            SubPop& subpop2 = subpopulation(subpop_index_2);
+//            // Randomly pick an Individual in each SubPop.
+//            int individual_index_1 = randomIndex(subpop1);
+//            int individual_index_2 = randomIndex(subpop2);
+//            Individual* individual_1 = subpop1.at(individual_index_1);
+//            Individual* individual_2 = subpop2.at(individual_index_2);
+//            // Swap them.
+//            subpop1.at(individual_index_1) = individual_2;
+//            subpop2.at(individual_index_2) = individual_1;
+//        }
+//
+//        // TODO very temp
+//        std::cout << "migrate_consider=" << migrate_consider;
+//        std::cout << " migrate_perform=" << migrate_perform;
+//        std::cout << " ratio=" << migrate_perform / float(migrate_consider);
+//        std::cout << std::endl;
+//    }
+
+    
+
+    // Occasionally migrate (swap) Individuals between current and random SubPop.
     void subpopulationMigration()
     {
         migrate_consider++;  // TODO very temp
         
         // TODO this rate should be adjustable, fixed for this prototype.
-        float subpop_count = subpopulations_.size();
-        float likelihood = subpop_count / getIndividualCount();
-        if ((LPRS().frandom01() < likelihood) && (subpop_count > 1))
+//        float subpop_count = subpopulations_.size();
+//        float likelihood = subpop_count / getIndividualCount();
+//        if ((LPRS().frandom01() < likelihood) && (subpop_count > 1))
+        int spc = getSubpopulationCount();
+        if ((spc > 1) && (LPRS().frandom01() < migration_likelihood_per_step_))
         {
             migrate_perform++;  // TODO very temp
             
-            // Randomly pick two "adjacent" SubPop. (Reconsider "adjacent".)
-            // Maybe this should be a utility related to randomSubpopulation()?
-            int pm = LPRS().randomBool() ? -1 : 1;
-            int subpop_index_1 = LPRS().randomN(subpopulations_.size());
-            int subpop_index_2 = (subpop_index_1 + pm) % subpopulations_.size();
+//            // Randomly pick two "adjacent" SubPop. (Reconsider "adjacent".)
+//            // Maybe this should be a utility related to randomSubpopulation()?
+//            int pm = LPRS().randomBool() ? -1 : 1;
+//            int subpop_index_1 = LPRS().randomN(subpopulations_.size());
+//            int subpop_index_2 = (subpop_index_1 + pm) % subpopulations_.size();
+            
+            // Get indexes of and references to the current subpopulation, and a
+            // different, random subpopulation.
+            int random_index_offset = 1 + LPRS().randomN(spc - 1);
+            int subpop_index_1 = currentSubpopulationIndex();
+            int subpop_index_2 = (subpop_index_1 + random_index_offset) % spc;
             SubPop& subpop1 = subpopulation(subpop_index_1);
             SubPop& subpop2 = subpopulation(subpop_index_2);
+            
+            
             // Randomly pick an Individual in each SubPop.
             int individual_index_1 = randomIndex(subpop1);
             int individual_index_2 = randomIndex(subpop2);
@@ -427,14 +506,23 @@ public:
             // Swap them.
             subpop1.at(individual_index_1) = individual_2;
             subpop2.at(individual_index_2) = individual_1;
+            
+//            std::cout << "migrate swap: SubPop_1=" << subpop_index_1;
+//            std::cout << " Individual_1=" << individual_index_1;
+//            std::cout << " SubPop_2=" << subpop_index_2;
+//            std::cout << " Individual_2=" << individual_index_2;
+//            std::cout << std::endl;
         }
         
-        // TODO very temp
-        std::cout << "migrate_consider=" << migrate_consider;
-        std::cout << " migrate_perform=" << migrate_perform;
-        std::cout << " ratio=" << migrate_perform / float(migrate_consider);
-        std::cout << std::endl;
+//        // TODO very temp
+//        std::cout << "migrate_consider=" << migrate_consider;
+//        std::cout << " migrate_perform=" << migrate_perform;
+//        std::cout << " ratio=" << migrate_perform / float(migrate_consider);
+//        std::cout << std::endl;
     }
+
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -539,5 +627,11 @@ private:
     // TODO 20210105 unit tests for subpopulations, etc.
     // TODO should be private
     bool sort_cache_invalid_ = true;
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // TODO 20210108 refactor subpopulationMigration(), fixed likelihood
+    // TODO need some way to set this (in constructor or setXxx() method)
+    float migration_likelihood_per_step_ = 0.05;
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 };
