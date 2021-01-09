@@ -39,11 +39,8 @@ bool population_allocation_of_individuals()
     // These brackets serve to delimit the lifetime of Population "p".
     {
         Population p(target_count);
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // 20210101 demes / subpopulations
         match_target_count = (st(p.getIndividualCount() == target_count) &&
                               st(Individual::getLeakCount() == target_count));
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     }
     bool end_with_none = st(Individual::getLeakCount() == 0);
     return start_with_none && match_target_count && end_with_none;
@@ -188,13 +185,8 @@ bool gp_type_deleter()
     {
         // Make a Population of Individuals from FunctionSet "treeEvalObjects".
         Population p(individuals, max_tree_size, TestFS::treeEvalObjects());
-        // Evaluate GpTree of each Individual.
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // 20210101 demes / subpopulations
-//        for (int k = 0; k < individuals; k++)
-//            { p.applyToIndividual(k, [](Individual* i){ i->treeValue(); }); }
+        // Force early evaluation of each Individual's GpTree.
         p.applyToAllIndividuals([](Individual* i){ i->treeValue(); });
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // Verify instances of ClassA have been constructed.
         constructed = st(TestFS::ClassA::getLeakCount() > 0);
     }
@@ -203,14 +195,11 @@ bool gp_type_deleter()
     return constructed && destructed;
 }
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// TODO 20210105 unit tests for subpopulations, etc.
 bool subpopulation_and_stats()
 {
     bool ok = true;
     LPRS().setSeed(239473519);
     const FunctionSet& fs = TestFS::treeEval();
-    
     // Test getStepCount().
     {
         Population p(10, 2, 10, fs);
@@ -219,7 +208,6 @@ bool subpopulation_and_stats()
         p.run(steps, fs, [](TournamentGroup tg){ return tg; });  // Identity tf.
         ok = ok && st(p.getStepCount() == steps);
     }
-    
     // Test that each subpopulation has correct count of Individuals,
     // given random total numbers of Individuals and subpopulations.
     for (int i = 0; i < 20; i++)
@@ -235,7 +223,6 @@ bool subpopulation_and_stats()
             ok = ok && st(std::abs(size_of_subpop - fair_share) <= 1);
         }
     }
-    
     // Test averageTreeSize(). Compute average three ways, ensure they match.
     {
         int individual_count = 100;
@@ -252,7 +239,6 @@ bool subpopulation_and_stats()
         ok = ok && st(p.averageTreeSize() == average_tree_size_1);
         ok = ok && st(p.averageTreeSize() == average_tree_size_2);
     }
-    
     // Test averageFitness(). Compute average three ways, ensure they match.
     {
         int individual_count = 100;
@@ -277,14 +263,10 @@ bool subpopulation_and_stats()
         ok = ok && st(p.averageFitness() == average_fitness_1);
         ok = ok && st(p.averageFitness() == average_fitness_2);
     }
-    
-
     // Make sure all of the Individuals have been properly cleaned up.
     ok = ok && st(Individual::getLeakCount() == 0);
     return ok;
 }
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 
 bool UnitTests::allTestsOK()
 {
@@ -297,10 +279,7 @@ bool UnitTests::allTestsOK()
     logAndTally(gp_tree_eval_simple);
     logAndTally(gp_tree_eval_objects);
     logAndTally(gp_type_deleter);
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // TODO 20210105 unit tests for subpopulations, etc.
     logAndTally(subpopulation_and_stats);
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     std::cout << std::endl;
     std::cout << (all_tests_passed ? "All tests PASS." : "Some tests FAIL.");
