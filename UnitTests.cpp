@@ -205,7 +205,7 @@ bool subpopulation_and_stats()
         Population p(10, 2, 10, fs);
         p.setLoggerFunction([](Population& p){});  // Do nothing logger.
         int steps = 10;
-        p.run(steps, fs, [](TournamentGroup tg){ return tg; });  // Identity tf.
+        p.run(steps, [](TournamentGroup tg){ return tg; });  // Identity tf.
         ok = ok && st(p.getStepCount() == steps);
     }
     // Test that each subpopulation has correct count of Individuals,

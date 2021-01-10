@@ -30,6 +30,7 @@ public:
                int max_tree_size,
                const FunctionSet* fs)
     {
+        setFunctionSet(fs);
         assert(subpopulation_count > 0);
         subpopulations_.resize(subpopulation_count);
         for (int i = 0; i < individual_count; i++)
@@ -64,8 +65,7 @@ public:
     // removed from the Population and replaced by a new "offspring" created by
     // crossing over the two "winners" and mutating the result. Handle migration
     // between subpopulations and maintain sorted index of Individuals.
-    void evolutionStep(TournamentFunction tournament_function,
-                       const FunctionSet& function_set)
+    void evolutionStep(TournamentFunction tournament_function)
     {
         // Get current subpopulation, create a random TournamentGroup from it.
         SubPop& subpop = currentSubpopulation();
@@ -76,14 +76,14 @@ public:
         int loser_index = ranked_group.worstIndex();
         assert(loser);
         // Other two become parents of new offspring.
-        Individual* parent_0 = ranked_group.secondBestIndividual();
-        Individual* parent_1 = ranked_group.bestIndividual();
+        Individual* parent0 = ranked_group.secondBestIndividual();
+        Individual* parent1 = ranked_group.bestIndividual();
         // Both parent's rank increases because they survived the tournament.
-        parent_0->incrementTournamentsSurvived();
-        parent_1->incrementTournamentsSurvived();
+        parent0->incrementTournamentsSurvived();
+        parent1->incrementTournamentsSurvived();
         // Create new offspring tree by crossing-over these two parents.
         GpTree new_tree;
-        function_set.crossover(parent_0->tree(), parent_1->tree(), new_tree);
+        getFunctionSet()->crossover(parent0->tree(), parent1->tree(), new_tree);
         // Mutate constants in new tree.
         new_tree.mutate();
         // Create new offspring Individual from new tree.
@@ -104,8 +104,7 @@ public:
     // Takes a FitnessFunction which maps a given Individual to a numeric
     // "absolute fitness" value. Converts this into a TournamentFunction for
     // use in the "relative fitness" version of evolutionStep() above.
-    void evolutionStep(FitnessFunction fitness_function,
-                       const FunctionSet& function_set)
+    void evolutionStep(FitnessFunction fitness_function)
     {
         // Wrap given FitnessFunction to ensure Individual has cached fitness.
         auto augmented_fitness_function = [&](Individual* individual)
@@ -128,8 +127,8 @@ public:
             group.setAllMetrics(augmented_fitness_function);
             return group;
         };
-        // Finally do a tournament based evolution step.
-        evolutionStep(tournament_function, function_set);
+        // Finally, do a tournament-based evolution step.
+        evolutionStep(tournament_function);
     }
     
     // Delete Individual at index i, then overwrite pointer with replacement.
@@ -252,16 +251,14 @@ public:
         }
     }
 
-    // Run "steps" of evolution, given "function_set" and "tournament_function".
-    void run(int steps,
-             const FunctionSet& function_set,
-             TournamentFunction tournament_function)
+    // Run "steps" of evolution, given "tournament_function".
+    void run(int steps, TournamentFunction tournament_function)
     {
         // Run given number of steps.
         for (int i = 0; i < steps; i++)
         {
             // Run evolution step with given tournament and function set.
-            evolutionStep(tournament_function, function_set);
+            evolutionStep(tournament_function);
         }
     }
     
@@ -319,6 +316,10 @@ public:
         return count;
     }
     
+    // Get/set this Population's FunctionSet.
+    const FunctionSet* getFunctionSet() const { return function_set_; }
+    void setFunctionSet(const FunctionSet* fs) { function_set_ = fs; }
+
     // Returns number of subpopulations.
     int getSubpopulationCount() const { return int(subpopulations_.size()); }
     // Returns number of evolution steps already taken in this Population.
@@ -338,6 +339,8 @@ private:
     SubPop sorted_collection_;
     // Sorted index of Individuals is cached until a change is made.
     bool sort_cache_invalid_ = true;
+    // Const pointer to this Population's FunctionSet.
+    const FunctionSet* function_set_ = nullptr;
     // The probability, on any given evolutionStep(), that migration will occur.
     float migration_likelihood_ = 0.05;
 };
