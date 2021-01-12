@@ -59,6 +59,11 @@ public:
     // (A shortcut for fitnesses that can be measured this way. Many cannot.)
     typedef std::function<float(Individual*)> FitnessFunction;
 
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // TODO 20210111 new crossover() with min/max tree size
+    static inline bool new_crossover = false;
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
     // Perform one step of the "steady state" evolutionary computation. Three
     // Individuals are selected randomly, from a random subpopulation. Holds a
     // "tournament" to determine their relative fitness ordering. The "loser" is
@@ -83,7 +88,20 @@ public:
         parent1->incrementTournamentsSurvived();
         // Create new offspring tree by crossing-over these two parents.
         GpTree new_tree;
-        getFunctionSet()->crossover(parent0->tree(), parent1->tree(), new_tree);
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // TODO 20210111 new crossover() with min/max tree size
+        if (new_crossover)
+        {
+            getFunctionSet()->newCrossover(parent0->tree(),
+                                           parent1->tree(),
+                                           new_tree,
+                                           0, 200);
+        }
+        else
+        {
+            getFunctionSet()->crossover(parent0->tree(), parent1->tree(), new_tree);
+        }
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         // Mutate constants in new tree.
         new_tree.mutate();
         // Create new offspring Individual from new tree.
