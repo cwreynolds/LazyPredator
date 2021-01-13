@@ -106,6 +106,53 @@
       details of the implementation. On the other hand, I do want it to be more
       prose-like than the terse <code>git commit</code> messages.)</p>
     <br style="##########################################################################">
+    <div class="post" id="20210112"> <a href="#20210112" class="date">January
+        12, 2021</a>
+      <h1>Size limitation during crossover: anti-bloat</h1>
+      <p>As discussed on <a href="#20201224">December 24</a>, in some genetic
+        programming runs we see unbounded growth of program tree sizes. This
+        does not prevent the evolutionary optimization from running, but is
+        inconvenient because of slower execution, potentially larger memory
+        load, and the possibly of reducing the power of crossover the make
+        useful changes. (Since finding the “right” place for crossover is harder
+        in a large program).</p>
+      <p>This <code>LimitHue::comparison()</code> run was made with a prototype
+        change to the crossover code. Previously a parameter to the construction
+        of a <code>Population</code> has been “maximum tree size” for the
+        initial random <code>GpTrees</code>. The new approach is to have a
+        corresponding parameter for the “maximum desired tree size” for
+        crossover during the run. If the “recipient parent” in a crossover
+        operation has a size greater than this threshold, the crossover
+        operation will choose the recipient subtree to be smaller than the donor
+        subtree. As a result, the new offspring <code>GpTree</code> will be
+        smaller (or in certain edge cases, the same size) than the recipient
+        parent. As a result, the <code>Population</code> is generally
+        constrained to be composed of <code>GpTrees</code> that (generally) are
+        smaller than the original “maximum desired tree size” parameter.</p>
+      <p>In the current prototype implementation, this crossover limit is 1.5
+        times the initial limit on random tree sizes. I will probably provide
+        API to set it directly. It also would make sense to provide API for the
+        corresponding <strong>minimum</strong> size limit for crossover. This
+        would mean that if the “recipient parent” were too small, the crossover
+        subtrees would be chosen to increase the size of the offspring. I am not
+        sure if this is ever useful, but it seems like adding it now is better
+        than waiting to see.</p>
+      <p>While I do not want to read too much into an experiment with <em>n=8</em>
+        but it appears in this run that the four run <strong>with</strong> the
+        crossover size limitation (blue) have “best” and “average” fitness
+        slightly higher than the control case <strong>without</strong> the
+        limit (red):</p>
+      <img src="images/20210112_LimitHue_Comp_Fit.png" alt="LimitHue fitness by size limit"
+        title="LimitHue fitness by size limit" height="570" width="704">
+      <p>In this plot of <code>GpTree</code> program size averaged over all in
+        a <code>Population</code>, we see a clear difference between the four
+        runs <strong>with</strong> the crossover size limit (orange) and the
+        control runs <strong>without</strong> the crossover size limit (green).
+        With the limit, all four runs maintain average sizes below the limit of
+        150 while the four runs without the limit reach size averages above 150
+        with one reaching about 280:</p>
+      <img src="images/20210112_LimitHue_Comp_Size.png" alt="LimitHue size by size limit"
+        title="LimitHue size by size limit" height="470" width="704"> </div>
     <div class="post" id="20210105"> <a href="#20210105" class="date">January
         5, 2021</a>
       <h1>Another day, another tweak, another ambiguous plot</h1>
@@ -159,8 +206,8 @@
         hypothesis. The plots in red have a single large population, those in
         blue have four subpopulations ¼ as large. It would be hard to guess
         which was which if they were not colored. Also puzzling is that the <em>average
-          fitness</em> for all eight populations are around 0.55 while in
-        <a href="#20201226"> previous runs</a> they were near 0.75. </p>
+          fitness</em> for all eight populations are around 0.55 while in <a href="#20201226">
+          previous runs</a> they were near 0.75. </p>
       <img src="images/20210103_LimitHue_Comparison.png" alt="LimitHue::comparison() subpopulations"
         title="LimitHue::comparison() subpopulations" height="588" width="710">
     </div>
