@@ -118,6 +118,14 @@ public:
             
             int min_size = 0;   // TODO will be Population member
             int max_size = 1.5 * getMaxInitTreeSize();
+            
+            //~~~  ~~~  ~~~  ~~~  ~~~  ~~~  ~~~  ~~~  ~~~  ~~~  ~~~  ~~~  ~~~
+            // TODO 20210114 Temporary test of both limits, target size = 60
+            min_size = 55;
+            max_size = 65;
+            //~~~  ~~~  ~~~  ~~~  ~~~  ~~~  ~~~  ~~~  ~~~  ~~~  ~~~  ~~~  ~~~
+
+            
             // TODO maybe this should be folded in when min_size is defined:
             int min_size2 = std::max(min_size,
                                      getFunctionSet()->getCrossoverMinSize());
