@@ -365,8 +365,18 @@ public:
         GpTree donor = exchange ? parent0 : parent1;
         // The offspring is initialized to a copy of the other parent.
         offspring = exchange ? parent1 : parent0;
+        
+        
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // TODO 20210115 rethink max/min crossover
+
         // Perform actual crossover.
-        crossover(donor, offspring, min_size, max_size);
+//        crossover(donor, offspring, min_size, max_size);
+        
+        // TODO NOTE TEMP PROTPYPE OF fs_min_size
+        crossoverDonorRecipient(donor, offspring, min_size, max_size, 4);
+
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     }
     
 //    static void crossover(GpTree& donor,
@@ -507,6 +517,137 @@ public:
         r_subtree = d_subtree;
     }
 
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // TODO 20210115 rethink max/min crossover
+    static void crossoverDonorRecipient(GpTree& donor,
+                                        GpTree& recipient,
+                                        int min_size,
+                                        int max_size,
+                                        int fs_min_size)
+    {
+        assert(min_size <= max_size);
+
+        // Find set of GpTypes which is common to both parents.
+        std::set<const GpType*> types;
+        GpTree::sharedSetOfTypes(donor, recipient, types);
+        assert(!types.empty());
+        
+//        // Select random subtree from donor (=> min-size, any shared_type).
+//        GpTree& d_subtree = donor.selectCrossoverSubtree(fs_min_size, types);
+        
+        
+        // TODO TEMP just for debugging:
+        auto log = [&](const GpTree& d_subtree, const GpTree& r_subtree)
+        {
+            std::cout << "-----------------------------" << std::endl;
+            debugPrint(donor.size());
+            debugPrint(recipient.size());
+            debugPrint(min_size);
+            debugPrint(max_size);
+            debugPrint(fs_min_size);
+            debugPrint(d_subtree.size());
+            debugPrint(r_subtree.size());
+//            std::cout << ((d_subtree.size() > r_subtree.size()) ?
+//                          "Increase" : "Decrease") << " size." << std::endl;
+            std::cout << ((d_subtree.size() > r_subtree.size()) ?
+                          "Increase" : "Decrease") << " size from " <<
+                          recipient.size() << " to " << (recipient.size() -
+                          r_subtree.size() + d_subtree.size()) << std::endl;
+            std::cout << "-----------------------------" << std::endl;
+        };
+
+        // If "recipient" too big/small, try to fix via relative subtree size.
+        // In each case, select random subtree from "donor" and "recipient"
+        // (with size bias when needed) then set offspring recipient to copy of
+        // donor subtree.
+
+        int r_size = recipient.size();
+        if (r_size > max_size)
+        {
+            GpTree& dst = donor.selectCrossoverSubtreeNEW(fs_min_size, -1, types);
+            GpTree& rst = recipient.selectCrossoverSubtreeNEW(fs_min_size, +1, types);
+            log(dst, rst);
+            rst = dst;
+        }
+        else if (r_size < min_size)
+        {
+            GpTree& dst = donor.selectCrossoverSubtreeNEW(fs_min_size, +1, types);
+            GpTree& rst = recipient.selectCrossoverSubtreeNEW(fs_min_size, -1, types);
+            log(dst, rst);
+            rst = dst;
+        }
+        else
+        {
+            GpTree& dst = donor.selectCrossoverSubtreeNEW(fs_min_size, 0, types);
+            GpTree& rst = recipient.selectCrossoverSubtreeNEW(fs_min_size, 0, types);
+            rst = dst;
+        }
+        
+
+    }
+    
+    // TODO do we still need
+    
+    GpTree& selectCrossoverSubtreeNEW(int min_size,
+                                      int size_bias,  // -1, 0, +1 (enum?)
+                                      const std::set<const GpType*>& types)
+    {
+        GpTree* result = this;
+        auto gp_type_ok = [&](GpTree* tree)
+            { return set_contains(types, tree->getRootType()); };
+        if (size() > min_size)
+        {
+            std::vector<GpTree*> all_subtrees;
+            collectVectorOfSubtrees(all_subtrees);
+            std::vector<GpTree*> filtered_subtrees;
+            for (auto& gp_tree : all_subtrees)
+            {
+                if (gp_type_ok(gp_tree) && (gp_tree->size() >= min_size))
+                {
+                    filtered_subtrees.push_back(gp_tree);
+                }
+            }
+            assert(!filtered_subtrees.empty());
+            
+//            result = LPRS().randomSelectElement(filtered_subtrees);
+            
+            
+            if (size_bias == 0)
+            {
+                result = LPRS().randomSelectElement(filtered_subtrees);
+            }
+            else
+            {
+                std::sort(filtered_subtrees.begin(),
+                          filtered_subtrees.end(),
+                          [](GpTree* a,GpTree* b){return a->size()<b->size();});
+                int end = int(filtered_subtrees.size()) - 1;
+                
+                // TODO was using [0, 1/3] and [2/3, 1] now: [0, 1/2] [1/2, 1]
+//                int a = end / 3;
+//                int b = 2 * (end / 3);
+//                int a = end / 2;
+//                int b = a;
+                // TODO back
+                int a = end / 3;
+                int b = (2 * end) / 3;
+                if (size_bias > 0)
+                {
+                    result = filtered_subtrees.at(LPRS().random2(b, end));
+                }
+                else
+                {
+                    result = filtered_subtrees.at(LPRS().random2(0, a));
+
+                }
+            }
+        }
+        assert(gp_type_ok(result));
+        return *result;
+    }
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 private:
