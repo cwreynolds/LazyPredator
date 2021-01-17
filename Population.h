@@ -35,6 +35,16 @@ public:
         // TODO 20210111 new crossover() with min/max tree size
         setMaxInitTreeSize(max_tree_size);
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // TODO 20210116 new crossover() with min/max tree size
+        // TODO 20210116 for now default these here, based on max_tree_size.
+        // TODO 20210116 later: constructor with explicit initialization?
+//        setMinCrossoverTreeSize(0);
+        setMinCrossoverTreeSize(0.5 * max_tree_size);
+        setMaxCrossoverTreeSize(1.5 * max_tree_size);
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
         assert(subpopulation_count > 0);
         subpopulations_.resize(subpopulation_count);
         for (int i = 0; i < individual_count; i++)
@@ -116,33 +126,46 @@ public:
 //                                  max_size);
             
             
-            int min_size = 0;   // TODO will be Population member
-            int max_size = 1.5 * getMaxInitTreeSize();
+//                int min_size = 0;   // TODO will be Population member
+//                int max_size = 1.5 * getMaxInitTreeSize();
+//
+//                //~~~  ~~~  ~~~  ~~~  ~~~  ~~~  ~~~  ~~~  ~~~  ~~~  ~~~  ~~~  ~~~
+//    //            // TODO 20210114 Temporary test of both limits, target size = 60
+//    //            min_size = 55;
+//    //            max_size = 65;
+//
+//    //            // TODO 20210115 New test, tight bounds around size 100
+//    //            min_size = 90;
+//    //            max_size = 110;
+//
+//                // TODO 20210115 New test, tight bounds around size 100
+//                min_size = 50;
+//                max_size = 150;
+//
+//                //~~~  ~~~  ~~~  ~~~  ~~~  ~~~  ~~~  ~~~  ~~~  ~~~  ~~~  ~~~  ~~~
+//
+//
+//                // TODO maybe this should be folded in when min_size is defined:
+//                int min_size2 = std::max(min_size,
+//                                         getFunctionSet()->getCrossoverMinSize());
+//                GpTree::crossover(parent0->tree(),
+//                                  parent1->tree(),
+//                                  new_tree,
+//                                  min_size2,
+//                                  max_size);
             
-            //~~~  ~~~  ~~~  ~~~  ~~~  ~~~  ~~~  ~~~  ~~~  ~~~  ~~~  ~~~  ~~~
-//            // TODO 20210114 Temporary test of both limits, target size = 60
-//            min_size = 55;
-//            max_size = 65;
-            
-//            // TODO 20210115 New test, tight bounds around size 100
-//            min_size = 90;
-//            max_size = 110;
-
-            // TODO 20210115 New test, tight bounds around size 100
-            min_size = 50;
-            max_size = 150;
-
-            //~~~  ~~~  ~~~  ~~~  ~~~  ~~~  ~~~  ~~~  ~~~  ~~~  ~~~  ~~~  ~~~
-
-            
-            // TODO maybe this should be folded in when min_size is defined:
-            int min_size2 = std::max(min_size,
-                                     getFunctionSet()->getCrossoverMinSize());
+            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            // TODO 20210116 new crossover() with min/max tree size
+            // TODO should these have "limit" in name?
             GpTree::crossover(parent0->tree(),
                               parent1->tree(),
                               new_tree,
-                              min_size2,
-                              max_size);
+                              getMinCrossoverTreeSize(),
+                              getMaxCrossoverTreeSize(),
+                              getFunctionSet()->getCrossoverMinSize());
+            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
         }
         else
         {
@@ -400,6 +423,16 @@ public:
     int getMaxInitTreeSize() const { return max_init_tree_size_; }
     void setMaxInitTreeSize(int size) { max_init_tree_size_ = size; }
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // TODO 20210116 new crossover() with min/max tree size
+    // TODO should these have "limit" in name?
+    int getMinCrossoverTreeSize() const { return min_crossover_tree_size_; }
+    void setMinCrossoverTreeSize(int size) { min_crossover_tree_size_ = size; }
+    int getMaxCrossoverTreeSize() const { return max_crossover_tree_size_; }
+    void setMaxCrossoverTreeSize(int size) { max_crossover_tree_size_ = size; }
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 
 private:
     std::function<void(Population&)> logger_function_ = basicLogger;
@@ -418,5 +451,12 @@ private:
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // TODO 20210111 new crossover() with min/max tree size
     int max_init_tree_size_ = 0;
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // TODO 20210116 new crossover() with min/max tree size
+    // TODO should these have "limit" in name?
+    int min_crossover_tree_size_ = 0;
+    int max_crossover_tree_size_ = std::numeric_limits<int>::max();
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 };

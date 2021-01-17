@@ -351,11 +351,17 @@ public:
     
     // Perform random GP crossover between the two given parents to produce a
     // new offspring, which is written into the third parameter.
+//    static void crossover(const GpTree& parent0,
+//                          const GpTree& parent1,
+//                          GpTree& offspring,
+//                          int min_size,
+//                          int max_size)
     static void crossover(const GpTree& parent0,
                           const GpTree& parent1,
                           GpTree& offspring,
                           int min_size,
-                          int max_size)
+                          int max_size,
+                          int fs_min_size)
     {
         // Randomly assign parent0/parent1 to donor/recipient roles.
         // TODO this should use randomBool() but lets wait to preserve
@@ -374,7 +380,7 @@ public:
 //        crossover(donor, offspring, min_size, max_size);
         
         // TODO NOTE TEMP PROTPYPE OF fs_min_size
-        crossoverDonorRecipient(donor, offspring, min_size, max_size, 4);
+        crossoverDonorRecipient(donor, offspring, min_size, max_size, fs_min_size);
 
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     }
