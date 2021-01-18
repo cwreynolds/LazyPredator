@@ -106,6 +106,51 @@
       details of the implementation. On the other hand, I do want it to be more
       prose-like than the terse <code>git commit</code> messages.)</p>
     <br style="##########################################################################">
+    <div class="post" id="20210117"> <a href="#20210117" class="date">January
+        17, 2021</a>
+      <h1>Upper <em>and</em> lower bounds on tree size during crossover</h1>
+      <p>As suggested on <a href="#20210112">January 12</a> LazyPredator now
+        supports <em>both</em> anti-bloat <em>and</em> “pro-bloat” — that is,
+        both upper and lower bounds on the size of trees created during
+        crossover. In the “tree size agnostic case” GP crossover leads to slow
+        but stead growth in population-average tree size. (That is: the <code>GpTree::size()</code>
+        of each <code>Individual</code>, averaged over the <code>Population</code>.)
+        Recently I added a size-reducing bias to crossover when the parent trees
+        are too large. Now the corresponding size-increasing bias is implemented
+        when parent trees are too small. These limits can be set to infinity and
+        zero to deactivate the size biases, but <strong>currently default to
+          150% and 50%</strong> of the given parameter for initial random tree
+        max size. So for an initial max random tree size of 100, the size of
+        trees during the run would be on the range [50, 150].&nbsp; The limit
+        values can be read or written which these member functions on a <code>Population</code>
+        instance:</p>
+      <pre>Population::getMinCrossoverTreeSize()
+Population::setMinCrossoverTreeSize()
+Population::getMaxCrossoverTreeSize()
+Population::setMaxCrossoverTreeSize()</pre>
+      <p>Here are eight LimitHue runs, four (red) with no limits, and four
+        (blue) with limits set to enforce tight bounds on tree size. The only
+        thing to see here is that reds and blues are roughly the same:</p>
+      <img src="images/20210116_LimitHue_Comp_Fit.png" alt="20210116 LimitHue Comparison Fitness."
+        title="20210116 LimitHue Comparison Fitness." height="470" width="738">
+      <p> While the fitnesses are about the same in these two conditions, the
+        no-limits condition (green) show steady growth in tree size, with limits
+        (orange) stay within a narrow range:</p>
+      <img src="images/20210116_LimitHue_Comp_Size.png" alt="20210116 LimitHue Comparison Size."
+        title="20210116 LimitHue Comparison Size." height="470" width="738">
+      <p>Here we zoom in on the bounded case (orange) to better see the vertical
+        scale. Not only are the allowed tree size values in a narrow range, I
+        also shifted this range twice during the run. For the first ⅓ of the
+        run, the size bounds are [100, 110]. So if the parent tree is smaller
+        than 100 (nodes) or bigger than 110, then size bias kicks in. For the
+        second ⅓ of the run, the size bounds are [40, 50]. For the final ⅓ of
+        the run, the size bounds are [70, 80]. </p>
+      <p>The result is less crisp than I imagined. When (say) the upper bound is
+        crossed, the “offspring” is made to be smaller, but can be <em>much</em>
+        smaller. Perhaps with the upper and lower bounds set so close (10 nodes)
+        the bias was being used almost each crossover, in opposite directions.</p>
+      <img src="images/20210116_LimitHue_Comp_Size_b.png" alt="20210116 LimitHue Comparison Size b."
+        title="20210116 LimitHue Comparison Size b." height="470" width="738"> </div>
     <div class="post" id="20210112"> <a href="#20210112" class="date">January
         12, 2021</a>
       <h1>Size limitation during crossover: anti-bloat</h1>
