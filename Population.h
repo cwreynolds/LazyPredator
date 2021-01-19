@@ -31,20 +31,11 @@ public:
                const FunctionSet* fs)
     {
         setFunctionSet(fs);
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // TODO 20210111 new crossover() with min/max tree size
         setMaxInitTreeSize(max_tree_size);
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // TODO 20210116 new crossover() with min/max tree size
         // TODO 20210116 for now default these here, based on max_tree_size.
         // TODO 20210116 later: constructor with explicit initialization?
-//        setMinCrossoverTreeSize(0);
         setMinCrossoverTreeSize(0.5 * max_tree_size);
         setMaxCrossoverTreeSize(1.5 * max_tree_size);
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
         assert(subpopulation_count > 0);
         subpopulations_.resize(subpopulation_count);
         for (int i = 0; i < individual_count; i++)
@@ -73,11 +64,6 @@ public:
     // (A shortcut for fitnesses that can be measured this way. Many cannot.)
     typedef std::function<float(Individual*)> FitnessFunction;
 
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // TODO 20210111 new crossover() with min/max tree size
-    static inline bool new_crossover = false;
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
     // Perform one step of the "steady state" evolutionary computation. Three
     // Individuals are selected randomly, from a random subpopulation. Holds a
     // "tournament" to determine their relative fitness ordering. The "loser" is
@@ -102,76 +88,12 @@ public:
         parent1->incrementTournamentsSurvived();
         // Create new offspring tree by crossing-over these two parents.
         GpTree new_tree;
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // TODO 20210111 new crossover() with min/max tree size
-        if (new_crossover)
-        {
-//            getFunctionSet()->newCrossover(parent0->tree(),
-//                                           parent1->tree(),
-//                                           new_tree,
-//                                           0, 200);
-            
-//                int min_size = 0;   // TODO will be Population member
-//    //            int max_size = 200;  // TODO will be Population member
-//    //            int max_size = 80;  // TODO will be Population member
-//                int max_size = 150;  // TODO will be Population member
-//                // TODO maybe this should be folded in when min_size is defined:
-//                int min_size2 = std::max(min_size,
-//                                         getFunctionSet()->getCrossoverMinSize());
-//    //            GpTree::newCrossover(parent0->tree(),
-//                GpTree::crossover(parent0->tree(),
-//                                  parent1->tree(),
-//                                  new_tree,
-//                                  min_size2,
-//                                  max_size);
-            
-            
-//                int min_size = 0;   // TODO will be Population member
-//                int max_size = 1.5 * getMaxInitTreeSize();
-//
-//                //~~~  ~~~  ~~~  ~~~  ~~~  ~~~  ~~~  ~~~  ~~~  ~~~  ~~~  ~~~  ~~~
-//    //            // TODO 20210114 Temporary test of both limits, target size = 60
-//    //            min_size = 55;
-//    //            max_size = 65;
-//
-//    //            // TODO 20210115 New test, tight bounds around size 100
-//    //            min_size = 90;
-//    //            max_size = 110;
-//
-//                // TODO 20210115 New test, tight bounds around size 100
-//                min_size = 50;
-//                max_size = 150;
-//
-//                //~~~  ~~~  ~~~  ~~~  ~~~  ~~~  ~~~  ~~~  ~~~  ~~~  ~~~  ~~~  ~~~
-//
-//
-//                // TODO maybe this should be folded in when min_size is defined:
-//                int min_size2 = std::max(min_size,
-//                                         getFunctionSet()->getCrossoverMinSize());
-//                GpTree::crossover(parent0->tree(),
-//                                  parent1->tree(),
-//                                  new_tree,
-//                                  min_size2,
-//                                  max_size);
-            
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            // TODO 20210116 new crossover() with min/max tree size
-            // TODO should these have "limit" in name?
-            GpTree::crossover(parent0->tree(),
-                              parent1->tree(),
-                              new_tree,
-                              getMinCrossoverTreeSize(),
-                              getMaxCrossoverTreeSize(),
-                              getFunctionSet()->getCrossoverMinSize());
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-        }
-        else
-        {
-            getFunctionSet()->crossover(parent0->tree(), parent1->tree(), new_tree);
-        }
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        GpTree::crossover(parent0->tree(),
+                          parent1->tree(),
+                          new_tree,
+                          getMinCrossoverTreeSize(),
+                          getMaxCrossoverTreeSize(),
+                          getFunctionSet()->getCrossoverMinSize());
         // Mutate constants in new tree.
         new_tree.mutate();
         // Create new offspring Individual from new tree.
@@ -417,22 +339,15 @@ public:
     float getMigrationLikelihood() const { return migration_likelihood_; }
     void setMigrationLikelihood(float ml) { migration_likelihood_ = ml; }
     
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // TODO 20210111 new crossover() with min/max tree size
     // Get/set this Population's max tree size for initial random trees.
     int getMaxInitTreeSize() const { return max_init_tree_size_; }
     void setMaxInitTreeSize(int size) { max_init_tree_size_ = size; }
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // TODO 20210116 new crossover() with min/max tree size
-    // TODO should these have "limit" in name?
+    // Get/set min/max crossover tree size.
     int getMinCrossoverTreeSize() const { return min_crossover_tree_size_; }
     void setMinCrossoverTreeSize(int size) { min_crossover_tree_size_ = size; }
     int getMaxCrossoverTreeSize() const { return max_crossover_tree_size_; }
     void setMaxCrossoverTreeSize(int size) { max_crossover_tree_size_ = size; }
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 
 private:
     std::function<void(Population&)> logger_function_ = basicLogger;
@@ -448,15 +363,9 @@ private:
     const FunctionSet* function_set_ = nullptr;
     // The probability, on any given evolutionStep(), that migration will occur.
     float migration_likelihood_ = 0.05;
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // TODO 20210111 new crossover() with min/max tree size
+    // Max size for initial random trees.
     int max_init_tree_size_ = 0;
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // TODO 20210116 new crossover() with min/max tree size
-    // TODO should these have "limit" in name?
+    // Min/max crossover tree size.
     int min_crossover_tree_size_ = 0;
     int max_crossover_tree_size_ = std::numeric_limits<int>::max();
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 };

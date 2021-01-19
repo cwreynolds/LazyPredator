@@ -180,86 +180,6 @@ public:
                                             set_of_types_output.begin()));
     }
     
-    // Utility for crossover(). Select a random subtree, whose size is greater
-    // then or equal to "min_size" and whose root type is in set of "types".
-    // (Default to root if entire tree is not larger than "min_size". See final
-    // paragraph on https://cwreynolds.github.io/LazyPredator/#20201019)
-    GpTree& selectCrossoverSubtree(int min_size,
-                                   const std::set<const GpType*>& types)
-    {
-        GpTree* result = this;
-        auto gp_type_ok = [&](GpTree* tree)
-            { return set_contains(types, tree->getRootType()); };
-        if (size() > min_size)
-        {
-            std::vector<GpTree*> all_subtrees;
-            collectVectorOfSubtrees(all_subtrees);
-            std::vector<GpTree*> filtered_subtrees;
-            for (auto& gp_tree : all_subtrees)
-            {
-                if (gp_type_ok(gp_tree) && (gp_tree->size() >= min_size))
-                {
-                    filtered_subtrees.push_back(gp_tree);
-                }
-            }
-            assert(!filtered_subtrees.empty());
-            result = LPRS().randomSelectElement(filtered_subtrees);
-        }
-        assert(gp_type_ok(result));
-        return *result;
-    }
-    
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // TODO 20210114 version of GpTree::selectCrossoverSubtree() with max_size
-    
-    // Utility for crossover(). Select a random subtree, whose size is greater
-    // then or equal to "min_size" and whose root type is in set of "types".
-    // (Default to root if entire tree is not larger than "min_size". See final
-    // paragraph on https://cwreynolds.github.io/LazyPredator/#20201019)
-    GpTree& selectCrossoverSubtree(int min_size,
-                                   int max_size,
-                                   const std::set<const GpType*>& types)
-    {
-        GpTree* result = this;
-        auto gp_type_ok = [&](GpTree* tree)
-            { return set_contains(types, tree->getRootType()); };
-        if (size() > min_size)
-        {
-            std::vector<GpTree*> all_subtrees;
-            collectVectorOfSubtrees(all_subtrees);
-            std::vector<GpTree*> filtered_subtrees;
-            for (auto& gp_tree : all_subtrees)
-            {
-//                if (gp_type_ok(gp_tree) && (gp_tree->size() >= min_size))
-                if (gp_type_ok(gp_tree) &&
-                    (gp_tree->size() >= min_size) &&
-                    (gp_tree->size() <= max_size))
-                {
-                    filtered_subtrees.push_back(gp_tree);
-                }
-            }
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            // TODO 20210114 working on min/max crossover limits VERY TEMP
-            if (filtered_subtrees.empty())
-            {
-                debugPrint(min_size);
-                debugPrint(max_size);
-                std::cout << "types: ";
-                for (auto& type : types) { std::cout << type->name() << " "; }
-                std::cout << std::endl;
-                std::cout << to_string(true) << std::endl;
-            }
-            //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-            assert(!filtered_subtrees.empty());
-            result = LPRS().randomSelectElement(filtered_subtrees);
-        }
-        assert(gp_type_ok(result));
-        return *result;
-    }
-
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
     // Traverse tree, applying "jiggle" point mutation on each constant leaf
     // value, according to it GpType.
     // TODO note makeRandomTree() and crossover() are methods of FunctionSet
@@ -302,60 +222,9 @@ public:
         if (rt && rt->hasDeleter()) { rt->deleteValue(getRootValue()); }
         for (auto& subtree : subtrees()) subtree.deleteCachedValues();
     }
-    
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // TODO 20210111 new crossover() with min/max tree size
-    // TODO should crossover() be on GpTree?
-    
-//        static void newCrossover(const GpTree& parent0,
-//                                 const GpTree& parent1,
-//                                 GpTree& offspring,
-//                                 int min_size,
-//                                 int max_size)
-//        {
-//            bool exchange = LPRS().frandom01() > 0.5;
-//            // The "donor" is a copy of one parent, selected randomly.
-//            GpTree donor = exchange ? parent0 : parent1;
-//            // The offspring is initialized to a copy of the other parent.
-//            offspring = exchange ? parent1 : parent0;
-//
-//            newCrossoverOrdered(donor, offspring, min_size, max_size);
-//        }
-//
-//        static void newCrossoverOrdered(GpTree& donor,
-//                                        GpTree& recipient,
-//                                        int min_size,
-//                                        int max_size)
-//        {
-//    //        bool exchange = LPRS().frandom01() > 0.5;
-//    //        // The "donor" is a copy of one parent, selected randomly.
-//    //        GpTree donor = exchange ? parent0 : parent1;
-//    //        // The offspring is initialized to a copy of the other parent.
-//    //        offspring = exchange ? parent1 : parent0;
-//            // Find set of GpTypes which is common to both parents.
-//            std::set<const GpType*> types;
-//    //        GpTree::sharedSetOfTypes(parent0, parent1, types);
-//            GpTree::sharedSetOfTypes(donor, recipient, types);
-//            assert(!types.empty());
-//            // Select random subtree from donor (=> min-size, any shared_type).
-//    //        int min_size = getCrossoverMinSize();
-//    //        min_size = std::max(min_size, getCrossoverMinSize());
-//            GpTree& d_subtree = donor.selectCrossoverSubtree(min_size, types);
-//            // Select random subtree from offspring (any size, same type as dst).
-//            std::set<const GpType*> donor_type = { d_subtree.getRootType() };
-//    //        GpTree& o_subtree = offspring.selectCrossoverSubtree(1, donor_type);
-//            GpTree& o_subtree = recipient.selectCrossoverSubtree(1, donor_type);
-//            // Set offspring subtree to copy of donor subtree.
-//            o_subtree = d_subtree;
-//        }
-    
+        
     // Perform random GP crossover between the two given parents to produce a
     // new offspring, which is written into the third parameter.
-//    static void crossover(const GpTree& parent0,
-//                          const GpTree& parent1,
-//                          GpTree& offspring,
-//                          int min_size,
-//                          int max_size)
     static void crossover(const GpTree& parent0,
                           const GpTree& parent1,
                           GpTree& offspring,
@@ -364,250 +233,81 @@ public:
                           int fs_min_size)
     {
         // Randomly assign parent0/parent1 to donor/recipient roles.
-        // TODO this should use randomBool() but lets wait to preserve
-        //      "identical result" regression test for a while
-        bool exchange = LPRS().frandom01() > 0.5;
+        bool exchange = LPRS().randomBool();
         // The "donor" is a copy of one parent, selected randomly.
         GpTree donor = exchange ? parent0 : parent1;
         // The offspring is initialized to a copy of the other parent.
         offspring = exchange ? parent1 : parent0;
-        
-        
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        // TODO 20210115 rethink max/min crossover
-
         // Perform actual crossover.
-//        crossover(donor, offspring, min_size, max_size);
-        
-        // TODO NOTE TEMP PROTPYPE OF fs_min_size
         crossoverDonorRecipient(donor, offspring, min_size, max_size, fs_min_size);
-
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    }
-    
-//    static void crossover(GpTree& donor,
-//                          GpTree& recipient,
-//                          int min_size,
-//                          int max_size)
-//    {
-//        // Find set of GpTypes which is common to both parents.
-//        std::set<const GpType*> types;
-//        GpTree::sharedSetOfTypes(donor, recipient, types);
-//        assert(!types.empty());
-//        // Select random subtree from donor (=> min-size, any shared_type).
-//        GpTree& d_subtree = donor.selectCrossoverSubtree(min_size, types);
-//        // Select random subtree from offspring (any size, same type as dst).
-//        std::set<const GpType*> donor_type = { d_subtree.getRootType() };
-//        GpTree& o_subtree = recipient.selectCrossoverSubtree(1, donor_type);
-//        // Set offspring subtree to copy of donor subtree.
-//        o_subtree = d_subtree;
-//    }
-
-//        static void crossover(GpTree& donor,
-//                              GpTree& recipient,
-//                              int min_size,
-//                              int max_size)
-//        {
-//            // Find set of GpTypes which is common to both parents.
-//            std::set<const GpType*> types;
-//            GpTree::sharedSetOfTypes(donor, recipient, types);
-//            assert(!types.empty());
-//            // Select random subtree from donor (=> min-size, any shared_type).
-//            GpTree& d_subtree = donor.selectCrossoverSubtree(min_size, types);
-//            // Select random subtree from offspring (any size, same type as dst).
-//            std::set<const GpType*> donor_type = { d_subtree.getRootType() };
-//    //        GpTree& o_subtree = recipient.selectCrossoverSubtree(1, donor_type);
-//            GpTree& r_subtree = recipient.selectCrossoverSubtree(1, donor_type);
-//            // Set offspring subtree to copy of donor subtree.
-//    //        o_subtree = d_subtree;
-//            r_subtree = d_subtree;
-//        }
-
-//        static void crossover(GpTree& donor,
-//                              GpTree& recipient,
-//                              int min_size,
-//                              int max_size)
-//        {
-//            // Find set of GpTypes which is common to both parents.
-//            std::set<const GpType*> types;
-//            GpTree::sharedSetOfTypes(donor, recipient, types);
-//            assert(!types.empty());
-//
-//            // Select random subtree from donor (=> min-size, any shared_type).
-//            GpTree& d_subtree = donor.selectCrossoverSubtree(min_size, types);
-//
-//            // Select random subtree from offspring (any size, same type as dst).
-//            std::set<const GpType*> donor_type = { d_subtree.getRootType() };
-//            int r_size = 1;
-//
-//            // If recipient is overweight, require that the recipient subtree be
-//            // larger that the donor subtree, hence reducing size of the offspring.
-//            if (recipient.size() > max_size) { r_size = d_subtree.size(); }
-//
-//    //        GpTree& r_subtree = recipient.selectCrossoverSubtree(1, donor_type);
-//            GpTree& r_subtree = recipient.selectCrossoverSubtree(r_size, donor_type);
-//            // Set offspring subtree to copy of donor subtree.
-//
-//    //        // TODO just for debugging:
-//    //        if (recipient.size() > max_size)
-//    //        {
-//    //            std::cout << "-----------------------------" << std::endl;
-//    //            debugPrint(recipient.size());
-//    //            debugPrint(d_subtree.size());
-//    //            debugPrint(r_subtree.size());
-//    //            std::cout << "-----------------------------" << std::endl;
-//    //        }
-//
-//
-//            r_subtree = d_subtree;
-//        }
-
-    
-    static void crossover(GpTree& donor,
-                          GpTree& recipient,
-                          int min_size,
-                          int max_size)
-    {
-        // Find set of GpTypes which is common to both parents.
-        std::set<const GpType*> types;
-        GpTree::sharedSetOfTypes(donor, recipient, types);
-        assert(!types.empty());
-        
-        // Select random subtree from donor (=> min-size, any shared_type).
-//        GpTree& d_subtree = donor.selectCrossoverSubtree(min_size, types);
-        // TODO -- VERY VERY TEMP ***********************************************
-        GpTree& d_subtree = donor.selectCrossoverSubtree(4, types);
-
-        // Select random subtree from offspring (any size, same type as dst).
-        std::set<const GpType*> donor_type = { d_subtree.getRootType() };
-//        int r_size = 1;
-        int r_min_size = 1;
-        int r_max_size = std::numeric_limits<int>::max();
-
-        // If recipient is overweight, require that the recipient subtree be
-        // larger that the donor subtree, hence decreasing offspring size.
-//        if (recipient.size() > max_size) { r_size = d_subtree.size(); }
-        if (recipient.size() > max_size) { r_min_size = d_subtree.size(); }
-
-        // If recipient is underweight, require that the recipient subtree be
-        // smaller that the donor subtree, hence increasing offspring size.
-        if (recipient.size() < min_size) { r_max_size = d_subtree.size(); }
-        
-//        GpTree& r_subtree = recipient.selectCrossoverSubtree(r_size, donor_type);
-        GpTree& r_subtree = recipient.selectCrossoverSubtree(r_min_size,
-                                                             r_max_size,
-                                                             donor_type);
-        
-        
-        // TODO just for debugging:
-        if ((recipient.size() > max_size) || (recipient.size() < min_size))
-        {
-            std::cout << "-----------------------------" << std::endl;
-            debugPrint(recipient.size());
-            debugPrint(min_size);
-            debugPrint(max_size);
-            debugPrint(r_min_size);
-            debugPrint(r_max_size);
-            debugPrint(d_subtree.size());
-            debugPrint(r_subtree.size());
-            
-            std::cout << ((d_subtree.size() > r_subtree.size()) ?
-                          "Increase" : "Decrease")
-                      << " size." << std::endl;
-
-            std::cout << "-----------------------------" << std::endl;
-        }
-
-        
-        // Set offspring subtree to copy of donor subtree.
-        r_subtree = d_subtree;
     }
 
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // TODO 20210115 rethink max/min crossover
     static void crossoverDonorRecipient(GpTree& donor,
                                         GpTree& recipient,
                                         int min_size,
                                         int max_size,
                                         int fs_min_size)
     {
-        assert(min_size <= max_size);
-
         // Find set of GpTypes which is common to both parents.
         std::set<const GpType*> types;
         GpTree::sharedSetOfTypes(donor, recipient, types);
         assert(!types.empty());
-        
-//        // Select random subtree from donor (=> min-size, any shared_type).
-//        GpTree& d_subtree = donor.selectCrossoverSubtree(fs_min_size, types);
-        
-        
-        // TODO TEMP just for debugging:
-        auto log = [&](const GpTree& d_subtree, const GpTree& r_subtree)
+        // Basic crossover invoked for each of the three size cases below.
+        auto crosser = [&](int d_size_bias, int r_size_bias)// -1, 0, +1 (enum?)
         {
-            std::cout << "-----------------------------" << std::endl;
-            debugPrint(donor.size());
-            debugPrint(recipient.size());
-            debugPrint(min_size);
-            debugPrint(max_size);
-            debugPrint(fs_min_size);
-            debugPrint(d_subtree.size());
-            debugPrint(r_subtree.size());
-//            std::cout << ((d_subtree.size() > r_subtree.size()) ?
-//                          "Increase" : "Decrease") << " size." << std::endl;
-            std::cout << ((d_subtree.size() > r_subtree.size()) ?
-                          "Increase" : "Decrease") << " size from " <<
-                          recipient.size() << " to " << (recipient.size() -
-                          r_subtree.size() + d_subtree.size()) << std::endl;
-            std::cout << "-----------------------------" << std::endl;
+            // Pick a crossover subtree in the donor tree. Must return one of
+            // the common types, must be larger than the FunctionSet's min_size,
+            // and respect the given donor size bias.
+            GpTree& d_subtree = donor.selectCrossoverSubtree(fs_min_size,
+                                                             d_size_bias,
+                                                             types);
+            // Pick a crossover subtree in the donor tree. Must return the same
+            // type as d_subtree, must be larger than the FunctionSet's
+            // min_size, and respect the given recipient size bias.
+            std::set<const GpType*> donor_type = { d_subtree.getRootType() };
+            GpTree& r_subtree = recipient.selectCrossoverSubtree(fs_min_size,
+                                                                 r_size_bias,
+                                                                 donor_type);
+            assert(d_subtree.getRootType() == r_subtree.getRootType());
+            // Overwrite the recipient subtree with copy of donor subtree.
+            r_subtree = d_subtree;
         };
-
         // If "recipient" too big/small, try to fix via relative subtree size.
         // In each case, select random subtree from "donor" and "recipient"
-        // (with size bias when needed) then set offspring recipient to copy of
-        // donor subtree.
-
+        // (with size bias when needed).
         int r_size = recipient.size();
+        assert(min_size <= max_size);
         if (r_size > max_size)
-        {
-            GpTree& dst = donor.selectCrossoverSubtreeNEW(fs_min_size, -1, types);
-            GpTree& rst = recipient.selectCrossoverSubtreeNEW(fs_min_size, +1, types);
-            log(dst, rst);
-            rst = dst;
+        {                        // If recipient too big, small donor subtree
+            crosser(-1, +1);     // replaces a big recipient subtree.
         }
         else if (r_size < min_size)
-        {
-            GpTree& dst = donor.selectCrossoverSubtreeNEW(fs_min_size, +1, types);
-            GpTree& rst = recipient.selectCrossoverSubtreeNEW(fs_min_size, -1, types);
-            log(dst, rst);
-            rst = dst;
+        {                        // If recipient too small, big donor subtree
+            crosser(+1, -1);     // replaces a small recipient subtree.
         }
         else
         {
-            GpTree& dst = donor.selectCrossoverSubtreeNEW(fs_min_size, 0, types);
-            GpTree& rst = recipient.selectCrossoverSubtreeNEW(fs_min_size, 0, types);
-            rst = dst;
+            crosser(0, 0);       // Otherwise uniform random subtree selection.
         }
-        
-
     }
     
-    // TODO do we still need
-    
-    GpTree& selectCrossoverSubtreeNEW(int min_size,
-                                      int size_bias,  // -1, 0, +1 (enum?)
-                                      const std::set<const GpType*>& types)
+    // Randomly select a subtree of this GpTree to be used for crossover. Its
+    // size must be at least "min_size". Its root type must be a member of the
+    // set "types". If "size_bias" is not zero, attempts to find a big (+1) or
+    // small (-1) subtree.
+    GpTree& selectCrossoverSubtree(int min_size,
+                                   int size_bias,  // -1, 0, +1 (enum?)
+                                   const std::set<const GpType*>& types)
     {
         GpTree* result = this;
         auto gp_type_ok = [&](GpTree* tree)
             { return set_contains(types, tree->getRootType()); };
         if (size() > min_size)
         {
+            // Find all subtrees.
             std::vector<GpTree*> all_subtrees;
             collectVectorOfSubtrees(all_subtrees);
+            // Filter collection of subtrees by type and size.
             std::vector<GpTree*> filtered_subtrees;
             for (auto& gp_tree : all_subtrees)
             {
@@ -617,44 +317,27 @@ public:
                 }
             }
             assert(!filtered_subtrees.empty());
-            
-//            result = LPRS().randomSelectElement(filtered_subtrees);
-            
-            
             if (size_bias == 0)
             {
+                // For the no bias case, simply pick one of these at random.
                 result = LPRS().randomSelectElement(filtered_subtrees);
             }
             else
             {
+                // To bias for size, sort filtered subtree collection by size,
+                // select from upper or lower 1/3 of the sorted list.
                 std::sort(filtered_subtrees.begin(),
                           filtered_subtrees.end(),
                           [](GpTree* a,GpTree* b){return a->size()<b->size();});
                 int end = int(filtered_subtrees.size()) - 1;
-                
-                // TODO was using [0, 1/3] and [2/3, 1] now: [0, 1/2] [1/2, 1]
-//                int a = end / 3;
-//                int b = 2 * (end / 3);
-//                int a = end / 2;
-//                int b = a;
-                // TODO back
-                int a = end / 3;
-                int b = (2 * end) / 3;
-                if (size_bias > 0)
-                {
-                    result = filtered_subtrees.at(LPRS().random2(b, end));
-                }
-                else
-                {
-                    result = filtered_subtrees.at(LPRS().random2(0, a));
-
-                }
+                int from = (size_bias < 0) ? 0 : ((2 * end) / 3);  // 0 or 2/3
+                int to   = (size_bias < 0) ? (end / 3) : end;      // 1/3 or 1
+                result = filtered_subtrees.at(LPRS().random2(from, to));
             }
         }
         assert(gp_type_ok(result));
         return *result;
     }
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 private:
     // NOTE: if any more data members are added, compare them in equals().
