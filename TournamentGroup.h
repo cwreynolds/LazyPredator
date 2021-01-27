@@ -39,6 +39,7 @@ public:
     : members_(member_list) { sort(); }
     // Const reference to vector of members. (TODO any need for this?)
     const std::vector<TournamentGroupMember>& members() const {return members_;}
+    std::vector<TournamentGroupMember>& members() {return members_;}
     // Number of members in this group (normally 3).
     size_t size() const { return members().size(); }
     // For "numerical fitness"-based tournaments, map a given scoring function
@@ -105,6 +106,34 @@ public:
         }
         assert("given Individual not in TournamentGroup" && rank != 0);
         return rank;
+    }
+    // Used by a TournamentFunction to designate one of the Individuals in this
+    // TournamentGroup as the worst, the "loser", the one to be removed from
+    // the Population and replaced by a new offspring.
+    void designateWorstIndividual(Individual* worst_individual)
+    {
+        if (isMember(worst_individual))
+        {
+            // Set metric of worst_individual to 0, others to 1, then sort.
+            for (auto& tgm : members())
+            {
+                tgm.metric = ((tgm.individual == worst_individual) ? 0 : 1);
+            }
+            sort();
+        }
+    }
+    // Is the given Individual a member of this TournamentGroup?
+    bool isMember(Individual* individual) const
+    {
+        bool member_of_group = false;
+        for (auto& tgm : members())
+        {
+            if (tgm.individual == individual)
+            {
+                member_of_group = true;
+            };
+        }
+        return member_of_group;
     }
 private:
     // Sort the members of this group by their "metric" value.
