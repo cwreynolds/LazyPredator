@@ -152,16 +152,32 @@ public:
     // TournamentGroup with three Individuals selected randomly from "subpop".
     TournamentGroup randomTournamentGroup(const SubPop& subpop)
     {
-        int i = randomIndex(subpop);
-        int j = randomIndex(subpop);
-        int k = randomIndex(subpop);
+        auto [i, j, k] = threeUniqueRandomIndices(subpop);
         return TournamentGroup({ {subpop.at(i), i},
                                  {subpop.at(j), j},
                                  {subpop.at(k), k} });
     }
-    
 
-    // Select a unifromly distributed random index of Population's Individuals.
+    // Select three unique random indices of a SubPop's Individuals.
+    std::tuple<int,int,int> threeUniqueRandomIndices(const SubPop& subpop) const
+    {
+        assert(subpop.size() >= 3);
+        std::vector<int> i;  // Vec to hold the three unique indices.
+        auto add_unique_index = [&]()
+        {
+            int index = randomIndex(subpop);
+            while (std::find(i.begin(), i.end(), index) != i.end())
+                { index = randomIndex(subpop); }
+            i.push_back(index);
+        };
+        add_unique_index();
+        add_unique_index();
+        add_unique_index();
+        assert((i.at(0)!=i.at(1)) || (i.at(1)!=i.at(2)) || (i.at(2)!=i.at(0)));
+        return std::make_tuple(i.at(0), i.at(1), i.at(2));
+    }
+    
+    // Select a uniformly distributed random index of Population's Individuals.
     int randomIndex(const SubPop& subpop) const
     {
         return LPRS().randomN(subpop.size());
