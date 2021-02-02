@@ -71,29 +71,6 @@ public:
         }
         std::cout << "}" << std::endl;
     }
-    // Find largest tree size of all Individuals in this TournamentGroup.
-    int maxTreeSize() const
-    {
-        int max_tree_size = std::numeric_limits<int>::min();
-        for (auto& m : members())
-        {
-            int tree_size = m.individual->tree().size();
-            if (max_tree_size < tree_size) max_tree_size = tree_size;
-        }
-        return max_tree_size;
-    }
-    // TODO maybe this is better suited to needs of CWE?
-    // Find smallest tree size of all Individuals in this TournamentGroup.
-    int minTreeSize() const
-    {
-        int min_tree_size = std::numeric_limits<int>::max();
-        for (auto& m : members())
-        {
-            int tree_size = m.individual->tree().size();
-            if (min_tree_size > tree_size) min_tree_size = tree_size;
-        }
-        return min_tree_size;
-    }
     // Given an Individual, returns an int from 1 to members().size(),
     // rank 1 corresponds to bestIndividual().
     int rankOfIndividual(Individual* individual)
