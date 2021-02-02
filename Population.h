@@ -165,9 +165,9 @@ public:
         std::vector<int> i;  // Vec to hold the three unique indices.
         auto add_unique_index = [&]()
         {
-            int index = randomIndex(subpop);
+            int index = randomIndividualIndex(subpop);
             while (std::find(i.begin(), i.end(), index) != i.end())
-                { index = randomIndex(subpop); }
+                { index = randomIndividualIndex(subpop); }
             i.push_back(index);
         };
         add_unique_index();
@@ -177,8 +177,8 @@ public:
         return std::make_tuple(i.at(0), i.at(1), i.at(2));
     }
     
-    // Select a uniformly distributed random index of Population's Individuals.
-    int randomIndex(const SubPop& subpop) const
+    // Select a uniformly distributed random index of a Subpop's Individuals.
+    int randomIndividualIndex(const SubPop& subpop) const
     {
         return LPRS().randomN(subpop.size());
     }
@@ -192,7 +192,7 @@ public:
     // Return a reference to the subpopulation to be updated this step.
     SubPop& currentSubpopulation()
     {
-        return subpopulations_.at(getStepCount() % getSubpopulationCount());
+        return subpopulations_.at(currentSubpopulationIndex());
     }
 
     // Called each step to create fitness sorted index of Individual pointers.
@@ -267,8 +267,8 @@ public:
             SubPop& subpop1 = subpopulation(subpop_index_1);
             SubPop& subpop2 = subpopulation(subpop_index_2);
             // Randomly pick an Individual in each SubPop.
-            int individual_index_1 = randomIndex(subpop1);
-            int individual_index_2 = randomIndex(subpop2);
+            int individual_index_1 = randomIndividualIndex(subpop1);
+            int individual_index_2 = randomIndividualIndex(subpop2);
             Individual* individual_1 = subpop1.at(individual_index_1);
             Individual* individual_2 = subpop2.at(individual_index_2);
             // Swap them.

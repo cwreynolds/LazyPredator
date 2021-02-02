@@ -215,6 +215,7 @@ bool subpopulation_and_stats()
         int count = LPRS().random2(5, 25);
         int demes = LPRS().random2(1, count);
         Population p(count, demes, 10, fs);
+        ok = ok && st(p.getIndividualCount() == count);
         ok = ok && st(p.getSubpopulationCount() == demes);
         for (int s = 0; s < p.getSubpopulationCount(); s++)
         {
