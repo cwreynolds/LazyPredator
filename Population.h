@@ -15,38 +15,59 @@
 class Population
 {
 public:
-    Population() : Population(0, 1, 0, nullptr) {}
+    Population() : Population(0, 0, 0, 0, 0, nullptr) {}
     Population(int individual_count)
-      : Population(individual_count, 1, 0, nullptr) {}
-    Population(int individual_count, int max_tree_size, const FunctionSet& fs)
-      : Population(individual_count, 1, max_tree_size, fs) {}
+      : Population(individual_count, 0, 0, 0, 0, nullptr) {}
     Population(int individual_count,
-               int subpopulation_count,
-               int max_tree_size,
+               int max_init_tree_size,
                const FunctionSet& fs)
-      : Population(individual_count, subpopulation_count, max_tree_size, &fs) {}
+      : Population(individual_count, 0, max_init_tree_size, fs) {}
     Population(int individual_count,
                int subpopulation_count,
-               int max_tree_size,
+               int max_init_tree_size,
+               const FunctionSet& fs)
+      : Population(individual_count,
+                   subpopulation_count,
+                   max_init_tree_size,
+                   0.5 * max_init_tree_size,
+                   1.5 * max_init_tree_size,
+                   &fs) {}
+    Population(int individual_count,
+               int subpopulation_count,
+               int min_crossover_tree_size,
+               int max_crossover_tree_size,
+               int max_init_tree_size,
+               const FunctionSet& fs)
+      : Population(individual_count,
+                   subpopulation_count,
+                   max_init_tree_size,
+                   min_crossover_tree_size,
+                   max_crossover_tree_size,
+                   &fs) {}
+    Population(int individual_count,
+               int subpopulation_count,
+               int max_init_tree_size,
+               int min_crossover_tree_size,
+               int max_crossover_tree_size,
                const FunctionSet* fs)
     {
         setFunctionSet(fs);
-        setMaxInitTreeSize(max_tree_size);
-        // TODO 20210116 for now default these here, based on max_tree_size.
-        // TODO 20210116 later: constructor with explicit initialization?
-        setMinCrossoverTreeSize(0.5 * max_tree_size);
-        setMaxCrossoverTreeSize(1.5 * max_tree_size);
+        setMaxInitTreeSize(max_init_tree_size);
+        setMinCrossoverTreeSize(min_crossover_tree_size);
+        setMaxCrossoverTreeSize(max_crossover_tree_size);
+        if (subpopulation_count == 0) { subpopulation_count = 1; } // Default.
         assert(subpopulation_count > 0);
         subpopulations_.resize(subpopulation_count);
         for (int i = 0; i < individual_count; i++)
         {
-            Individual* new_individual = ((max_tree_size == 0) ?
+            Individual* new_individual = ((max_init_tree_size == 0) ?
                                           new Individual :
-                                          new Individual(max_tree_size, *fs));
+                                          new Individual(max_init_tree_size,
+                                                         *fs));
             subpopulation(i % subpopulation_count).push_back(new_individual);
         }
         updateSortedCollectionOfIndividuals();
-        // TODO keep or remove?
+        // TODO keep, remove, or move to unit tests?
         assert(individual_count == sorted_collection_.size());
         assert(individual_count == getIndividualCount());
     }
@@ -163,11 +184,15 @@ public:
     {
         assert(subpop.size() >= 3);
         std::vector<int> i;  // Vec to hold the three unique indices.
+        int max_tries = 1000;
         auto add_unique_index = [&]()
         {
             int index = randomIndividualIndex(subpop);
             while (std::find(i.begin(), i.end(), index) != i.end())
-                { index = randomIndividualIndex(subpop); }
+            {
+                index = randomIndividualIndex(subpop);
+                assert(max_tries-- > 0); // Should never happen but I'm paranoid.
+            }
             i.push_back(index);
         };
         add_unique_index();
