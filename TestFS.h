@@ -243,6 +243,8 @@ private:
                                     t.evalSubtree<int>(2));
                 }
             }
-        }
+        },
+        // Crossover min_size, must be larger than a single Int leaf value.
+        2
     };
 };

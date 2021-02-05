@@ -106,6 +106,32 @@
       details of the implementation. On the other hand, I do want it to be more
       prose-like than the terse <code>git commit</code> messages.)</p>
     <br style="##########################################################################">
+    <div class="post" id="20210129"> <a href="#20210129" class="date">January
+        29, 2021</a>
+      <h1>Back and forth on random tournament member uniqueness</h1>
+      <p>Back on <a href="#20201014">October 14</a> I wrote a <code>Population::selectThreeIndices()</code>
+        to pick indices of three random <code>Individuals</code> to form a
+        random tournament. Its purpose was to guarantee the three <code>Individuals</code>
+        were unique. This was to prevent forming a competitive tournament
+        between, say, individuals 57, 83, and 57. I am paranoid about “try until
+        success” algorithms getting stuck in infinite loop. But then I was also
+        hinky about the statistical properties of my non-iterative solution.
+        Eventually I decided that when selecting three items out of a collection
+        of about 100, the frequency of duplication seemed low enough to ignore,
+        so I just got rid of <code>selectThreeIndices()</code>. (To be sure,
+        there are non-iterative, statistically neutral solutions to this, they
+        just seemed a bit too heavy-weight to me. My intuition is famously
+        unreliable.)</p>
+      <p>Later “subpopulations” (<code>SubPops</code>, breeding demes) were
+        introduced. Now three <code>Individuals</code> were being selected from
+        of group of 20-25. When I started running interactive Camouflage tests,
+        it was visually obvious that a fair number of tournaments contained
+        duplicated <code>Individuals</code>. So today I brought back a
+        different implementation of selecting three unique indices called <code>Population::threeUniqueRandomIndices()</code>.
+        This uses the evil “try until success” approach, but is liberally
+        sprinkled with calls to <code>assert()</code> meant to catch any
+        misbehavior, including getting stuck in the loop.</p>
+    </div>
     <div class="post" id="20210117"> <a href="#20210117" class="date">January
         17, 2021</a>
       <h1>Upper <em>and</em> lower bounds on tree size during crossover</h1>
@@ -113,21 +139,30 @@
         supports <em>both</em> anti-bloat <em>and</em> “pro-bloat” — that is,
         both upper and lower bounds on the size of trees created during
         crossover. In the “tree size agnostic case” GP crossover leads to slow
-        but stead growth in population-average tree size. (That is: the <code>GpTree::size()</code>
-        of each <code>Individual</code>, averaged over the <code>Population</code>.)
-        Recently I added a size-reducing bias to crossover when the parent trees
-        are too large. Now the corresponding size-increasing bias is implemented
-        when parent trees are too small. These limits can be set to infinity and
-        zero to deactivate the size biases, but <strong>currently default to
-          150% and 50%</strong> of the given parameter for initial random tree
-        max size. So for an initial max random tree size of 100, the size of
-        trees during the run would be on the range [50, 150].&nbsp; The limit
-        values can be read or written which these member functions on a <code>Population</code>
-        instance:</p>
+        but steady growth in population-average tree size. (That is: the <code>GpTree::size()</code>
+        of each <code>Individual</code>, averaged over the <code>Population</code>,
+        grows over time.) Recently I added a size-reducing bias to crossover
+        when the parent trees are too large. Now the corresponding
+        size-increasing bias is implemented when parent trees are too small.
+        These limits can be set to infinity and zero to deactivate the size
+        biases, but <strong>currently default to 150% and 50%</strong> of the
+        given parameter for initial random tree max size. So for an initial max
+        random tree size of 100, the size of trees during the run would be on
+        the range [50, 150].&nbsp; The limit values can be read or written which
+        these member functions on a <code>Population</code> instance:</p>
       <pre>Population::getMinCrossoverTreeSize()
 Population::setMinCrossoverTreeSize()
 Population::getMaxCrossoverTreeSize()
-Population::setMaxCrossoverTreeSize()</pre>
+Population::setMaxCrossoverTreeSize()
+
+// Update February 3, 2021:
+// New Population constructor allows these values to be specified initially:
+Population(int individual_count,
+           int subpopulation_count,
+           int max_init_tree_size,
+           int min_crossover_tree_size,
+           int max_crossover_tree_size,
+           const FunctionSet&amp; fs)</pre>
       <p>Here are eight LimitHue runs, four (red) with no limits, and four
         (blue) with limits set to enforce tight bounds on tree size. The only
         thing to see here is that reds and blues are roughly the same:</p>

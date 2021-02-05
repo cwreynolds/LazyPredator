@@ -34,9 +34,9 @@ public:
                    &fs) {}
     Population(int individual_count,
                int subpopulation_count,
+               int max_init_tree_size,
                int min_crossover_tree_size,
                int max_crossover_tree_size,
-               int max_init_tree_size,
                const FunctionSet& fs)
       : Population(individual_count,
                    subpopulation_count,

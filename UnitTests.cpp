@@ -175,6 +175,83 @@ bool gp_tree_eval_objects()
     return (tree_as_expected);
 }
 
+bool gp_tree_crossover()
+{
+    bool ok = true;
+    int retries = 50;
+    const FunctionSet& fs = TestFS::crossover();
+    LPRS().setSeed(32280650);
+    int max_init_tree_size = 30;
+    int max_crossover_tree_size = 100;
+    // Takes the initial letter of the given function's name.
+    auto initial = [&](const GpFunction& func)
+    {
+        return func.name().substr(0, 1);
+    };
+    // Along ALL paths from root to leaf count the max number of times the
+    // initial (of func name) changes. A tree should be all "P"s with at
+    // most one subtree of "Q"s, or vice versa, or entirely "P" or "Q".
+    std::function<int(std::string, const GpTree&)>
+    count_initial_changes = [&](std::string current_initial, const GpTree& tree)
+    {
+        int count = 0;
+        const GpFunction& rf = tree.getRootFunction();
+        if (current_initial == "") { current_initial = initial(rf); }
+        if (!tree.isLeaf())
+        {
+            if (current_initial != initial(rf))
+            {
+                count++;
+                current_initial = initial(rf);
+            }
+            for (const auto& subtree : tree.subtrees())
+            {
+                count += count_initial_changes(current_initial, subtree);
+            }
+        }
+        return count;
+    };
+    // Used during random tree creation: filter list of candidate functions by
+    // their initial letter matching "filter_string";
+    std::string filter_string;
+    FunctionSet::function_filter = [&](std::vector<GpFunction*>& funcs)
+    {
+        std::vector<GpFunction*> temp = funcs;
+        funcs.clear();
+        for (auto& func : temp)
+        {
+            if (filter_string == initial(*func)) { funcs.push_back(func); }
+        }
+    };
+    // Try crossovers between several pairs of P and Q trees.
+    for (int i = 0; i < retries; i++)
+    {
+        GpTree gp_tree_p;
+        GpTree gp_tree_q;
+        GpTree gp_tree_o;
+        filter_string = "P";
+        fs.makeRandomTree(max_init_tree_size, gp_tree_p);
+        filter_string = "Q";
+        fs.makeRandomTree(max_init_tree_size, gp_tree_q);
+        // Crossover between gp_tree_p and gp_tree_q to create gp_tree_o.
+        GpTree::crossover(gp_tree_p,
+                          gp_tree_q,
+                          gp_tree_o,
+                          1,
+                          max_crossover_tree_size,
+                          fs.getCrossoverMinSize());
+        int count = count_initial_changes("", gp_tree_o);
+        // std::cout << std::endl;
+        // std::cout << gp_tree_p.to_string(true) << std::endl;
+        // std::cout << gp_tree_q.to_string(true) << std::endl;
+        // std::cout << gp_tree_o.to_string(true) << std::endl;
+        //debugPrint(count);
+        ok = ok && st((count == 0) || (count == 1));
+    }
+    FunctionSet::function_filter = nullptr;
+    return ok;
+}
+
 bool gp_type_deleter()
 {
     int individuals = 100;
@@ -279,6 +356,7 @@ bool UnitTests::allTestsOK()
     logAndTally(gp_tree_construction);
     logAndTally(gp_tree_eval_simple);
     logAndTally(gp_tree_eval_objects);
+    logAndTally(gp_tree_crossover);
     logAndTally(gp_type_deleter);
     logAndTally(subpopulation_and_stats);
 

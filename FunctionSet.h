@@ -139,7 +139,7 @@ public:
             if (max_size >= ms) { ok.push_back(gp_function); }
         }
         // Intended to be used only for testing and debugging
-        if (function_filter) function_filter(ok);
+        if (function_filter) { function_filter(ok); };
         return (ok.empty() ? nullptr : ok.at(LPRS().randomN(ok.size())));
     }
 
@@ -287,7 +287,10 @@ public:
     const GpType*  getRootType() const { return root_type_; }
     void setRootType(GpType* gp_type) { root_type_ = gp_type; }
     
-    // Intended to be used only for testing and debugging
+    // Given a mutable collection of functions (std::vector<GpFunction*>) modify
+    // it in place. (TODO maybe better to return a modified copy, by value?)
+    // Intended to be used only for testing and debugging by removing candidate
+    // GpFunctions from consideration when generating random GpTrees.
     static inline std::function<void(std::vector<GpFunction*>&)>
         function_filter = nullptr;
 
