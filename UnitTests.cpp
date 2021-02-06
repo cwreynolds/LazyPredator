@@ -179,15 +179,14 @@ bool gp_tree_crossover()
 {
     bool ok = true;
     int retries = 50;
-    const FunctionSet& fs = TestFS::crossover();
     LPRS().setSeed(32280650);
+    int total_P = 0;
+    int total_Q = 0;
     int max_init_tree_size = 30;
     int max_crossover_tree_size = 100;
-    // Takes the initial letter of the given function's name.
-    auto initial = [&](const GpFunction& func)
-    {
-        return func.name().substr(0, 1);
-    };
+    const FunctionSet& fs = TestFS::crossover();
+    // Returns the initial letter of given function's name.
+    auto initial = [&](const GpFunction& f) { return f.name().substr(0, 1); };
     // Along ALL paths from root to leaf count the max number of times the
     // initial (of func name) changes. A tree should be all "P"s with at
     // most one subtree of "Q"s, or vice versa, or entirely "P" or "Q".
@@ -196,13 +195,14 @@ bool gp_tree_crossover()
     {
         int count = 0;
         const GpFunction& rf = tree.getRootFunction();
-        if (current_initial == "") { current_initial = initial(rf); }
         if (!tree.isLeaf())
         {
-            if (current_initial != initial(rf))
+            std::string irf = initial(rf);
+            if (irf == "P") { total_P++; } else { total_Q++; }
+            if (current_initial != irf)
             {
-                count++;
-                current_initial = initial(rf);
+                if (current_initial != "") { count++; }
+                current_initial = irf;
             }
             for (const auto& subtree : tree.subtrees())
             {
@@ -211,8 +211,8 @@ bool gp_tree_crossover()
         }
         return count;
     };
-    // Used during random tree creation: filter list of candidate functions by
-    // their initial letter matching "filter_string";
+    // Used during random tree creation: filter list of candidate functions to
+    // use only those whose initial letter matching "filter_string";
     std::string filter_string;
     FunctionSet::function_filter = [&](std::vector<GpFunction*>& funcs)
     {
@@ -223,7 +223,7 @@ bool gp_tree_crossover()
             if (filter_string == initial(*func)) { funcs.push_back(func); }
         }
     };
-    // Try crossovers between several pairs of P and Q trees.
+    // Try crossovers between several pairs of random P trees and Q trees.
     for (int i = 0; i < retries; i++)
     {
         GpTree gp_tree_p;
@@ -245,10 +245,48 @@ bool gp_tree_crossover()
         // std::cout << gp_tree_p.to_string(true) << std::endl;
         // std::cout << gp_tree_q.to_string(true) << std::endl;
         // std::cout << gp_tree_o.to_string(true) << std::endl;
-        //debugPrint(count);
+        // debugPrint(count);
         ok = ok && st((count == 0) || (count == 1));
     }
+    float p_to_q_ratio = float(total_P) / float(total_Q);
+    ok = ok && st(between(p_to_q_ratio, 0.8, 1.2));
     FunctionSet::function_filter = nullptr;
+    return ok;
+}
+
+bool gp_tree_utility()
+{
+    // Make several random GpTrees. Call GpTree::collectVectorOfSubtrees() and
+    // GpTree::collectSetOfTypes() on each. Then descend through tree verifying
+    // each node agrees with those collections. Also verifies GpTree::size().
+    bool ok = true;
+    int retries = 50;
+    LPRS().setSeed(62750858);
+    const FunctionSet& fs = TestFS::treeEval();
+    for (int i = 0; i < retries; i++)
+    {
+        // Make a random tree of random size based on given FunctionSet.
+        GpTree gp_tree;
+        fs.makeRandomTree(LPRS().random2(50, 150), gp_tree);
+        // Construct two sets, one subtrees(GpTree*), and one of GpType*.
+        std::vector<GpTree*> vector_of_subtrees;
+        std::set<GpTree*> set_of_subtrees;
+        std::set<const GpType*> set_of_types;
+        gp_tree.collectVectorOfSubtrees(vector_of_subtrees);
+        for (GpTree* t : vector_of_subtrees) { set_of_subtrees.insert(t); }
+        gp_tree.collectSetOfTypes(set_of_types);
+        // Verify that set_of_subtrees.size() is equal ro gp_tree.size().
+        ok = ok && st(gp_tree.size() == set_of_subtrees.size());
+        // Traverse a GpTree, testing each node for membership in both sets.
+        std::function<void(GpTree*)> check = [&](GpTree* t)
+        {
+            ok = ok && st(set_contains(set_of_subtrees, t));
+            ok = ok && st(set_contains(set_of_types, t->getRootType()));
+            for (auto& subtree : t->subtrees()) { check(&subtree); }
+        };
+        // Check "gp_tree".
+        check(&gp_tree);
+    }
     return ok;
 }
 
@@ -357,6 +395,7 @@ bool UnitTests::allTestsOK()
     logAndTally(gp_tree_eval_simple);
     logAndTally(gp_tree_eval_objects);
     logAndTally(gp_tree_crossover);
+    logAndTally(gp_tree_utility);
     logAndTally(gp_type_deleter);
     logAndTally(subpopulation_and_stats);
 
