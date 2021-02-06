@@ -384,6 +384,37 @@ bool subpopulation_and_stats()
     return ok;
 }
 
+bool subpopulation_migration()
+{
+    bool ok = true;
+    int subpops = 5;
+    int retries = 100;
+    int tree_size = 100;
+    int individuals = 100;
+    LPRS().setSeed(46200778);
+    const FunctionSet& fs = TestFS::treeEval();
+    // Make a Population with given parameters.
+    Population population(individuals, subpops, tree_size, fs);
+    // Make a set containing all Individuals, ensuring none are duplicates.
+    std::set<Individual*> before;
+    auto collect_unique_individuals = [&](Individual* i)
+    {
+        ok = ok && st(!set_contains(before, i));
+        before.insert(i);
+    };
+    population.applyToAllIndividuals(collect_unique_individuals);
+    // Do many migrations. (Set likelihood to 1 so happens each call.)
+    population.setMigrationLikelihood(1);
+    for (int i = 0; i < retries; i++) { population.subpopulationMigration(); }
+    // Verify each Individual was also present before migrations.
+    auto verify_same_individuals = [&](Individual* i)
+    {
+        ok = ok && st(set_contains(before, i));
+    };
+    population.applyToAllIndividuals(verify_same_individuals);
+    return ok;
+}
+
 bool UnitTests::allTestsOK()
 {
     Timer timer("Run time for unit test suite: ", "");
@@ -398,6 +429,7 @@ bool UnitTests::allTestsOK()
     logAndTally(gp_tree_utility);
     logAndTally(gp_type_deleter);
     logAndTally(subpopulation_and_stats);
+    logAndTally(subpopulation_migration);
 
     std::cout << std::endl;
     std::cout << (all_tests_passed ? "All tests PASS." : "Some tests FAIL.");
