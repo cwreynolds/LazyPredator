@@ -430,7 +430,10 @@ bool UnitTests::allTestsOK()
     logAndTally(gp_type_deleter);
     logAndTally(subpopulation_and_stats);
     logAndTally(subpopulation_migration);
-
+    
+    // Reset LazyPredator's global RandomSequence to default seed.
+    LPRS().setSeed();
+    
     std::cout << std::endl;
     std::cout << (all_tests_passed ? "All tests PASS." : "Some tests FAIL.");
     std::cout << std::endl << std::endl;
