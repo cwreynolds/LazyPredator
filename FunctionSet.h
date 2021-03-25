@@ -140,8 +140,35 @@ public:
         }
         // Intended to be used only for testing and debugging
         if (function_filter) { function_filter(ok); };
-        return (ok.empty() ? nullptr : ok.at(LPRS().randomN(ok.size())));
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//        return (ok.empty() ? nullptr : ok.at(LPRS().randomN(ok.size())));
+        
+//        return (ok.empty() ? nullptr : GpFunction::weightedRandomSelect(ok));
+        
+        return (ok.empty() ? nullptr : weightedRandomSelect(ok));
+
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     }
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // Return a GpFunction* randomly selected from a given collection of them.
+    // Selection is made according to each GpFunction's selectionWeight().
+    GpFunction* weightedRandomSelect(const std::vector<GpFunction*>&
+                                     gp_functions) const
+    {
+        GpFunction* result = nullptr;
+        float total_weight = 0;
+        for (auto f : gp_functions) { total_weight += f->selectionWeight(); }
+        float random = LPRS().random2(0.0f, total_weight); // TODO which RS?
+        float previous = 0;
+        for (auto gp_function : gp_functions)
+        {
+            float next = previous + gp_function->selectionWeight();
+            if (random < next) { result = gp_function; break; }
+            previous = next;
+        }
+        return result;
+    }
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     // Creates a random program (nested expression) using the "language" defined
     // in this FunctionSet. Parameter "max_size" is upper bound on the number of

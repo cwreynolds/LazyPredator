@@ -9,6 +9,114 @@
 #include "LazyPredator.h"
 #include "TestFS.h"
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Parsed version of the ("unix") command line that invoked this run.
+std::vector<std::string> cmd_line_;
+
+// background_scale_(cmd_line_.at(3).empty() ?
+//                   0.5 :
+//                   std::stof(cmd_line_.at(3))),
+
+// Camouflage::positional_argument(5, LPRS().defaultSeed())
+
+//    // Return random element of given std::vector.
+//    template<typename T> T randomSelectElement(const std::vector<T>& collection)
+//    { return collection.at(randomN(collection.size())); }
+
+
+
+//    template <typename T>
+//    T positionalArgument(int arg_index,
+//                         const T& default_value,
+//                         std::function<T(std::string)> caster)
+//    {
+//        return (cmd_line_.at(arg_index).empty() ?
+//                default_value :
+//                caster(cmd_line_.at(arg_index)));
+//    }
+//
+//    //template <typename T>
+//    //T positionalArgument(int arg_index, const T& default_value)
+//    //{
+//    //    return positionalArgument(arg_index,
+//    //                              default_value,
+//    //                              [](std::string s){ return s; });
+//    //}
+//
+//    std::string positionalArgumentX(int arg_index, std::string default_value)
+//    {
+//        return positionalArgument(arg_index,
+//                                  default_value,
+//                                  [](std::string s){ return s; });
+//    }
+
+
+//    // Used only below in FunctionSet, then undef-ed at end of file.
+//    #define name_lookup_util(name, map)               \
+//    [&]()                                             \
+//    {                                                 \
+//        auto it = map.find(name);                     \
+//        assert("unknown type" && (it != map.end()));  \
+//        return &(it->second);                         \
+//    }()
+
+#define positional_argument(arg_index, default_value)  \
+(cmd_line_.at(arg_index).empty() ?                     \
+ default_value :                                       \
+ cmd_line_.at(arg_index));
+
+
+// Three overloads for string, int, and float:
+std::string positionalArgument(int arg_index, std::string default_value)
+{
+    return (cmd_line_.at(arg_index).empty() ?
+            default_value :
+            cmd_line_.at(arg_index));
+}
+
+int positionalArgument(int arg_index, int default_value)
+{
+    return (cmd_line_.at(arg_index).empty() ?
+            default_value :
+            std::stoi(cmd_line_.at(arg_index)));
+}
+
+float positionalArgument(int arg_index, float default_value)
+{
+    return (cmd_line_.at(arg_index).empty() ?
+            default_value :
+            std::stof(cmd_line_.at(arg_index)));
+}
+
+
+
+void testPositionalArgument()
+{
+    std::string s;
+    int i;
+    float f;
+    
+    cmd_line_.clear();
+    cmd_line_.resize(10);
+    s = positionalArgument(0, "foo");
+    i = positionalArgument(1, 123);
+    f = positionalArgument(2, 123.456f);
+    debugPrint(s);
+    debugPrint(i);
+    debugPrint(f);
+    
+    cmd_line_ = {"bar", "100", "100000"};
+    cmd_line_.resize(10);
+    s = positionalArgument(0, "foo");
+    i = positionalArgument(1, 123);
+    f = positionalArgument(2, 123.456f);
+    debugPrint(s);
+    debugPrint(i);
+    debugPrint(f);
+}
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 int main(int argc, const char * argv[])
 {
     UnitTests::allTestsOK();
@@ -948,6 +1056,8 @@ int main(int argc, const char * argv[])
     std::cout << "February 4, 2021" << std::endl;
     std::string path = "/Users/cwr/Desktop/TexSyn_temp/20210204_";
 
+    testPositionalArgument();
+    
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     return EXIT_SUCCESS;
 }
