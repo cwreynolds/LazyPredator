@@ -106,6 +106,29 @@
       details of the implementation. On the other hand, I do want it to be more
       prose-like than the terse <code>git commit</code> messages.)</p>
     <br style="##########################################################################">
+    <div class="post" id="20210325"> <a href="#20210325" class="date">March 25,
+        2021</a>
+      <h1>Weighting selection of functions for initial random trees</h1>
+      <p>When creating the initial <code>Population</code> of <code>Individuals</code>,
+        the <code>FunctionSet</code> is filtered to a collection of <code>GpFunction</code>s
+        with the required return type, and which can terminate GpTree
+        construction (get to terminals) given the remaining tree “size.”
+        Previously: one element of the filtered collection was chosen by uniform
+        random selection. Now that happens by default, but the c++ initializer
+        for&nbsp; <code>GpFunction</code> can include an optional extra fifth
+        argument, a float, indicating a <em>selection weight</em> other than
+        one. Here for example is the “toy” example used in a new unit test. Each
+        of the four listed <code>GpFunction</code>s is half as likely to be
+        selected as the next one:</p>
+      <pre>// Define FunctionSet with random selection weightings.
+FunctionSet fs = { { { "Int", 0, 9 } },
+                   { { "L", "Int", {"Int"}, ..., 0.5 },
+                     { "M", "Int", {"Int"}, ..., 1 },
+                     { "N", "Int", {"Int"}, ..., 2 },
+                     { "O", "Int", {"Int"}, ..., 4 }, }, };</pre>
+      <p>Adds new <code>FunctionSet::weightedRandomSelect()</code>, <code>GpFunction::selectionWeight()</code>,
+        and <code>UnitTests::gp_function_weighted_select()</code>.</p>
+    </div>
     <div class="post" id="20210129"> <a href="#20210129" class="date">January
         29, 2021</a>
       <h1>Back and forth on random tournament member uniqueness</h1>
@@ -167,12 +190,12 @@ Population(int individual_count,
         (blue) with limits set to enforce tight bounds on tree size. The only
         thing to see here is that reds and blues are roughly the same:</p>
       <img src="images/20210116_LimitHue_Comp_Fit.png" alt="20210116 LimitHue Comparison Fitness."
-        title="20210116 LimitHue Comparison Fitness." height="470" width="738">
+        title="20210116 LimitHue Comparison Fitness." width="738" height="470">
       <p> While the fitnesses are about the same in these two conditions, the
         no-limits condition (green) show steady growth in tree size, with limits
         (orange) stay within a narrow range:</p>
       <img src="images/20210116_LimitHue_Comp_Size.png" alt="20210116 LimitHue Comparison Size."
-        title="20210116 LimitHue Comparison Size." height="470" width="738">
+        title="20210116 LimitHue Comparison Size." width="738" height="470">
       <p>Here we zoom in on the bounded case (orange) to better see the vertical
         scale. Not only are the allowed tree size values in a narrow range, I
         also shifted this range twice during the run. For the first ⅓ of the
@@ -185,7 +208,7 @@ Population(int individual_count,
         smaller. Perhaps with the upper and lower bounds set so close (10 nodes)
         the bias was being used almost each crossover, in opposite directions.</p>
       <img src="images/20210116_LimitHue_Comp_Size_b.png" alt="20210116 LimitHue Comparison Size b."
-        title="20210116 LimitHue Comparison Size b." height="470" width="738"> </div>
+        title="20210116 LimitHue Comparison Size b." width="738" height="470"> </div>
     <div class="post" id="20210112"> <a href="#20210112" class="date">January
         12, 2021</a>
       <h1>Size limitation during crossover: anti-bloat</h1>
@@ -223,7 +246,7 @@ Population(int individual_count,
         slightly higher than the control case <strong>without</strong> the
         limit (red):</p>
       <img src="images/20210112_LimitHue_Comp_Fit.png" alt="LimitHue fitness by size limit"
-        title="LimitHue fitness by size limit" height="570" width="704">
+        title="LimitHue fitness by size limit" width="704" height="570">
       <p>In this plot of <code>GpTree</code> program size averaged over all in
         a <code>Population</code>, we see a clear difference between the four
         runs <strong>with</strong> the crossover size limit (orange) and the
@@ -232,7 +255,7 @@ Population(int individual_count,
         150 while the four runs without the limit reach size averages above 150
         with one reaching about 280:</p>
       <img src="images/20210112_LimitHue_Comp_Size.png" alt="LimitHue size by size limit"
-        title="LimitHue size by size limit" height="470" width="704"> </div>
+        title="LimitHue size by size limit" width="704" height="470"> </div>
     <div class="post" id="20210105"> <a href="#20210105" class="date">January
         5, 2021</a>
       <h1>Another day, another tweak, another ambiguous plot</h1>
@@ -248,7 +271,7 @@ Population(int individual_count,
         hard to see any difference in performance between using 1 (red) or 4
         (blue) subpopulations.</p>
       <img src="images/20210105_LimitHue_Comparison.png" alt="LimitHue::comparison() subpop selection tweak"
-        title="LimitHue::comparison() subpop selection tweak" height="555" width="705">
+        title="LimitHue::comparison() subpop selection tweak" width="705" height="555">
     </div>
     <div class="post" id="20210103"> <a href="#20210103" class="date">January
         3, 2021</a>
@@ -269,13 +292,11 @@ Population(int individual_count,
         higher than others, so multiple populations allows exploring more
         territory. Subpopulations are sometimes called “demes” (“from the Greek”
         as James Rice, my early GP mentor, told me when I asked about the term)
-        as used in biology “
-        <meta charset="utf-8">
-        a subdivision of a population consisting of closely related plants,
-        animals, or people, typically breeding mainly within the group.”
-        Similarly a single population GP, as LazyPredator had been before now,
-        is sometimes called “panmixia” from biology meaning “random mating
-        within a breeding population.”</p>
+        as used in biology “ a subdivision of a population consisting of closely
+        related plants, animals, or people, typically breeding mainly within the
+        group.” Similarly a single population GP, as LazyPredator had been
+        before now, is sometimes called “panmixia” from biology meaning “random
+        mating within a breeding population.”</p>
       <p>I refactored <code>Population</code> to support subpopulation and took
         it out for a test drive. I used the same <code>LimitHue::comparison()</code>
         framework as before, making four pairs of runs, each run in a pair
@@ -289,7 +310,7 @@ Population(int individual_count,
           fitness</em> for all eight populations are around 0.55 while in <a href="#20201226">
           previous runs</a> they were near 0.75. </p>
       <img src="images/20210103_LimitHue_Comparison.png" alt="LimitHue::comparison() subpopulations"
-        title="LimitHue::comparison() subpopulations" height="588" width="710">
+        title="LimitHue::comparison() subpopulations" width="710" height="588">
     </div>
     <div class="post" id="20201226"> <a href="#20201226" class="date">December
         26, 2020</a>
@@ -312,7 +333,7 @@ Population(int individual_count,
       <p>I will fold this change into refactoring <em>absolute fitness</em> to
         be a layer on top of tournament-based <em>relative fitness</em>.</p>
       <img src="images/20201226_LimitHue_Comparison.png" alt="LimitHue::comparison() fix init fitness"
-        title="LimitHue::comparison() fix init fitness" height="646" width="714">
+        title="LimitHue::comparison() fix init fitness" width="714" height="646">
     </div>
     <div class="post" id="20201224"> <a href="#20201224" class="date">December
         24, 2020</a> 🎄
@@ -340,7 +361,7 @@ Population(int individual_count,
         size to avoid bloat in what I think is a fairly natural way that will
         not interfere with fitness measurement.</p>
       <img src="images/20201223_LimitHue_Comparison_Size.png" alt="LimitHue::comparison() sizes"
-        title="LimitHue::comparison() sizes" height="535" width="784"> </div>
+        title="LimitHue::comparison() sizes" width="784" height="535"> </div>
     <div class="post" id="20201223"> <a href="#20201223" class="date">December
         23, 2020</a>
       <h1>Redefine “absolute fitness” on top of relative tournaments</h1>
@@ -431,7 +452,7 @@ Population(int individual_count,
         “absolute fitness” should be refactored to be based on top of
         tournament-style evolution steps.</p>
       <img src="images/20201223_LimitHue_comparison.png" alt="LimitHue::comparison()"
-        title="LimitHue::comparison()" height="588" width="650"> </div>
+        title="LimitHue::comparison()" width="650" height="588"> </div>
     <div class="post" id="20201127"> <a href="#20201127" class="date">November
         27, 2020</a> 🍗
       <h1><code>GpTree</code> with “phantom limb”</h1>
@@ -515,7 +536,7 @@ Population(int individual_count,
         run on October 19 was five times longer and never got this close to its
         goal.</p>
       <img src="images/20201031_yg_run_5.png" alt="yellow/green run 5" title="yellow/green run 5"
-        height="399" width="1000"> </div>
+        width="1000" height="399"> </div>
     <div class="post" id="20201019"> <a href="#20201019" class="date">October
         19, 2020</a>
       <h1>Evolution: first quantitative data</h1>
@@ -553,7 +574,7 @@ Population(int individual_count,
         on color values, but I used <code>Color::clipToUnitRGB()</code> when
         computing average colors for this run.)</p>
       <img src="images/20201019_yellow_green_run.png" alt="yellow/green run" title="yellow/green run"
-        height="396" width="1000">
+        width="1000" height="396">
       <p>One unrelated problem that arose during this work had to do with
         “minimum size for crossover snippet” as discussed on <a href="#20201008">October
           8</a>. On a whim I had chosen a value of <strong>five</strong>, while
@@ -594,7 +615,7 @@ Population(int individual_count,
         blue trace—per mutation—so moves four times faster. There are 500 steps
         across the horizontal axis.</p>
       <img src="images/20201018_slow_fast_jitter.png" alt="slow and fast jiggle mutation"
-        title="slow and fast jiggle mutation" height="453" width="1000"> </div>
+        title="slow and fast jiggle mutation" width="1000" height="453"> </div>
     <div class="post" id="20201017"> <a href="#20201017" class="date">October
         17, 2020</a>
       <h1>Evolution, almost certainly!</h1>
@@ -719,7 +740,7 @@ for (int k = 0; k &lt; 1000; k++)
         to clipping. I took the log from that code and pasted it into a
         speadsheet for plotting:</p>
       <img src="images/20201011_jiggle_series.png" alt="jiggle series" title="jiggle series"
-        height="404" width="1000"> </div>
+        width="1000" height="404"> </div>
     <div class="post" id="20201010"> <a href="#20201010" class="date">October
         10, 2020</a>
       <h1><code>GpType</code> constructors: less is more</h1>

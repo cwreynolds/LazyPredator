@@ -46,54 +46,6 @@ bool population_allocation_of_individuals()
     return start_with_none && match_target_count && end_with_none;
 }
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-bool gp_function_weighted_select()
-{
-    bool result = true;
-    LPRS().setSeed(46102969);
-    auto eval_zero = [](GpTree& t) { return std::any(0); };
-    // Define FunctionSet with random selection weightings.
-    FunctionSet fs = { { { "Int", 0, 9 } },
-                       { { "L", "Int", {"Int"}, eval_zero, 0.5 },
-                         { "M", "Int", {"Int"}, eval_zero, 1 },
-                         { "N", "Int", {"Int"}, eval_zero, 2 },
-                         { "O", "Int", {"Int"}, eval_zero, 4 }, }, };
-    // Collect GpFunction pointers into a vector
-    std::vector<GpFunction*> functions;
-    for (auto& [name, gp_function] : fs.nameToGpFunctionMap())
-    {
-//        debugPrint(name);
-        functions.push_back(&gp_function);
-    }
-    // Call weightedRandomSelect() "repeat" times, keep count of selections.
-    int repeat = 10000;
-    std::map<GpFunction*, int> counts;
-    for (GpFunction* f : functions) { counts.insert({{f, 0.0f}}); }
-    for (int i = 0; i < repeat; i++)
-    {
-        GpFunction* f = fs.weightedRandomSelect(functions);
-        counts.at(f)++;
-    }
-//    for (auto& [gp_function, count] : counts)
-//    {
-//        debugPrint(gp_function->name());
-//        debugPrint(count);
-//    }
-    // Compare counts per pair of GpFunctions, expect next to be twice as much.
-    for (int i = 1; i < counts.size(); i ++)
-    {
-        int a = counts.at(functions.at(i - 1));
-        int b = counts.at(functions.at(i));
-        debugPrint(between(b, a * 1.95, a * 2.05));
-        if (!st(between(b, a * 1.95, a * 2.05))) result = false;
-    }
-    
-    return result;
-}
-
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 bool random_program_size_limit()
 {
     bool all_ok = true;
@@ -115,6 +67,45 @@ bool random_program_size_limit()
         if (!ok) all_ok = false;
     }
     return all_ok;
+}
+
+bool gp_function_weighted_select()
+{
+    bool result = true;
+    LPRS().setSeed(46102969);
+    auto eval_zero = [](GpTree& t) { return std::any(0); };
+    // Define FunctionSet with random selection weightings.
+    FunctionSet fs = { { { "Int", 0, 9 } },
+                       { { "L", "Int", {"Int"}, eval_zero, 0.5 },
+                         { "M", "Int", {"Int"}, eval_zero, 1 },
+                         { "N", "Int", {"Int"}, eval_zero, 2 },
+                         { "O", "Int", {"Int"}, eval_zero, 4 }, }, };
+    // Vector of GpFunction* as required by FunctionSet::weightedRandomSelect()
+    std::vector<GpFunction*> functions;
+    for (auto& [name, gp_function] : fs.nameToGpFunctionMap())
+    {
+        functions.push_back(&gp_function);
+    }
+    // Call weightedRandomSelect() "repeat" times, count each func selection.
+    int repeat = 10000;
+    std::map<GpFunction*, int> counts;
+    for (GpFunction* f : functions) { counts.insert({{f, 0.0f}}); }
+    for (int i = 0; i < repeat; i++)
+    {
+        GpFunction* f = fs.weightedRandomSelect(functions);
+        counts.at(f)++;
+    }
+    // Compare counts per pair of GpFunctions, expect next to be twice as much.
+    for (int i = 1; i < counts.size(); i ++)
+    {
+        int a = counts.at(functions.at(i - 1));
+        int b = counts.at(functions.at(i));
+        if (!st(between(b, a * 1.95, a * 2.05))) result = false;
+    }
+    // Verify that weightedRandomSelect() returns null for enpty function list.
+    std::vector<GpFunction*> no_functions;
+    result = result && st(fs.weightedRandomSelect(no_functions) == nullptr);
+    return result;
 }
 
 bool gp_tree_construction()
@@ -469,10 +460,8 @@ bool UnitTests::allTestsOK()
     bool all_tests_passed = true;
     
     logAndTally(population_allocation_of_individuals);
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    logAndTally(gp_function_weighted_select);
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     logAndTally(random_program_size_limit);
+    logAndTally(gp_function_weighted_select);
     logAndTally(gp_tree_construction);
     logAndTally(gp_tree_eval_simple);
     logAndTally(gp_tree_eval_objects);

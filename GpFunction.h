@@ -17,16 +17,6 @@ class GpFunction
 {
 public:
     GpFunction(){}
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//    GpFunction(const std::string& name,
-//               const std::string& return_type_name,
-//               const std::vector<std::string>& parameter_type_names,
-//               std::function<std::any(GpTree& t)> eval)
-//      : name_(name),
-//        return_type_name_(return_type_name),
-//        parameter_type_names_(parameter_type_names),
-//        eval_(eval) {}
-
     GpFunction(const std::string& name,
                const std::string& return_type_name,
                const std::vector<std::string>& parameter_type_names,
@@ -43,8 +33,6 @@ public:
         parameter_type_names_(parameter_type_names),
         eval_(eval),
         selection_weight_(selection_weight) {}
-
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // String name of this GpFunction.
     const std::string& name() const { return name_; }
     // String name of this GpFunction's return type.
@@ -92,9 +80,8 @@ public:
         }
         std::cout << ")." << std::endl;
     }
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // Multiplier on random selection during initial tree construction.
     float selectionWeight() const { return selection_weight_; }
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 private:
     std::string name_;
     std::string return_type_name_;
@@ -103,7 +90,5 @@ private:
     std::vector<GpType*> parameter_types_;
     int min_size_to_terminate_ = std::numeric_limits<int>::max();
     std::function<std::any(GpTree& t)> eval_ = nullptr;
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     float selection_weight_ = 1;
-    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 };
