@@ -67,6 +67,7 @@ public:
             subpopulation(i % subpopulation_count).push_back(new_individual);
         }
         updateSortedCollectionOfIndividuals();
+        idle_time_ = TimeDuration::zero();
         // TODO keep, remove, or move to unit tests?
         assert(individual_count == sorted_collection_.size());
         assert(individual_count == getIndividualCount());
@@ -323,29 +324,27 @@ public:
     {
         logger_function_ = logger_function;
     }
-    static void basicLogger(Population& population)
+    static void basicLogger(Population& p)
     {
-        std::chrono::time_point<std::chrono::high_resolution_clock>
-            now_time = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double>
-            elapsed_time = now_time - population.start_time_;
-        population.start_time_ = now_time;
+        TimePoint now_time = TimeClock::now();
+        TimeDuration elapsed_time = now_time - p.start_time_ - p.idle_time_;
+        p.start_time_ = now_time;
         int default_precision = int(std::cout.precision());
-        std::cout << population.getStepCount() << ": t=";
+        std::cout << p.getStepCount() << ": t=";
         std::cout << std::setprecision(3) << elapsed_time.count() << ", ";
         std::cout << std::setprecision(default_precision);
-        std::cout << "pop ave size=" << population.averageTreeSize();
-        std::cout << " fit=" << population.averageFitness() << ", ";
+        std::cout << "pop ave size=" << p.averageTreeSize();
+        std::cout << " fit=" << p.averageFitness() << ", ";
         std::cout << "pop best (" << std::setprecision(2);
         for (int i = 0; i < 10; i++)
         {
             if (i > 0) std::cout << " ";
-            std::cout << population.nthBestFitness(i)->getFitness();
+            std::cout << p.nthBestFitness(i)->getFitness();
         }
         std::cout << ")" << std::setprecision(default_precision);
         std::cout << std::endl;
     }
-    
+
     // Apply the given function to all Individuals in this Population.
     void applyToAllIndividuals(std::function<void(Individual*)> func) const
     {
@@ -389,6 +388,9 @@ public:
     void setMinCrossoverTreeSize(int size) { min_crossover_tree_size_ = size; }
     int getMaxCrossoverTreeSize() const { return max_crossover_tree_size_; }
     void setMaxCrossoverTreeSize(int size) { max_crossover_tree_size_ = size; }
+    
+    // Duration of idle time during step that should be ignored for logging.
+    void setIdleTime(TimeDuration duration) { idle_time_ = duration; }
 
 private:
     std::function<void(Population&)> logger_function_ = basicLogger;
@@ -409,4 +411,6 @@ private:
     // Min/max crossover tree size.
     int min_crossover_tree_size_ = 0;
     int max_crossover_tree_size_ = std::numeric_limits<int>::max();
+    // Duration of idle time during step that should be ignored for logging.
+    TimeDuration idle_time_;
 };
