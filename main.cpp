@@ -951,5 +951,49 @@ int main(int argc, const char * argv[])
 //    testPositionalArgument();
     
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    
+    // CountFunctionUsage prototype.
+    std::cout << "June 2, 2021" << std::endl;
+    
+    // TODO prototype here, move into it own file later?
+    class CountFunctionUsage
+    {
+    public:
+        CountFunctionUsage(){}
+        typedef std::map<std::string, int> CountMap;
+        const CountMap& countMap() { return count_map_; }
+        // Count GpFunction usage in a given GpTree, add into running totals.
+        void count(const GpTree& tree)
+        {
+            if (!tree.isLeaf())
+            {
+                count_map_[tree.getRootFunction().name()]++;
+                for (auto subtree : tree.subtrees()) count(subtree);
+            }
+        }
+        // Total of all counts for all GpFunction.
+        int totalCount() const
+        {
+            int total = 0;
+            for (auto& [string, count] : count_map_) { total += count; }
+            return total;
+        }
+    private:
+        // A map from string name of GpFunction to current count of usages.
+        CountMap count_map_;
+    };
+    
+    GpTree gp_tree;
+    TestFS::treeEval().makeRandomTree(100, gp_tree);
+    CountFunctionUsage cfu;
+    cfu.count(gp_tree);
+    debugPrint(cfu.countMap().size());
+    for (auto& [string, count] : cfu.countMap())
+    {
+        std::cout << count << " of " << string << std::endl;
+    }
+    debugPrint(cfu.totalCount());
+
+    //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     return EXIT_SUCCESS;
 }
