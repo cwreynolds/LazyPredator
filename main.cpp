@@ -961,7 +961,7 @@ int main(int argc, const char * argv[])
     public:
         CountFunctionUsage(){}
         typedef std::map<std::string, int> CountMap;
-        const CountMap& countMap() { return count_map_; }
+        const CountMap& countMap() const { return count_map_; }
         // Count GpFunction usage in a given GpTree, add into running totals.
         void count(const GpTree& tree)
         {
@@ -978,6 +978,10 @@ int main(int argc, const char * argv[])
             for (auto& [string, count] : count_map_) { total += count; }
             return total;
         }
+        void applyToEachCount(std::function<void(std::string, int)> func) const
+        {
+            for (auto& [string, count] : countMap()) { func(string, count); }
+        }
     private:
         // A map from string name of GpFunction to current count of usages.
         CountMap count_map_;
@@ -988,10 +992,8 @@ int main(int argc, const char * argv[])
     CountFunctionUsage cfu;
     cfu.count(gp_tree);
     debugPrint(cfu.countMap().size());
-    for (auto& [string, count] : cfu.countMap())
-    {
-        std::cout << count << " of " << string << std::endl;
-    }
+    auto p = [](std::string s,int c){std::cout << c <<" of "<< s << std::endl;};
+    cfu.applyToEachCount(p);
     debugPrint(cfu.totalCount());
 
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
