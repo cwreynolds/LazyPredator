@@ -971,6 +971,12 @@ int main(int argc, const char * argv[])
                 for (auto subtree : tree.subtrees()) count(subtree);
             }
         }
+        // Count GpFunction usage in a given Population.
+        void count(const Population& population)
+        {
+            auto count_individual = [&](Individual* i) { count(i->tree()); };
+            population.applyToAllIndividuals(count_individual);
+        }
         // Total of all counts for all GpFunction.
         int totalCount() const
         {
@@ -978,23 +984,38 @@ int main(int argc, const char * argv[])
             for (auto& [string, count] : count_map_) { total += count; }
             return total;
         }
-        void applyToEachCount(std::function<void(std::string, int)> func) const
+        // Apply given function to all counts (args: GpFunc name, count)
+        void applyToAllCounts(std::function<void(std::string, int)> func) const
         {
             for (auto& [string, count] : countMap()) { func(string, count); }
         }
+        void clear() { count_map_.clear(); }
     private:
         // A map from string name of GpFunction to current count of usages.
         CountMap count_map_;
     };
     
-    GpTree gp_tree;
-    TestFS::treeEval().makeRandomTree(100, gp_tree);
+    // Test cases -- make this into unit test?
+    auto print = [&](const CountFunctionUsage& cfu)
+    {
+        std::cout << std::endl;
+        debugPrint(cfu.countMap().size());
+        auto p = [](std::string s, int c)
+                 { std::cout << c <<" of " << s << std::endl; };
+        cfu.applyToAllCounts(p);
+        debugPrint(cfu.totalCount());
+    };
     CountFunctionUsage cfu;
+    LPRS().setSeed(20210604);
+    auto fs = TestFS::treeEval();
+    GpTree gp_tree;
+    fs.makeRandomTree(100, gp_tree);
+    Population population(100, 0, 100, fs);
     cfu.count(gp_tree);
-    debugPrint(cfu.countMap().size());
-    auto p = [](std::string s,int c){std::cout << c <<" of "<< s << std::endl;};
-    cfu.applyToEachCount(p);
-    debugPrint(cfu.totalCount());
+    print(cfu);
+    cfu.clear();
+    cfu.count(population);
+    print(cfu);
 
     //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     return EXIT_SUCCESS;
