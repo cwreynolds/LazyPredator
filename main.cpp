@@ -955,45 +955,45 @@ int main(int argc, const char * argv[])
     // CountFunctionUsage prototype.
     std::cout << "June 2, 2021" << std::endl;
     
-    // TODO prototype here, move into it own file later?
-    class CountFunctionUsage
-    {
-    public:
-        CountFunctionUsage(){}
-        typedef std::map<std::string, int> CountMap;
-        const CountMap& countMap() const { return count_map_; }
-        // Count GpFunction usage in a given GpTree, add into running totals.
-        void count(const GpTree& tree)
-        {
-            if (!tree.isLeaf())
-            {
-                count_map_[tree.getRootFunction().name()]++;
-                for (auto subtree : tree.subtrees()) count(subtree);
-            }
-        }
-        // Count GpFunction usage in a given Population.
-        void count(const Population& population)
-        {
-            auto count_individual = [&](Individual* i) { count(i->tree()); };
-            population.applyToAllIndividuals(count_individual);
-        }
-        // Total of all counts for all GpFunction.
-        int totalCount() const
-        {
-            int total = 0;
-            for (auto& [string, count] : count_map_) { total += count; }
-            return total;
-        }
-        // Apply given function to all counts (args: GpFunc name, count)
-        void applyToAllCounts(std::function<void(std::string, int)> func) const
-        {
-            for (auto& [string, count] : countMap()) { func(string, count); }
-        }
-        void clear() { count_map_.clear(); }
-    private:
-        // A map from string name of GpFunction to current count of usages.
-        CountMap count_map_;
-    };
+//    // TODO prototype here, move into it own file later?
+//    class CountFunctionUsage
+//    {
+//    public:
+//        CountFunctionUsage(){}
+//        typedef std::map<std::string, int> CountMap;
+//        const CountMap& countMap() const { return count_map_; }
+//        // Count GpFunction usage in a given GpTree, add into running totals.
+//        void count(const GpTree& tree)
+//        {
+//            if (!tree.isLeaf())
+//            {
+//                count_map_[tree.getRootFunction().name()]++;
+//                for (auto subtree : tree.subtrees()) count(subtree);
+//            }
+//        }
+//        // Count GpFunction usage in a given Population.
+//        void count(const Population& population)
+//        {
+//            auto count_individual = [&](Individual* i) { count(i->tree()); };
+//            population.applyToAllIndividuals(count_individual);
+//        }
+//        // Total of all counts for all GpFunction.
+//        int totalCount() const
+//        {
+//            int total = 0;
+//            for (auto& [string, count] : count_map_) { total += count; }
+//            return total;
+//        }
+//        // Apply given function to all counts (args: GpFunc name, count)
+//        void applyToAllCounts(std::function<void(std::string, int)> func) const
+//        {
+//            for (auto& [string, count] : countMap()) { func(string, count); }
+//        }
+//        void clear() { count_map_.clear(); }
+//    private:
+//        // A map from string name of GpFunction to current count of usages.
+//        CountMap count_map_;
+//    };
     
     // Test cases -- make this into unit test?
     auto print = [&](const CountFunctionUsage& cfu)
