@@ -7,13 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		8458EED1250AA3FF0079DF1D /* TestFS.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8458EECF250AA3FF0079DF1D /* TestFS.cpp */; };
 		849C0FF524DB689400590B1D /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 849C0FF424DB689400590B1D /* main.cpp */; };
-		84F2452824DCA87E00001C0A /* Population.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 84F2452624DCA87E00001C0A /* Population.cpp */; };
-		84F2452B24DCA8A300001C0A /* Individual.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 84F2452924DCA8A300001C0A /* Individual.cpp */; };
 		84F2452E24DCA8C200001C0A /* UnitTests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 84F2452C24DCA8C200001C0A /* UnitTests.cpp */; };
-		84F2453124DE154C00001C0A /* Utilities.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 84F2452F24DE154C00001C0A /* Utilities.cpp */; };
-		84F2453824E072FB00001C0A /* FunctionSet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 84F2453624E072FB00001C0A /* FunctionSet.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -29,7 +24,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		8458EECF250AA3FF0079DF1D /* TestFS.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = TestFS.cpp; sourceTree = "<group>"; };
 		8458EED0250AA3FF0079DF1D /* TestFS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestFS.h; sourceTree = "<group>"; };
 		84685395258D982400A7F6D2 /* GpType.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GpType.h; sourceTree = "<group>"; };
 		84685397258D9BAC00A7F6D2 /* GpFunction.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GpFunction.h; sourceTree = "<group>"; };
@@ -37,16 +31,12 @@
 		849C0FF124DB689400590B1D /* LazyPredator */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = LazyPredator; sourceTree = BUILT_PRODUCTS_DIR; };
 		849C0FF424DB689400590B1D /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		84BC107E259F9E1D0095F83B /* TournamentGroup.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TournamentGroup.h; sourceTree = "<group>"; };
-		84F2452624DCA87E00001C0A /* Population.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Population.cpp; sourceTree = "<group>"; };
 		84F2452724DCA87E00001C0A /* Population.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Population.h; sourceTree = "<group>"; };
-		84F2452924DCA8A300001C0A /* Individual.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Individual.cpp; sourceTree = "<group>"; };
 		84F2452A24DCA8A300001C0A /* Individual.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Individual.h; sourceTree = "<group>"; };
 		84F2452C24DCA8C200001C0A /* UnitTests.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = UnitTests.cpp; sourceTree = "<group>"; };
 		84F2452D24DCA8C200001C0A /* UnitTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UnitTests.h; sourceTree = "<group>"; };
-		84F2452F24DE154C00001C0A /* Utilities.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Utilities.cpp; sourceTree = "<group>"; };
 		84F2453024DE154C00001C0A /* Utilities.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Utilities.h; sourceTree = "<group>"; };
 		84F2453224DE172000001C0A /* LazyPredator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LazyPredator.h; sourceTree = "<group>"; };
-		84F2453624E072FB00001C0A /* FunctionSet.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = FunctionSet.cpp; sourceTree = "<group>"; };
 		84F2453724E072FB00001C0A /* FunctionSet.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FunctionSet.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -65,23 +55,18 @@
 			isa = PBXGroup;
 			children = (
 				84F2453724E072FB00001C0A /* FunctionSet.h */,
-				84F2453624E072FB00001C0A /* FunctionSet.cpp */,
 				84685397258D9BAC00A7F6D2 /* GpFunction.h */,
 				84685399258D9E0000A7F6D2 /* GpTree.h */,
 				84685395258D982400A7F6D2 /* GpType.h */,
 				84F2452A24DCA8A300001C0A /* Individual.h */,
-				84F2452924DCA8A300001C0A /* Individual.cpp */,
 				84F2453224DE172000001C0A /* LazyPredator.h */,
 				849C0FF424DB689400590B1D /* main.cpp */,
 				84F2452724DCA87E00001C0A /* Population.h */,
-				84F2452624DCA87E00001C0A /* Population.cpp */,
 				8458EED0250AA3FF0079DF1D /* TestFS.h */,
-				8458EECF250AA3FF0079DF1D /* TestFS.cpp */,
 				84BC107E259F9E1D0095F83B /* TournamentGroup.h */,
 				84F2452D24DCA8C200001C0A /* UnitTests.h */,
 				84F2452C24DCA8C200001C0A /* UnitTests.cpp */,
 				84F2453024DE154C00001C0A /* Utilities.h */,
-				84F2452F24DE154C00001C0A /* Utilities.cpp */,
 				849C0FF224DB689400590B1D /* Products */,
 			);
 			sourceTree = "<group>";
@@ -151,13 +136,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				84F2453824E072FB00001C0A /* FunctionSet.cpp in Sources */,
-				84F2452824DCA87E00001C0A /* Population.cpp in Sources */,
 				84F2452E24DCA8C200001C0A /* UnitTests.cpp in Sources */,
-				8458EED1250AA3FF0079DF1D /* TestFS.cpp in Sources */,
 				849C0FF524DB689400590B1D /* main.cpp in Sources */,
-				84F2452B24DCA8A300001C0A /* Individual.cpp in Sources */,
-				84F2453124DE154C00001C0A /* Utilities.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
