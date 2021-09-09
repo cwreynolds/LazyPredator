@@ -51,9 +51,22 @@ public:
     // Added to support "absolute fitness" in addition to "tournament fitness".
     bool hasFitness() const { return has_fitness_; }
     void setFitness(float f) { fitness_ = f; has_fitness_ = true; }
-    float getFitness() const { return (hasFitness() ?
-                                       fitness_ :
-                                       getTournamentsSurvived()); }
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//        float getFitness() const { return (hasFitness() ?
+//                                           fitness_ :
+//                                           //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//    //                                       getTournamentsSurvived()); }
+//                                           (getTournamentsSurvived() +
+//                                            getStanding())); }
+//                                           //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    float getFitness() const
+    {
+//        return (hasFitness() ?
+//                fitness_ :
+//                getTournamentsSurvived() + getStanding());
+        return hasFitness() ? fitness_ : getTournamentsSurvived() + getStanding();
+    }
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Compare counts of constructor/destructor calls. Must match at end of run.
     static void leakCheck()
     {
@@ -68,6 +81,22 @@ public:
     {
         return constructor_count_ - destructor_count_;
     }
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // TODO temporary for testing SimpleImageMatch
+    float alt_fitness = -1;
+    
+    // TODO experiment for SimpleImageMatch: maybe the "fitness" to use with
+    // tournament-based relative fitness is not just "tournaments_survived" but
+    // (lets call it) "standing": "tournaments_survived" plus the max of
+    // "fitness" of every other Inidividual this one bested in a tournament.
+
+//    int getStanding() const { return getTournamentsSurvived() + standing_; }
+    int getStanding() const { return standing_; }
+    void adjustStandingForWinAgainst(const Individual& defeated)
+    {
+        standing_ = std::max(standing_, int(defeated.getFitness()));
+    }
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 private:
     GpTree tree_;
     // Resettable cache for result of tree evaluation.
@@ -76,6 +105,13 @@ private:
     int tree_eval_counter_ = 0;
     // Number of tournament this Individual has survived (did not "lose").
     int tournaments_survived_ = 0;
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // TODO experiment for SimpleImageMatch: maybe the "fitness" to use with
+    // tournament-based relative fitness is not just "tournaments_survived" but
+    // that plus  (lets call it) "standing": "tournaments_survived" plus the max
+    // of "fitness" of every other Individual this one bested in a tournament.
+    int standing_ = 0;
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     // Added to support "absolute fitness" in addition to "tournament fitness".
     float fitness_ = 0;
     bool has_fitness_ = false;
