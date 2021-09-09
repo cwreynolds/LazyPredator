@@ -335,12 +335,26 @@ public:
         std::cout << std::setprecision(default_precision);
         std::cout << "pop ave size=" << p.averageTreeSize();
         std::cout << " fit=" << p.averageFitness() << ", ";
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//    //        std::cout << "pop best (" << std::setprecision(2);
+//            std::cout << "pop best (";
+//            for (int i = 0; i < 10; i++)
+//            {
+//                if (i > 0) std::cout << " ";
+//    //            std::cout << p.nthBestFitness(i)->getFitness();
+//                float f = p.nthBestFitness(i)->getFitness();
+//                if (f <= 10) { std::cout << std::setprecision(2); }
+//                std::cout << f;
+//            }
         std::cout << "pop best (" << std::setprecision(2);
         for (int i = 0; i < 10; i++)
         {
             if (i > 0) std::cout << " ";
-            std::cout << p.nthBestFitness(i)->getFitness();
+//            std::cout << p.nthBestFitness(i)->getFitness();
+            float f = p.nthBestFitness(i)->getFitness();
+            if (f <= 100) { std::cout << f; } else { std::cout << int(f); }
         }
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         std::cout << ")" << std::setprecision(default_precision);
         std::cout << std::endl;
     }
