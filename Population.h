@@ -86,6 +86,106 @@ public:
     // (A shortcut for fitnesses that can be measured this way. Many cannot.)
     typedef std::function<float(Individual*)> FitnessFunction;
 
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // TODO 20220208
+
+//    // Perform one step of the "steady state" evolutionary computation. Three
+//    // Individuals are selected randomly, from a random subpopulation. Holds a
+//    // "tournament" to determine their relative fitness ordering. The "loser" is
+//    // removed from the Population and replaced by a new "offspring" created by
+//    // crossing over the two "winners" and mutating the result. Handle migration
+//    // between subpopulations and maintain sorted index of Individuals.
+//    void evolutionStep(TournamentFunction tournament_function)
+//    {
+//        // Get current subpopulation, create a random TournamentGroup from it.
+//        SubPop& subpop = currentSubpopulation();
+//        TournamentGroup random_group = randomTournamentGroup(subpop);
+//        // Run tournament amoung the three, return ranked group.
+//        TournamentGroup ranked_group = tournament_function(random_group);
+//        Individual* loser = ranked_group.worstIndividual();
+//        int loser_index = ranked_group.worstIndex();
+//        assert(loser);
+//        // Other two become parents of new offspring.
+//        Individual* parent0 = ranked_group.secondBestIndividual();
+//        Individual* parent1 = ranked_group.bestIndividual();
+//        // Both parent's rank increases because they survived the tournament.
+//        parent0->incrementTournamentsSurvived();
+//        parent1->incrementTournamentsSurvived();
+//        // Create new offspring tree by crossing-over these two parents.
+//        GpTree new_tree;
+//        GpTree::crossover(parent0->tree(),
+//                          parent1->tree(),
+//                          new_tree,
+//                          getMinCrossoverTreeSize(),
+//                          getMaxCrossoverTreeSize(),
+//                          getFunctionSet()->getCrossoverMinSize());
+//        // Mutate constants in new tree.
+//        new_tree.mutate();
+//        // Create new offspring Individual from new tree.
+//        Individual* offspring = new Individual(new_tree);
+//        // Construct and cache the result of evaluating new offspring's GpTree.
+//        offspring->treeValue();
+//        // Delete tournament loser from Population, replace with new offspring.
+//        replaceIndividual(loser_index, offspring, subpop);
+//        // Occasionally migrate Individuals between subpopulations.
+//        subpopulationMigration();
+//        // Increment step count (before logger() call for 1 based step numbers).
+//        incrementStepCount();
+//        logger();
+//    }
+
+//        // Perform one step of the "steady state" evolutionary computation. Three
+//        // Individuals are selected randomly, from a random subpopulation. Holds a
+//        // "tournament" to determine their relative fitness ordering. The "loser" is
+//        // removed from the Population and replaced by a new "offspring" created by
+//        // crossing over the two "winners" and mutating the result. Handle migration
+//        // between subpopulations and maintain sorted index of Individuals.
+//        void evolutionStep(TournamentFunction tournament_function)
+//        {
+//            // Get current subpopulation, create a random TournamentGroup from it.
+//            SubPop& subpop = currentSubpopulation();
+//            TournamentGroup random_group = randomTournamentGroup(subpop);
+//            // Run tournament amoung the three, return ranked group.
+//            TournamentGroup ranked_group = tournament_function(random_group);
+//    //        Individual* loser = ranked_group.worstIndividual();
+//    //        int loser_index = ranked_group.worstIndex();
+//    //        assert(loser);
+//    //        // Other two become parents of new offspring.
+//    //        Individual* parent0 = ranked_group.secondBestIndividual();
+//    //        Individual* parent1 = ranked_group.bestIndividual();
+//    //        // Both parent's rank increases because they survived the tournament.
+//    //        parent0->incrementTournamentsSurvived();
+//    //        parent1->incrementTournamentsSurvived();
+//    //        // Create new offspring tree by crossing-over these two parents.
+//    //        GpTree new_tree;
+//    //        GpTree::crossover(parent0->tree(),
+//    //                          parent1->tree(),
+//    //                          new_tree,
+//    //                          getMinCrossoverTreeSize(),
+//    //                          getMaxCrossoverTreeSize(),
+//    //                          getFunctionSet()->getCrossoverMinSize());
+//    //        // Mutate constants in new tree.
+//    //        new_tree.mutate();
+//    //        // Create new offspring Individual from new tree.
+//    //        Individual* offspring = new Individual(new_tree);
+//    //        // Construct and cache the result of evaluating new offspring's GpTree.
+//    //        offspring->treeValue();
+//    //        // Delete tournament loser from Population, replace with new offspring.
+//    //        replaceIndividual(loser_index, offspring, subpop);
+//    //        // Occasionally migrate Individuals between subpopulations.
+//    //        subpopulationMigration();
+//    //        // Increment step count (before logger() call for 1 based step numbers).
+//    //        incrementStepCount();
+//    //        logger();
+//
+//            // Complete the step based on this ranked group.
+//            evolutionStep(ranked_group, subpop);
+//
+//
+//        }
+
+    // TODO 20220208
+
     // Perform one step of the "steady state" evolutionary computation. Three
     // Individuals are selected randomly, from a random subpopulation. Holds a
     // "tournament" to determine their relative fitness ordering. The "loser" is
@@ -99,6 +199,39 @@ public:
         TournamentGroup random_group = randomTournamentGroup(subpop);
         // Run tournament amoung the three, return ranked group.
         TournamentGroup ranked_group = tournament_function(random_group);
+        
+//        // Complete the step based on this ranked group, if it is valid.
+//        evolutionStep(ranked_group, subpop);
+//        if (ranked_group.getValid())
+//        {
+//            evolutionStep(ranked_group, subpop);
+//        }
+//        else
+//        {
+//            incrementStepCount();  // Count skipped tournament.
+//        }
+        // Complete the step based on this ranked group, if it is valid.
+        if (ranked_group.getValid()) { evolutionStep(ranked_group, subpop); }
+        // Increment step count (before logger() call for 1 based step numbers).
+        incrementStepCount();
+        logger();
+    }
+    
+    // TODO 20220208
+
+    // Perform one step of the "steady state" evolutionary computation. Three
+    // Individuals are selected randomly, from a random subpopulation. Holds a
+    // "tournament" to determine their relative fitness ordering. The "loser" is
+    // removed from the Population and replaced by a new "offspring" created by
+    // crossing over the two "winners" and mutating the result. Handle migration
+    // between subpopulations and maintain sorted index of Individuals.
+    void evolutionStep(TournamentGroup ranked_group, SubPop& subpop)
+    {
+//        // Get current subpopulation, create a random TournamentGroup from it.
+//        SubPop& subpop = currentSubpopulation();
+//        TournamentGroup random_group = randomTournamentGroup(subpop);
+//        // Run tournament amoung the three, return ranked group.
+//        TournamentGroup ranked_group = tournament_function(random_group);
         Individual* loser = ranked_group.worstIndividual();
         int loser_index = ranked_group.worstIndex();
         assert(loser);
@@ -126,10 +259,13 @@ public:
         replaceIndividual(loser_index, offspring, subpop);
         // Occasionally migrate Individuals between subpopulations.
         subpopulationMigration();
-        // Increment step count (before logger() call for 1 based step numbers).
-        incrementStepCount();
-        logger();
+//        // Increment step count (before logger() call for 1 based step numbers).
+//        incrementStepCount();
+//        logger();
     }
+
+    // TODO 20220208
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     // Perform one step of the "steady state" evolutionary computation using
     // "absolute fitness" (rather than "relative tournament-based fitness").

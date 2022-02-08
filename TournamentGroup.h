@@ -112,14 +112,26 @@ public:
         }
         return member_of_group;
     }
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // TODO 20220208
+
+    // Get/set validity. True by default. TournamentFunction can set to false
+    // to cause tournament to be caneled and so leave population unchanged.
+    bool getValid() const { return valid_; }
+    void setValid(bool new_validity) { valid_ = new_validity; }
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 private:
     // Sort the members of this group by their "metric" value.
     void sort()
     {
         auto sorted = [](const TournamentGroupMember &a,
                          const TournamentGroupMember &b)
-        { return a.metric < b.metric; };
+                        { return a.metric < b.metric; };
         std::sort(members_.begin(), members_.end(), sorted);
     }
     std::vector<TournamentGroupMember> members_;
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // TODO 20220208
+    bool valid_ = true;
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 };
