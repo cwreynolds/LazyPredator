@@ -66,6 +66,7 @@
 
 
 
+
         computation</a>, a type of population-based optimization
       algorithm. It uses <a
         href="https://en.wikipedia.org/wiki/Generic_programming">genetic
@@ -78,12 +79,14 @@ href="https://en.wikipedia.org/wiki/Negative_selection_%28natural_selection%29">
 
 
 
+
         selection</a> approach, the lower fitness individuals of a
       tournament are removed from the population, and replaced by a new
       “offspring” of the tournament's higher fitness individuals. (The
       offspring is created from parents by “cross-over” and “mutation”
       as described <a
         href="https://en.wikipedia.org/wiki/Genetic_programming">here</a>.)
+
 
 
 
@@ -130,34 +133,36 @@ href="https://en.wikipedia.org/wiki/Negative_selection_%28natural_selection%29">
       <code>git commit</code> messages.)</p>
     <br
 style="##########################################################################">
-    <div class="post" id="20220209"> <a href="#yyyymmdd" class="date">February
+    <div class="post" id="20220209"> <a href="#20220209" class="date">February
+
         9, 2022</a>
       <h1>Add “validity” flag to <code>TournamentGroup</code></h1>
       <p>To support my camouflage work, I needed to better handle the
         case where a <code>Tournament</code> fails to establish a
         partial ranking of its member <code>Individuals</code>. In the
         camouflage simulation, the “predator” needs to pick one of three
-        camouflaged “prey.” The predator makes its selection as a
-        location in the image: the human user via a mouse click, the
-        deep neural net computes an <i>xy</i> value.</p>
-      <p>But what happens if that location is not inside any of the
-        three prey? If it is a clean miss? This rarely happens with a
-        human predator. But it is common with a poor performing neural
-        net predator. In this case, I want the predator to be the
+        camouflaged “prey.” The predator makes its selection by
+        specifying a location in the image: the human user via a mouse
+        click, the deep neural net computes an <i>xy</i> value.</p>
+      <p>But what happens if that location is <i>not</i> inside any of
+        the three prey? If it is a clean miss? This rarely happens with
+        a human predator. But it is common with a poorly-performing
+        neural net predator. In this case, I want the predator to be the
         “loser” — and all three prey to survive — on the theory that
         they all fooled the predator. Before this change, one of the
         three prey would be declared the loser, effectively at random
-        (selection order).</p>
+        (based on selection order).</p>
       <p>I modified <code>TournamentGroup</code> to add a <code>bool</code>
         flag for “validity” along with corresponding accessors <code>getValid()</code>
         and <code>setValid()</code>. All <code>TournamentGroup</code>
-        objects are valid until set to be invalid.</p>
+        objects are valid until explicitly set to be invalid.</p>
       <p>This allows (say) a <code>TournamentFunction</code> to decide
         that the current tournament is invalid and should be canceled. <code>Population::evolutionStep()</code>
         will now leave the population unchanged if given a <code>TournamentGroup</code>
-        marked invalid.</p>
+        which has been marked invalid.</p>
     </div>
     <div class="post" id="20210325"> <a href="#20210325" class="date">March
+
 
 
         25, 2021</a>
@@ -170,6 +175,7 @@ style="#########################################################################
         uniform random selection. Now that happens by default, but the
         c++ initializer for&nbsp; <code>GpFunction</code> can include
         an optional extra fifth argument, a float, indicating a <em>selection
+
 
 
           weight</em> other than one. Here for example is the “toy”
@@ -185,6 +191,7 @@ FunctionSet fs = { { { "Int", 0, 9 } },
         and <code>UnitTests::gp_function_weighted_select()</code>.</p>
     </div>
     <div class="post" id="20210129"> <a href="#20210129" class="date">January
+
 
 
 
@@ -216,6 +223,7 @@ FunctionSet fs = { { { "Int", 0, 9 } },
         to catch any misbehavior, including getting stuck in the loop.</p>
     </div>
     <div class="post" id="20210117"> <a href="#20210117" class="date">January
+
 
 
 
@@ -285,6 +293,7 @@ Population(int individual_count,
 
 
 
+
         12, 2021</a>
       <h1>Size limitation during crossover: anti-bloat</h1>
       <p>As discussed on <a href="#20201224">December 24</a>, in some
@@ -341,6 +350,7 @@ Population(int individual_count,
 
 
 
+
         5, 2021</a>
       <h1>Another day, another tweak, another ambiguous plot</h1>
       <p>I changed the choice of which subpopulation is selected on each
@@ -355,6 +365,7 @@ Population(int individual_count,
         ended at 87.6%. Like the comparison run on <a href="#20210103">January
 
 
+
           3</a>, it is hard to see any difference in performance between
         using 1 (red) or 4 (blue) subpopulations.</p>
       <img src="images/20210105_LimitHue_Comparison.png"
@@ -362,6 +373,7 @@ Population(int individual_count,
         title="LimitHue::comparison() subpop selection tweak"
         width="705" height="555"> </div>
     <div class="post" id="20210103"> <a href="#20210103" class="date">January
+
 
 
 
@@ -405,6 +417,7 @@ Population(int individual_count,
 
 
 
+
           fitness</em> for all eight populations are around 0.55 while
         in <a href="#20201226"> previous runs</a> they were near 0.75.
       </p>
@@ -413,6 +426,7 @@ Population(int individual_count,
         title="LimitHue::comparison() subpopulations" width="710"
         height="588"> </div>
     <div class="post" id="20201226"> <a href="#20201226" class="date">December
+
 
 
 
@@ -432,6 +446,7 @@ Population(int individual_count,
 
 
 
+
           23</a> but an initial pass is made over the <code>Population</code>
         computing initial fitness for all <code>Individual</code>s. It
         may be just random variation between runs, but it looks like
@@ -445,6 +460,7 @@ Population(int individual_count,
         title="LimitHue::comparison() fix init fitness" width="714"
         height="646"> </div>
     <div class="post" id="20201224"> <a href="#20201224" class="date">December
+
 
 
 
@@ -479,6 +495,7 @@ Population(int individual_count,
         alt="LimitHue::comparison() sizes" title="LimitHue::comparison()
         sizes" width="784" height="535"> </div>
     <div class="post" id="20201223"> <a href="#20201223" class="date">December
+
 
 
 
@@ -586,6 +603,7 @@ Population(int individual_count,
 
 
 
+
         27, 2020</a> 🍗
       <h1><code>GpTree</code> with “phantom limb”</h1>
       <p>Toward the end of November I was tracking down a memory leak.
@@ -634,14 +652,17 @@ Population(int individual_count,
 
 
 
+
         31, 2020 🎃</a>
       <h1>Progress report: <code>TournamentGroup</code> and bug fix</h1>
       <p>I have been working along, making incremental progress. After
         the “yellow/green” test described on <a href="#20201019">October
 
 
+
           19</a> I started on a slightly more ambitious test case I
         called “colorful, well exposed” textures (in a package named <code>CWE</code>).
+
 
 
         It is nearly random evolution, constrained only by
@@ -673,6 +694,7 @@ Population(int individual_count,
 
 
 
+
         bug-free code and got much more satisfying results. The <a
           href="#20201019">October 19</a> results seemed disappointingly
         “indecisive.” I had expected the green level to push right up
@@ -691,10 +713,12 @@ Population(int individual_count,
 
 
 
+
         19, 2020</a>
       <h1>Evolution: first quantitative data</h1>
       <p>I did some more tooling work, and collected some data on the
         simple test application I described on <a href="#20201017">October
+
 
 
           17</a>. As then, there are 3-way tournaments. Three TexSyn
@@ -751,6 +775,7 @@ Population(int individual_count,
 
 
 
+
         18, 2020</a>
       <h1>Fixing that mutation problem, setting jiggle scale.</h1>
       <p>I re-enabled <code>GpTree::mutate()</code> and tracked down
@@ -786,6 +811,7 @@ Population(int individual_count,
         jiggle mutation" title="slow and fast jiggle mutation"
         width="1000" height="453"> </div>
     <div class="post" id="20201017"> <a href="#20201017" class="date">October
+
 
 
 
@@ -836,6 +862,7 @@ Population(int individual_count,
 
 
 
+
         15, 2020</a>
       <h1>Evolution, maybe?</h1>
       <p>I think I got all the pieces glued together sufficiently so
@@ -851,6 +878,7 @@ Population(int individual_count,
         such a short test.</p>
     </div>
     <div class="post" id="20201014"> <a href="#20201014" class="date">October
+
 
 
 
@@ -897,12 +925,14 @@ Population(int individual_count,
 
 
 
+
         11, 2020</a>
       <h1>“Jiggle” mutation for numeric leaf values.</h1>
       <p>Based on <a href="#20201010">yesterday's</a> streamlining for
         ranged numeric types, it was pretty easy to add a new handler
         function to <code>GpType</code> to provide “jiggle” mutation
         for the numeric constant values found at leaves of <code>GpTree</code>s.
+
 
 
         Like yesterday, I only supported c++ concrete types <code>int</code>
@@ -937,6 +967,7 @@ for (int k = 0; k &lt; 1000; k++)
 
 
 
+
         10, 2020</a>
       <h1><code>GpType</code> constructors: less is more</h1>
       <p>Two key operators in genetic programming are <em>crossover</em>
@@ -948,6 +979,7 @@ for (int k = 0; k &lt; 1000; k++)
         definition of TexSyn's <code>FunctionSet</code> consists of two
         collection: <code>GpType</code>s and <code>GpFunction</code>s.
         (And now a third parameter for <code>crossover_min_size</code>.)
+
 
 
 
@@ -1000,6 +1032,7 @@ for (int k = 0; k &lt; 1000; k++)
         with range constraints (like <code>Float_01</code> ... <code>Float_m5p5</code>).
 
 
+
         So rather than writing out the two (soon to be three) handler
         functions/lambdas, all we need to specify are the ranges. I
         defined two new constructors for <code>GpType</code> one for
@@ -1019,6 +1052,7 @@ for (int k = 0; k &lt; 1000; k++)
 
 
 
+
         initializer list: a function to “jiggle” an existing value of
         this type. Having defined a <code>GpType</code> as a ranged
         numeric value, we can automatically generate the handlers for
@@ -1027,6 +1061,7 @@ for (int k = 0; k &lt; 1000; k++)
         streamlining.</p>
     </div>
     <div class="post" id="20201008"> <a href="#20201008" class="date">October
+
 
 
 
@@ -1041,7 +1076,9 @@ for (int k = 0; k &lt; 1000; k++)
 
 
 
+
           5</a> (and previously on this page on <a href="#20200930">September
+
 
 
 
@@ -1065,6 +1102,7 @@ for (int k = 0; k &lt; 1000; k++)
         examples this was done in what I consider the “traditional” way:
         a recursive traversal of the tree is made and a reference to
         each node/subtree is stored in an array (in this case an <code>std::vector</code>),
+
 
 
 
@@ -1169,9 +1207,11 @@ for (int k = 0; k &lt; 1000; k++)
         for <a href="https://cwreynolds.github.io/TexSyn/#20201005">October
 
 
+
           5</a>, a <code>crossover_min_size</code> of <strong>5</strong>
         is used, implying that the crossover snippet must be larger than
         the minimal (size 4) <code>Texture</code> generator of <code>Uniform(r,
+
 
 
           g, b)</code>, a “texture” of uniform color.</p>
@@ -1180,11 +1220,13 @@ for (int k = 0; k &lt; 1000; k++)
 
 
 
+
         30, 2020</a>
       <h1>Crossover of <code>GpTrees</code> — wait, that was <em>too</em>
         easy</h1>
       <p>In biology <a
           href="https://en.wikipedia.org/wiki/Chromosomal_crossover">chromosomal
+
 
 
 
@@ -1262,6 +1304,7 @@ QQQ(Q(QQQ(Q(7), Q(2), QQ(5, 8))), Q(QQQ(Q(5), QQ(5, 3), Q(Q(3)))), QQQ(QQ(3, 4),
 
 
 
+
         21, 2020</a>
       <h1>Runtime connection between LazyPredator and TexSyn</h1>
       <p>[<strong>Update on September 29, 2020: </strong>after some
@@ -1288,6 +1331,7 @@ href="https://github.com/cwreynolds/TexSyn/blob/60acd34866634d1c3d69f04e0ae53cf3
         path that is becoming more popular, especially for libraries of
         modest size like LazyPredator: I made it a <a
 href="https://stackoverflow.com/questions/12671383/benefits-of-header-only-libraries">header-only
+
 
 
 
@@ -1356,6 +1400,7 @@ href="https://stackoverflow.com/questions/12671383/benefits-of-header-only-libra
 
 
 
+
         19, 2020</a>
       <h1>Tweaks to <code>FunctionSet</code></h1>
       <p>Well that exploded quickly! I noticed that the recording of <code>GpType</code>
@@ -1390,6 +1435,7 @@ href="https://stackoverflow.com/questions/12671383/benefits-of-header-only-libra
 
 
 
+
         of the functions and their return values. I tried making their
         bodies a common function, then a common template, then finally
         fell back to a common preprocessor macro. Not pretty, but some
@@ -1399,6 +1445,7 @@ href="https://stackoverflow.com/questions/12671383/benefits-of-header-only-libra
         to <code>makeRandomTree()</code>.</p>
     </div>
     <div class="post" id="20200915"> <a href="#20200915" class="date">September
+
 
 
 
@@ -1477,6 +1524,7 @@ private:
 
 
 
+
         7, 2020</a>
       <h1>Evaluating program trees</h1>
       <p>Today I finally got past a roadblock which held me up for a
@@ -1519,6 +1567,7 @@ Float Sqrt(Int a) {…}
 Float Mult(Float a, Int b) {…}</pre>
       <p>In the code, this is currently written like this. The <code>FunctionSet</code>
         takes a collection of <code>GpType</code>s and one of <code>GpFunction</code>s.
+
 
 
 
@@ -1586,6 +1635,7 @@ Float Mult(Float a, Int b) {…}</pre>
 
 
 
+
         Sqrt(0)), Sqrt(Floor(Mult(0.081061, 5)))),
         Floor(AddFloat(AddFloat(Sqrt(7), Sqrt(5)), Mult(Sqrt(0),
         Floor(0.269215))))), Floor(AddFloat(Mult(AddFloat(Sqrt(4),
@@ -1601,6 +1651,7 @@ Float Mult(Float a, Int b) {…}</pre>
         Sqrt(3))))))))</p>
     </div>
     <div class="post" id="20200829"> <a href="#20200829" class="date">August
+
 
 
 
@@ -1650,6 +1701,7 @@ Float Mult(Float a, Int b) {…}</pre>
 
 
 
+
         24, 2020</a>
       <h1>Component types <code>GpType</code> and <code>GpFunction</code></h1>
       <p>I rewrote the prototype <code>FunctionSet::makeRandomProgram()</code>
@@ -1670,10 +1722,12 @@ Float Mult(Float a, Int b) {…}</pre>
 
 
 
+
         17, 2020</a>
       <h1>Size control fixed for random programs</h1>
       <p>I tracked down the bug(s) that prevented exact control of the
         maximum size of GP programs constructed by <code>FunctionSet::makeRandomProgram()</code>.&nbsp;
+
 
 
 
@@ -1764,6 +1818,7 @@ Float Mult(Float a, Int b) {…}</pre>
 
 
 
+
         15, 2020</a>
       <h1>Prototype <code>FunctionSet</code> covering entire TexSyn API</h1>
       <p>Yesterday I plowed through the entire TexSyn API converting it
@@ -1784,6 +1839,7 @@ Float Mult(Float a, Int b) {…}</pre>
 
 
 
+
         13, 2020</a>
       <h1>Making random programs</h1>
       <p>I've been prototyping a <code>FunctionSet</code> class to
@@ -1800,6 +1856,7 @@ Float Mult(Float a, Int b) {…}</pre>
         underlying <code>FunctionSet</code> structure to be more clean
         and efficient.</p>
       <p>To initialize a GP population we need a utility—here called <code>FunctionSet::makeRandomProgram()</code>—to
+
 
 
 
@@ -1848,6 +1905,7 @@ Affine(Vec2(1.62775, 0.925812),
     <div class="post" id="20200807"> <a href="#20200807" class="date">August
 
 
+
         7, 2020</a>
       <h1>Monitor lifetime of <code>Individual</code> in <code>Population</code></h1>
       <p>My vague plan is that the <code>Population</code> class will
@@ -1869,6 +1927,7 @@ Affine(Vec2(1.62775, 0.925812),
         include running tournaments.</p>
     </div>
     <div class="post" id="20200806"> <a href="#20200806" class="date">August
+
 
 
         6, 2020</a>
