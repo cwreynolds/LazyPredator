@@ -57,69 +57,124 @@
     </style>
   </head>
   <body id="top">
-    <p class="smaller"><a href="https://cwreynolds.github.io/LazyPredator/">This
-        page on GitHub</a></p>
+    <p class="smaller"><a
+        href="https://cwreynolds.github.io/LazyPredator/">This page on
+        GitHub</a></p>
     <h1>LazyPredator</h1>
-    <p><strong>LazyPredator</strong> is a library for <a href="https://en.wikipedia.org/wiki/Evolutionary_computation">evolutionary
-        computation</a>, a type of population-based optimization algorithm. It
-      uses <a href="https://en.wikipedia.org/wiki/Generic_programming">genetic
-        programming</a> where the individuals of the population are computer
-      programs in a “domain specific language”. The relative “fitness” or
-      “quality” of these programs is measured in small “tournaments” where the
-      programs compete against each other. Using a <a href="https://en.wikipedia.org/wiki/Negative_selection_%28natural_selection%29">negative
-        selection</a> approach, the lower fitness individuals of a tournament
-      are removed from the population, and replaced by a new “offspring” of the
-      tournament's higher fitness individuals. (The offspring is created from
-      parents by “cross-over” and “mutation” as described <a href="https://en.wikipedia.org/wiki/Genetic_programming">here</a>.)
-      Negative selection implies that lower fitness individuals tend to die
-      off—while others tend to survive regardless of rank in the population.
-      Selection of participants in a tournament is “uniform” not “fitness
-      proportional.” This is the opposite of “elitism” and related practices in
-      evolutionary computation where the focus is on identifying and promoting
-      high fitness individuals. LazyPredator seeks to encourage “genetic
-      drift”—while continuing to prune the low performing individuals—in order
-      to gradually improve population fitness.</p>
-    <p>The name “LazyPredator” refers to this type of negative selection in
-      nature. A lioness may be capable of running down a healthy adult antelope.
-      But given the opportunity, she would rather find easier prey (the young,
-      or old, or injured) so she can obtain food for her family using less of
-      her own energy. Through this action, most of the antelope herd will be
-      fit, strong, and fast enough to survive. At the risk of mixing metaphors,
-      or at least species, there is a very old joke about this:</p>
-    <p style="margin-left: 40px;"> Two campers see a bear running toward them.<br>
+    <p><strong>LazyPredator</strong> is a library for <a
+        href="https://en.wikipedia.org/wiki/Evolutionary_computation">evolutionary
+
+
+
+        computation</a>, a type of population-based optimization
+      algorithm. It uses <a
+        href="https://en.wikipedia.org/wiki/Generic_programming">genetic
+        programming</a> where the individuals of the population are
+      computer programs in a “domain specific language”. The relative
+      “fitness” or “quality” of these programs is measured in small
+      “tournaments” where the programs compete against each other. Using
+      a <a
+href="https://en.wikipedia.org/wiki/Negative_selection_%28natural_selection%29">negative
+
+
+
+        selection</a> approach, the lower fitness individuals of a
+      tournament are removed from the population, and replaced by a new
+      “offspring” of the tournament's higher fitness individuals. (The
+      offspring is created from parents by “cross-over” and “mutation”
+      as described <a
+        href="https://en.wikipedia.org/wiki/Genetic_programming">here</a>.)
+
+
+
+      Negative selection implies that lower fitness individuals tend to
+      die off—while others tend to survive regardless of rank in the
+      population. Selection of participants in a tournament is “uniform”
+      not “fitness proportional.” This is the opposite of “elitism” and
+      related practices in evolutionary computation where the focus is
+      on identifying and promoting high fitness individuals.
+      LazyPredator seeks to encourage “genetic drift”—while continuing
+      to prune the low performing individuals—in order to gradually
+      improve population fitness.</p>
+    <p>The name “LazyPredator” refers to this type of negative selection
+      in nature. A lioness may be capable of running down a healthy
+      adult antelope. But given the opportunity, she would rather find
+      easier prey (the young, or old, or injured) so she can obtain food
+      for her family using less of her own energy. Through this action,
+      most of the antelope herd will be fit, strong, and fast enough to
+      survive. At the risk of mixing metaphors, or at least species,
+      there is a very old joke about this:</p>
+    <p style="margin-left: 40px;"> Two campers see a bear running toward
+      them.<br>
       One starts putting on running shoes.<br>
       The other says, “What are you doing?! You can’t outrun a bear!”<br>
-      The first says, “I don’t have to outrun the bear—I just have to outrun
-      you!”</p>
-    <p>LazyPredator is a sibling of <a href="https://cwreynolds.github.io/TexSyn/">TexSyn</a>
-      a library for procedural texture synthesis. Together they support
-      experiments in adversarial evolutionary texture synthesis. I am especially
-      interested in simulating the evolution of camouflage in nature, as in this
-      earlier work: <a href="https://www.red3d.com/cwr/iec/">Interactive
-        Evolution of Camouflage</a>.</p>
-    <p>The code repository for LazyPredator is at <a href="https://github.com/cwreynolds/LazyPredator">GitHub</a>.</p>
-    <p>(I'm wondering about the writing style of this notebook. The one for <a
-        href="https://cwreynolds.github.io/TexSyn/">TexSyn</a> was largely
-      intended to show texture images along with commentary. When possible, I
-      tried to avoid coding detail. LazyPredator is about plain old software
-      design, so probably there will be more discussion here of lower level
-      details of the implementation. On the other hand, I do want it to be more
-      prose-like than the terse <code>git commit</code> messages.)</p>
-    <br style="##########################################################################">
-    <div class="post" id="20210325"> <a href="#20210325" class="date">March 25,
-        2021</a>
+      The first says, “I don’t have to outrun the bear—I just have to
+      outrun you!”</p>
+    <p>LazyPredator is a sibling of <a
+        href="https://cwreynolds.github.io/TexSyn/">TexSyn</a> a library
+      for procedural texture synthesis. Together they support
+      experiments in adversarial evolutionary texture synthesis. I am
+      especially interested in simulating the evolution of camouflage in
+      nature, as in this earlier work: <a
+        href="https://www.red3d.com/cwr/iec/">Interactive Evolution of
+        Camouflage</a>.</p>
+    <p>The code repository for LazyPredator is at <a
+        href="https://github.com/cwreynolds/LazyPredator">GitHub</a>.</p>
+    <p>(I'm wondering about the writing style of this notebook. The one
+      for <a href="https://cwreynolds.github.io/TexSyn/">TexSyn</a> was
+      largely intended to show texture images along with commentary.
+      When possible, I tried to avoid coding detail. LazyPredator is
+      about plain old software design, so probably there will be more
+      discussion here of lower level details of the implementation. On
+      the other hand, I do want it to be more prose-like than the terse
+      <code>git commit</code> messages.)</p>
+    <br
+style="##########################################################################">
+    <div class="post" id="20220209"> <a href="#yyyymmdd" class="date">February
+        9, 2022</a>
+      <h1>Add “validity” flag to <code>TournamentGroup</code></h1>
+      <p>To support my camouflage work, I needed to better handle the
+        case where a <code>Tournament</code> fails to establish a
+        partial ranking of its member <code>Individuals</code>. In the
+        camouflage simulation, the “predator” needs to pick one of three
+        camouflaged “prey.” The predator makes its selection as a
+        location in the image: the human user via a mouse click, the
+        deep neural net computes an <i>xy</i> value.</p>
+      <p>But what happens if that location is not inside any of the
+        three prey? If it is a clean miss? This rarely happens with a
+        human predator. But it is common with a poor performing neural
+        net predator. In this case, I want the predator to be the
+        “loser” — and all three prey to survive — on the theory that
+        they all fooled the predator. Before this change, one of the
+        three prey would be declared the loser, effectively at random
+        (selection order).</p>
+      <p>I modified <code>TournamentGroup</code> to add a <code>bool</code>
+        flag for “validity” along with corresponding accessors <code>getValid()</code>
+        and <code>setValid()</code>. All <code>TournamentGroup</code>
+        objects are valid until set to be invalid.</p>
+      <p>This allows (say) a <code>TournamentFunction</code> to decide
+        that the current tournament is invalid and should be canceled. <code>Population::evolutionStep()</code>
+        will now leave the population unchanged if given a <code>TournamentGroup</code>
+        marked invalid.</p>
+    </div>
+    <div class="post" id="20210325"> <a href="#20210325" class="date">March
+
+
+        25, 2021</a>
       <h1>Weighting selection of functions for initial random trees</h1>
       <p>When creating the initial <code>Population</code> of <code>Individuals</code>,
         the <code>FunctionSet</code> is filtered to a collection of <code>GpFunction</code>s
         with the required return type, and which can terminate <code>GpTree</code>
         construction (get to terminals) given the remaining tree “size.”
-        Previously: one element of the filtered collection was chosen by uniform
-        random selection. Now that happens by default, but the c++ initializer
-        for&nbsp; <code>GpFunction</code> can include an optional extra fifth
-        argument, a float, indicating a <em>selection weight</em> other than
-        one. Here for example is the “toy” example used in a new unit test. Each
-        of the four listed <code>GpFunction</code>s is half as likely to be
-        selected as the next one:</p>
+        Previously: one element of the filtered collection was chosen by
+        uniform random selection. Now that happens by default, but the
+        c++ initializer for&nbsp; <code>GpFunction</code> can include
+        an optional extra fifth argument, a float, indicating a <em>selection
+
+
+          weight</em> other than one. Here for example is the “toy”
+        example used in a new unit test. Each of the four listed <code>GpFunction</code>s
+        is half as likely to be selected as the next one:</p>
       <pre>// Define FunctionSet with random selection weightings.
 FunctionSet fs = { { { "Int", 0, 9 } },
                    { { "L", "Int", {"Int"}, ..., 0.5 },
@@ -130,49 +185,60 @@ FunctionSet fs = { { { "Int", 0, 9 } },
         and <code>UnitTests::gp_function_weighted_select()</code>.</p>
     </div>
     <div class="post" id="20210129"> <a href="#20210129" class="date">January
+
+
+
         29, 2021</a>
       <h1>Back and forth on random tournament member uniqueness</h1>
       <p>Back on <a href="#20201014">October 14</a> I wrote a <code>Population::selectThreeIndices()</code>
-        to pick indices of three random <code>Individuals</code> to form a
-        random tournament. Its purpose was to guarantee the three <code>Individuals</code>
-        were unique. This was to prevent forming a competitive tournament
-        between, say, individuals 57, 83, and 57. I am paranoid about “try until
-        success” algorithms getting stuck in infinite loop. But then I was also
-        hinky about the statistical properties of my non-iterative solution.
-        Eventually I decided that when selecting three items out of a collection
-        of about 100, the frequency of duplication seemed low enough to ignore,
-        so I just got rid of <code>selectThreeIndices()</code>. (To be sure,
-        there are non-iterative, statistically neutral solutions to this, they
-        just seemed a bit too heavy-weight to me. My intuition is famously
-        unreliable.)</p>
-      <p>Later “subpopulations” (<code>SubPops</code>, breeding demes) were
-        introduced. Now three <code>Individuals</code> were being selected from
-        of group of 20-25. When I started running interactive Camouflage tests,
-        it was visually obvious that a fair number of tournaments contained
-        duplicated <code>Individuals</code>. So today I brought back a
-        different implementation of selecting three unique indices called <code>Population::threeUniqueRandomIndices()</code>.
-        This uses the evil “try until success” approach, but is liberally
-        sprinkled with calls to <code>assert()</code> meant to catch any
-        misbehavior, including getting stuck in the loop.</p>
+        to pick indices of three random <code>Individuals</code> to
+        form a random tournament. Its purpose was to guarantee the three
+        <code>Individuals</code> were unique. This was to prevent
+        forming a competitive tournament between, say, individuals 57,
+        83, and 57. I am paranoid about “try until success” algorithms
+        getting stuck in infinite loop. But then I was also hinky about
+        the statistical properties of my non-iterative solution.
+        Eventually I decided that when selecting three items out of a
+        collection of about 100, the frequency of duplication seemed low
+        enough to ignore, so I just got rid of <code>selectThreeIndices()</code>.
+        (To be sure, there are non-iterative, statistically neutral
+        solutions to this, they just seemed a bit too heavy-weight to
+        me. My intuition is famously unreliable.)</p>
+      <p>Later “subpopulations” (<code>SubPops</code>, breeding demes)
+        were introduced. Now three <code>Individuals</code> were being
+        selected from of group of 20-25. When I started running
+        interactive Camouflage tests, it was visually obvious that a
+        fair number of tournaments contained duplicated <code>Individuals</code>.
+        So today I brought back a different implementation of selecting
+        three unique indices called <code>Population::threeUniqueRandomIndices()</code>.
+        This uses the evil “try until success” approach, but is
+        liberally sprinkled with calls to <code>assert()</code> meant
+        to catch any misbehavior, including getting stuck in the loop.</p>
     </div>
     <div class="post" id="20210117"> <a href="#20210117" class="date">January
+
+
+
         17, 2021</a>
       <h1>Upper <em>and</em> lower bounds on tree size during crossover</h1>
-      <p>As suggested on <a href="#20210112">January 12</a> LazyPredator now
-        supports <em>both</em> anti-bloat <em>and</em> “pro-bloat” — that is,
-        both upper and lower bounds on the size of trees created during
-        crossover. In the “tree size agnostic case” GP crossover leads to slow
-        but steady growth in population-average tree size. (That is: the <code>GpTree::size()</code>
+      <p>As suggested on <a href="#20210112">January 12</a>
+        LazyPredator now supports <em>both</em> anti-bloat <em>and</em>
+        “pro-bloat” — that is, both upper and lower bounds on the size
+        of trees created during crossover. In the “tree size agnostic
+        case” GP crossover leads to slow but steady growth in
+        population-average tree size. (That is: the <code>GpTree::size()</code>
         of each <code>Individual</code>, averaged over the <code>Population</code>,
-        grows over time.) Recently I added a size-reducing bias to crossover
-        when the parent trees are too large. Now the corresponding
-        size-increasing bias is implemented when parent trees are too small.
-        These limits can be set to infinity and zero to deactivate the size
-        biases, but <strong>currently default to 150% and 50%</strong> of the
-        given parameter for initial random tree max size. So for an initial max
-        random tree size of 100, the size of trees during the run would be on
-        the range [50, 150].&nbsp; The limit values can be read or written which
-        these member functions on a <code>Population</code> instance:</p>
+        grows over time.) Recently I added a size-reducing bias to
+        crossover when the parent trees are too large. Now the
+        corresponding size-increasing bias is implemented when parent
+        trees are too small. These limits can be set to infinity and
+        zero to deactivate the size biases, but <strong>currently
+          default to 150% and 50%</strong> of the given parameter for
+        initial random tree max size. So for an initial max random tree
+        size of 100, the size of trees during the run would be on the
+        range [50, 150].&nbsp; The limit values can be read or written
+        which these member functions on a <code>Population</code>
+        instance:</p>
       <pre>Population::getMinCrossoverTreeSize()
 Population::setMinCrossoverTreeSize()
 Population::getMaxCrossoverTreeSize()
@@ -186,282 +252,350 @@ Population(int individual_count,
            int min_crossover_tree_size,
            int max_crossover_tree_size,
            const FunctionSet&amp; fs)</pre>
-      <p>Here are eight LimitHue runs, four (red) with no limits, and four
-        (blue) with limits set to enforce tight bounds on tree size. The only
-        thing to see here is that reds and blues are roughly the same:</p>
-      <img src="images/20210116_LimitHue_Comp_Fit.png" alt="20210116 LimitHue Comparison Fitness."
-        title="20210116 LimitHue Comparison Fitness." width="738" height="470">
-      <p> While the fitnesses are about the same in these two conditions, the
-        no-limits condition (green) show steady growth in tree size, with limits
-        (orange) stay within a narrow range:</p>
-      <img src="images/20210116_LimitHue_Comp_Size.png" alt="20210116 LimitHue Comparison Size."
-        title="20210116 LimitHue Comparison Size." width="738" height="470">
-      <p>Here we zoom in on the bounded case (orange) to better see the vertical
-        scale. Not only are the allowed tree size values in a narrow range, I
-        also shifted this range twice during the run. For the first ⅓ of the
-        run, the size bounds are [100, 110]. So if the parent tree is smaller
-        than 100 (nodes) or bigger than 110, then size bias kicks in. For the
-        second ⅓ of the run, the size bounds are [40, 50]. For the final ⅓ of
-        the run, the size bounds are [70, 80]. </p>
-      <p>The result is less crisp than I imagined. When (say) the upper bound is
-        crossed, the “offspring” is made to be smaller, but can be <em>much</em>
-        smaller. Perhaps with the upper and lower bounds set so close (10 nodes)
-        the bias was being used almost each crossover, in opposite directions.</p>
-      <img src="images/20210116_LimitHue_Comp_Size_b.png" alt="20210116 LimitHue Comparison Size b."
-        title="20210116 LimitHue Comparison Size b." width="738" height="470"> </div>
+      <p>Here are eight LimitHue runs, four (red) with no limits, and
+        four (blue) with limits set to enforce tight bounds on tree
+        size. The only thing to see here is that reds and blues are
+        roughly the same:</p>
+      <img src="images/20210116_LimitHue_Comp_Fit.png" alt="20210116
+        LimitHue Comparison Fitness." title="20210116 LimitHue
+        Comparison Fitness." width="738" height="470">
+      <p> While the fitnesses are about the same in these two
+        conditions, the no-limits condition (green) show steady growth
+        in tree size, with limits (orange) stay within a narrow range:</p>
+      <img src="images/20210116_LimitHue_Comp_Size.png" alt="20210116
+        LimitHue Comparison Size." title="20210116 LimitHue Comparison
+        Size." width="738" height="470">
+      <p>Here we zoom in on the bounded case (orange) to better see the
+        vertical scale. Not only are the allowed tree size values in a
+        narrow range, I also shifted this range twice during the run.
+        For the first ⅓ of the run, the size bounds are [100, 110]. So
+        if the parent tree is smaller than 100 (nodes) or bigger than
+        110, then size bias kicks in. For the second ⅓ of the run, the
+        size bounds are [40, 50]. For the final ⅓ of the run, the size
+        bounds are [70, 80]. </p>
+      <p>The result is less crisp than I imagined. When (say) the upper
+        bound is crossed, the “offspring” is made to be smaller, but can
+        be <em>much</em> smaller. Perhaps with the upper and lower
+        bounds set so close (10 nodes) the bias was being used almost
+        each crossover, in opposite directions.</p>
+      <img src="images/20210116_LimitHue_Comp_Size_b.png" alt="20210116
+        LimitHue Comparison Size b." title="20210116 LimitHue Comparison
+        Size b." width="738" height="470"> </div>
     <div class="post" id="20210112"> <a href="#20210112" class="date">January
+
+
+
         12, 2021</a>
       <h1>Size limitation during crossover: anti-bloat</h1>
-      <p>As discussed on <a href="#20201224">December 24</a>, in some genetic
-        programming runs we see unbounded growth of program tree sizes. This
-        does not prevent the evolutionary optimization from running, but is
-        inconvenient because of slower execution, potentially larger memory
-        load, and the possibly of reducing the power of crossover the make
-        useful changes. (Since finding the “right” place for crossover is harder
-        in a large program).</p>
-      <p>This <code>LimitHue::comparison()</code> run was made with a prototype
-        change to the crossover code. Previously a parameter to the construction
-        of a <code>Population</code> has been “maximum tree size” for the
-        initial random <code>GpTrees</code>. The new approach is to have a
-        corresponding parameter for the “maximum desired tree size” for
-        crossover during the run. If the “recipient parent” in a crossover
-        operation has a size greater than this threshold, the crossover
-        operation will choose the recipient subtree to be smaller than the donor
-        subtree. As a result, the new offspring <code>GpTree</code> will be
-        smaller (or in certain edge cases, the same size) than the recipient
+      <p>As discussed on <a href="#20201224">December 24</a>, in some
+        genetic programming runs we see unbounded growth of program tree
+        sizes. This does not prevent the evolutionary optimization from
+        running, but is inconvenient because of slower execution,
+        potentially larger memory load, and the possibly of reducing the
+        power of crossover the make useful changes. (Since finding the
+        “right” place for crossover is harder in a large program).</p>
+      <p>This <code>LimitHue::comparison()</code> run was made with a
+        prototype change to the crossover code. Previously a parameter
+        to the construction of a <code>Population</code> has been
+        “maximum tree size” for the initial random <code>GpTrees</code>.
+        The new approach is to have a corresponding parameter for the
+        “maximum desired tree size” for crossover during the run. If the
+        “recipient parent” in a crossover operation has a size greater
+        than this threshold, the crossover operation will choose the
+        recipient subtree to be smaller than the donor subtree. As a
+        result, the new offspring <code>GpTree</code> will be smaller
+        (or in certain edge cases, the same size) than the recipient
         parent. As a result, the <code>Population</code> is generally
-        constrained to be composed of <code>GpTrees</code> that (generally) are
-        smaller than the original “maximum desired tree size” parameter.</p>
-      <p>In the current prototype implementation, this crossover limit is 1.5
-        times the initial limit on random tree sizes. I will probably provide
-        API to set it directly. It also would make sense to provide API for the
-        corresponding <strong>minimum</strong> size limit for crossover. This
-        would mean that if the “recipient parent” were too small, the crossover
-        subtrees would be chosen to increase the size of the offspring. I am not
-        sure if this is ever useful, but it seems like adding it now is better
-        than waiting to see.</p>
+        constrained to be composed of <code>GpTrees</code> that
+        (generally) are smaller than the original “maximum desired tree
+        size” parameter.</p>
+      <p>In the current prototype implementation, this crossover limit
+        is 1.5 times the initial limit on random tree sizes. I will
+        probably provide API to set it directly. It also would make
+        sense to provide API for the corresponding <strong>minimum</strong>
+        size limit for crossover. This would mean that if the “recipient
+        parent” were too small, the crossover subtrees would be chosen
+        to increase the size of the offspring. I am not sure if this is
+        ever useful, but it seems like adding it now is better than
+        waiting to see.</p>
       <p>While I do not want to read too much into an experiment with <em>n=8</em>
-        but it appears in this run that the four run <strong>with</strong> the
-        crossover size limitation (blue) have “best” and “average” fitness
-        slightly higher than the control case <strong>without</strong> the
-        limit (red):</p>
-      <img src="images/20210112_LimitHue_Comp_Fit.png" alt="LimitHue fitness by size limit"
-        title="LimitHue fitness by size limit" width="704" height="570">
-      <p>In this plot of <code>GpTree</code> program size averaged over all in
-        a <code>Population</code>, we see a clear difference between the four
-        runs <strong>with</strong> the crossover size limit (orange) and the
-        control runs <strong>without</strong> the crossover size limit (green).
-        With the limit, all four runs maintain average sizes below the limit of
-        150 while the four runs without the limit reach size averages above 150
-        with one reaching about 280:</p>
-      <img src="images/20210112_LimitHue_Comp_Size.png" alt="LimitHue size by size limit"
-        title="LimitHue size by size limit" width="704" height="470"> </div>
+        but it appears in this run that the four run <strong>with</strong>
+        the crossover size limitation (blue) have “best” and “average”
+        fitness slightly higher than the control case <strong>without</strong>
+        the limit (red):</p>
+      <img src="images/20210112_LimitHue_Comp_Fit.png" alt="LimitHue
+        fitness by size limit" title="LimitHue fitness by size limit"
+        width="704" height="570">
+      <p>In this plot of <code>GpTree</code> program size averaged over
+        all in a <code>Population</code>, we see a clear difference
+        between the four runs <strong>with</strong> the crossover size
+        limit (orange) and the control runs <strong>without</strong>
+        the crossover size limit (green). With the limit, all four runs
+        maintain average sizes below the limit of 150 while the four
+        runs without the limit reach size averages above 150 with one
+        reaching about 280:</p>
+      <img src="images/20210112_LimitHue_Comp_Size.png" alt="LimitHue
+        size by size limit" title="LimitHue size by size limit"
+        width="704" height="470"> </div>
     <div class="post" id="20210105"> <a href="#20210105" class="date">January
+
+
+
         5, 2021</a>
       <h1>Another day, another tweak, another ambiguous plot</h1>
-      <p>I changed the choice of which subpopulation is selected on each update
-        step. It had been a random selection, now it simply rotates through them
-        in order. Probably no difference for large runs, but in short test of
-        100 steps, I saw one (of four) get about 30% of the updates. I also
-        tested the migration policy and added some other unit tests. This test
-        is not obviously different from the previous one, although one of the 4
-        subpopulation runs got up to 95% which I think is the highest value I
-        have seen. On the other hand, runs with 4 subpopulations ended at 87.6%.
-        Like the comparison run on <a href="#20210103">January 3</a>, it is
-        hard to see any difference in performance between using 1 (red) or 4
-        (blue) subpopulations.</p>
-      <img src="images/20210105_LimitHue_Comparison.png" alt="LimitHue::comparison() subpop selection tweak"
-        title="LimitHue::comparison() subpop selection tweak" width="705" height="555">
-    </div>
+      <p>I changed the choice of which subpopulation is selected on each
+        update step. It had been a random selection, now it simply
+        rotates through them in order. Probably no difference for large
+        runs, but in short test of 100 steps, I saw one (of four) get
+        about 30% of the updates. I also tested the migration policy and
+        added some other unit tests. This test is not obviously
+        different from the previous one, although one of the 4
+        subpopulation runs got up to 95% which I think is the highest
+        value I have seen. On the other hand, runs with 4 subpopulations
+        ended at 87.6%. Like the comparison run on <a href="#20210103">January
+
+
+          3</a>, it is hard to see any difference in performance between
+        using 1 (red) or 4 (blue) subpopulations.</p>
+      <img src="images/20210105_LimitHue_Comparison.png"
+        alt="LimitHue::comparison() subpop selection tweak"
+        title="LimitHue::comparison() subpop selection tweak"
+        width="705" height="555"> </div>
     <div class="post" id="20210103"> <a href="#20210103" class="date">January
+
+
+
         3, 2021</a>
       <h1>GP with subpopulations — “demes”</h1>
-      <p>For a while now <em>subpopulations</em> had been on my to-do list of
-        features. This is the idea that instead of a population with, say, 100
-        individuals, we divide them into four subpopulations of 25 individuals
-        each. The evolutionary computation proceeds pretty much the same as
-        before, except that each <code>Population::evolutionStep()</code>
-        starts by selecting one of the subpopulations at random. Then as before,
-        it selects three individuals from that subpopulation, ranks them by
-        tournament, the two top ranked individuals produce an offspring, which
-        replaces the lowest ranked individual in the subpopulation. In addition,
-        individuals occasionally <em>migrate</em> between subpopulations.</p>
-      <p>The notion is that running multiple populations in parallel allows each
-        of them to climb a different hill in fitness space, allowing the
-        population spread out its investment. Some of those hills might be
-        higher than others, so multiple populations allows exploring more
-        territory. Subpopulations are sometimes called “demes” (“from the Greek”
-        as James Rice, my early GP mentor, told me when I asked about the term)
-        as used in biology “ a subdivision of a population consisting of closely
-        related plants, animals, or people, typically breeding mainly within the
-        group.” Similarly a single population GP, as LazyPredator had been
-        before now, is sometimes called “panmixia” from biology meaning “random
-        mating within a breeding population.”</p>
-      <p>I refactored <code>Population</code> to support subpopulation and took
-        it out for a test drive. I used the same <code>LimitHue::comparison()</code>
-        framework as before, making four pairs of runs, each run in a pair
-        starting from the same random seed, one run with a single population,
-        and one run with four subpopulations. Each run takes 2000 steps. I hoped
-        for a clear fitness advantage for the multiple subpopulation case. I did
-        not find it. This plot is an excellent illustration of the null
-        hypothesis. The plots in red have a single large population, those in
-        blue have four subpopulations ¼ as large. It would be hard to guess
-        which was which if they were not colored. Also puzzling is that the <em>average
-          fitness</em> for all eight populations are around 0.55 while in <a href="#20201226">
-          previous runs</a> they were near 0.75. </p>
-      <img src="images/20210103_LimitHue_Comparison.png" alt="LimitHue::comparison() subpopulations"
-        title="LimitHue::comparison() subpopulations" width="710" height="588">
-    </div>
+      <p>For a while now <em>subpopulations</em> had been on my to-do
+        list of features. This is the idea that instead of a population
+        with, say, 100 individuals, we divide them into four
+        subpopulations of 25 individuals each. The evolutionary
+        computation proceeds pretty much the same as before, except that
+        each <code>Population::evolutionStep()</code> starts by
+        selecting one of the subpopulations at random. Then as before,
+        it selects three individuals from that subpopulation, ranks them
+        by tournament, the two top ranked individuals produce an
+        offspring, which replaces the lowest ranked individual in the
+        subpopulation. In addition, individuals occasionally <em>migrate</em>
+        between subpopulations.</p>
+      <p>The notion is that running multiple populations in parallel
+        allows each of them to climb a different hill in fitness space,
+        allowing the population spread out its investment. Some of those
+        hills might be higher than others, so multiple populations
+        allows exploring more territory. Subpopulations are sometimes
+        called “demes” (“from the Greek” as James Rice, my early GP
+        mentor, told me when I asked about the term) as used in biology
+        “ a subdivision of a population consisting of closely related
+        plants, animals, or people, typically breeding mainly within the
+        group.” Similarly a single population GP, as LazyPredator had
+        been before now, is sometimes called “panmixia” from biology
+        meaning “random mating within a breeding population.”</p>
+      <p>I refactored <code>Population</code> to support subpopulation
+        and took it out for a test drive. I used the same <code>LimitHue::comparison()</code>
+        framework as before, making four pairs of runs, each run in a
+        pair starting from the same random seed, one run with a single
+        population, and one run with four subpopulations. Each run takes
+        2000 steps. I hoped for a clear fitness advantage for the
+        multiple subpopulation case. I did not find it. This plot is an
+        excellent illustration of the null hypothesis. The plots in red
+        have a single large population, those in blue have four
+        subpopulations ¼ as large. It would be hard to guess which was
+        which if they were not colored. Also puzzling is that the <em>average
+
+
+
+          fitness</em> for all eight populations are around 0.55 while
+        in <a href="#20201226"> previous runs</a> they were near 0.75.
+      </p>
+      <img src="images/20210103_LimitHue_Comparison.png"
+        alt="LimitHue::comparison() subpopulations"
+        title="LimitHue::comparison() subpopulations" width="710"
+        height="588"> </div>
     <div class="post" id="20201226"> <a href="#20201226" class="date">December
+
+
+
         26, 2020</a>
       <h1>Oops, now computing initial “absolute fitness”</h1>
-      <p>I had noticed, in TexSyn's prototype GUI, that right at the start of a
-        run, some of the “top ten” fitness textures listed fitness of zero,
-        which seemed incorrect. (That is, it “looked like” they ought to have
-        higher fitness.) I first assumed this was just a bug in the GUI, but
-        looking closer, it seemed to be a <em>real</em> bug. In the original
-        tournament-based relative fitness approach, a relative fitness ranking
-        is determined each evolution step (<code>Population</code> update) for
-        the three randomly chosen <code>Individuals</code>. This was not
+      <p>I had noticed, in TexSyn's prototype GUI, that right at the
+        start of a run, some of the “top ten” fitness textures listed
+        fitness of zero, which seemed incorrect. (That is, it “looked
+        like” they ought to have higher fitness.) I first assumed this
+        was just a bug in the GUI, but looking closer, it seemed to be a
+        <em>real</em> bug. In the original tournament-based relative
+        fitness approach, a relative fitness ranking is determined each
+        evolution step (<code>Population</code> update) for the three
+        randomly chosen <code>Individuals</code>. This was not
         happening for the later prototype absolute fitness.</p>
       <p>The runs plotted below are like those on <a href="#20201223">December
+
+
+
           23</a> but an initial pass is made over the <code>Population</code>
-        computing initial fitness for all <code>Individual</code>s. It may be
-        just random variation between runs, but it looks like there is now
-        generally less variance between runs, and that the best of the best are
-        a bit higher. The overall best is 0.924 in run 3a.</p>
-      <p>I will fold this change into refactoring <em>absolute fitness</em> to
-        be a layer on top of tournament-based <em>relative fitness</em>.</p>
-      <img src="images/20201226_LimitHue_Comparison.png" alt="LimitHue::comparison() fix init fitness"
-        title="LimitHue::comparison() fix init fitness" width="714" height="646">
-    </div>
+        computing initial fitness for all <code>Individual</code>s. It
+        may be just random variation between runs, but it looks like
+        there is now generally less variance between runs, and that the
+        best of the best are a bit higher. The overall best is 0.924 in
+        run 3a.</p>
+      <p>I will fold this change into refactoring <em>absolute fitness</em>
+        to be a layer on top of tournament-based <em>relative fitness</em>.</p>
+      <img src="images/20201226_LimitHue_Comparison.png"
+        alt="LimitHue::comparison() fix init fitness"
+        title="LimitHue::comparison() fix init fitness" width="714"
+        height="646"> </div>
     <div class="post" id="20201224"> <a href="#20201224" class="date">December
+
+
+
         24, 2020</a> 🎄
       <h1>Tree size and bloat</h1>
-      <p>Speaking of data from those <code>LimitHue::comparison()</code> runs,
-        I also recorded average-of-population tree size for each evolution step.
-        Recall each run was initialized with 100 individuals, each with a
-        maximum initial tree size of 100. </p>
-      <p>(Tree size is equivalent to the number of function names and constant
-        leaf values in the corresponding textual program notation. An
-        interesting tidbit is that all runs start with an average tree size very
-        close to 80. This ratio between average and maximum tree size (e.g.
-        80/100) probably depends on the <code>FunctionSet</code> being used.)</p>
-      <p>Most of the average-of-population sizes seem to end up between 200 and
-        400. While the first of these eight runs—the black trace in this
-        plot—wandered into the land of giant trees, peaking up near size 1100.
-        This occasional misbehavior of GP systems is called <strong>bloat</strong>.
-        Tree size does not directly correlate with execution time, via <code>GpTree::eval()</code>,
-        since some <code>GpFunctions</code> may run slower than others. But it
-        is a safe bet that, in general, a big tree will be slower than a small
-        tree. Larger programs certainly take up more memory, but in my
-        applications that is not a issue. There is also a theory, a GP “folk
-        belief”, that large trees can dilute the effectiveness of crossover.</p>
-      <p>I have a design sketched out that I hope will allow controlling tree
-        size to avoid bloat in what I think is a fairly natural way that will
-        not interfere with fitness measurement.</p>
-      <img src="images/20201223_LimitHue_Comparison_Size.png" alt="LimitHue::comparison() sizes"
-        title="LimitHue::comparison() sizes" width="784" height="535"> </div>
+      <p>Speaking of data from those <code>LimitHue::comparison()</code>
+        runs, I also recorded average-of-population tree size for each
+        evolution step. Recall each run was initialized with 100
+        individuals, each with a maximum initial tree size of 100. </p>
+      <p>(Tree size is equivalent to the number of function names and
+        constant leaf values in the corresponding textual program
+        notation. An interesting tidbit is that all runs start with an
+        average tree size very close to 80. This ratio between average
+        and maximum tree size (e.g. 80/100) probably depends on the <code>FunctionSet</code>
+        being used.)</p>
+      <p>Most of the average-of-population sizes seem to end up between
+        200 and 400. While the first of these eight runs—the black trace
+        in this plot—wandered into the land of giant trees, peaking up
+        near size 1100. This occasional misbehavior of GP systems is
+        called <strong>bloat</strong>. Tree size does not directly
+        correlate with execution time, via <code>GpTree::eval()</code>,
+        since some <code>GpFunctions</code> may run slower than others.
+        But it is a safe bet that, in general, a big tree will be slower
+        than a small tree. Larger programs certainly take up more
+        memory, but in my applications that is not a issue. There is
+        also a theory, a GP “folk belief”, that large trees can dilute
+        the effectiveness of crossover.</p>
+      <p>I have a design sketched out that I hope will allow controlling
+        tree size to avoid bloat in what I think is a fairly natural way
+        that will not interfere with fitness measurement.</p>
+      <img src="images/20201223_LimitHue_Comparison_Size.png"
+        alt="LimitHue::comparison() sizes" title="LimitHue::comparison()
+        sizes" width="784" height="535"> </div>
     <div class="post" id="20201223"> <a href="#20201223" class="date">December
+
+
+
         23, 2020</a>
       <h1>Redefine “absolute fitness” on top of relative tournaments</h1>
-      <p>As discussed in the TexSyn blog on <a href="https://cwreynolds.github.io/TexSyn/#20201118">November
-          18</a>, I went off on a side quest related to “absolute” fitness. This
-        is the more common way of thinking about evolutionary computation, where
-        an individual is tested or rated according to a fitness function,
-        resulting in a numeric value. The goal of the optimization is then to
-        maximize this fitness (or minimize, if you consider it an <em>error</em>
-        or <em>loss</em> metric). LazyPredator is meant to deal primarily with
-        “relative” fitness, as determined by competitive tournaments. (Recall
-        the analogy: while speculative ratings can be assigned <em>a priori</em>
-        to (say) athletes, it is not until they compete in a tournament that a
-        winner is actually determined.)</p>
-      <p>However, based on what seemed like lackluster optimization based on
-        tournaments, as a basis of comparison, I set off to re-implement the
-        traditional evolutionary optimization, as I had done in earlier work. So
-        instead of using tournament-based contests, I added a parallel facility
-        for absolute numeric fitness, judging <code>Individuals</code> in
-        isolation. The tournament-based evolution step looked like:</p>
+      <p>As discussed in the TexSyn blog on <a
+          href="https://cwreynolds.github.io/TexSyn/#20201118">November
+          18</a>, I went off on a side quest related to “absolute”
+        fitness. This is the more common way of thinking about
+        evolutionary computation, where an individual is tested or rated
+        according to a fitness function, resulting in a numeric value.
+        The goal of the optimization is then to maximize this fitness
+        (or minimize, if you consider it an <em>error</em> or <em>loss</em>
+        metric). LazyPredator is meant to deal primarily with “relative”
+        fitness, as determined by competitive tournaments. (Recall the
+        analogy: while speculative ratings can be assigned <em>a priori</em>
+        to (say) athletes, it is not until they compete in a tournament
+        that a winner is actually determined.)</p>
+      <p>However, based on what seemed like lackluster optimization
+        based on tournaments, as a basis of comparison, I set off to
+        re-implement the traditional evolutionary optimization, as I had
+        done in earlier work. So instead of using tournament-based
+        contests, I added a parallel facility for absolute numeric
+        fitness, judging <code>Individuals</code> in isolation. The
+        tournament-based evolution step looked like:</p>
       <ul>
         <li>Randomly select (with uniform distribution) three <code>Individuals</code>
           from the <code>Population</code>.</li>
-        <li>Place them in a competitive tournament to produce a fitness ranking.</li>
-        <li>The first and second place finishers are selected as “parents.”</li>
-        <li>Use <em>crossover</em> and <em>mutation</em> to produce a new
-          “offspring” from the parents.</li>
-        <li>The third place finisher is removed from the population (“dies”) and
-          replaced with the offspring.</li>
+        <li>Place them in a competitive tournament to produce a fitness
+          ranking.</li>
+        <li>The first and second place finishers are selected as
+          “parents.”</li>
+        <li>Use <em>crossover</em> and <em>mutation</em> to produce a
+          new “offspring” from the parents.</li>
+        <li>The third place finisher is removed from the population
+          (“dies”) and replaced with the offspring.</li>
       </ul>
-      <p>The more traditional “absolute fitness” based evolution step was:</p>
+      <p>The more traditional “absolute fitness” based evolution step
+        was:</p>
       <ul>
         <li>Randomly select two parents from the population <em>biased</em>
           toward high fitness. </li>
         <ul>
-          <li>This was done by making a uniform selection of three individuals
-            then choosing the one with highest fitness.</li>
+          <li>This was done by making a uniform selection of three
+            individuals then choosing the one with highest fitness.</li>
         </ul>
-        <li>Randomly select one individual from the population, biased toward
-          low fitness, to be replaced by the new offspring.</li>
+        <li>Randomly select one individual from the population, biased
+          toward low fitness, to be replaced by the new offspring.</li>
         <ul>
-          <li>This was done by making a uniform selection of three individuals
-            then choosing the one with lowest fitness.</li>
+          <li>This was done by making a uniform selection of three
+            individuals then choosing the one with lowest fitness.</li>
         </ul>
-        <li>Use <em>crossover</em> and <em>mutation</em> to produce a new
-          “offspring” from the parents.</li>
+        <li>Use <em>crossover</em> and <em>mutation</em> to produce a
+          new “offspring” from the parents.</li>
         <li>Replace the low fitness individual with the new offspring.</li>
       </ul>
-      <p>Note that absolute fitness for a given individual does not change, so
-        is computed one per individual then cached. This is generally not the
-        case for competitive fitness.</p>
-      <p>I got to thinking about the selection procedure. In the absolute case,
-        nine individuals are selected then used as bias to winnow down to the
-        three actually used in the update step. I wondered if this level of
-        “elitism” was good or bad. Parents would always be selected from the top
-        ranked individuals in the population, because the best-of-three
-        selection is strongly biased toward them. Conversely, all the “deaths”
-        would be among the the very low ranked individuals. This sort of elitism
-        may cause the evolutionary optimization to be “greedy” — to concentrate
-        on low hanging fruit — and perhaps be short-sighted.</p>
-      <p>So I considered a different selection procedure: uniformly select
-        three, rank those as in the competitive tournament case, the top two are
-        the parents, and the “loser” is replaced by the new offspring. That is,
-        the absolute fitness case is implemented <strong>as</strong> a
-        simplistic tournament where rankings are just sorting by fitness. Unlike
-        the nine-way selection, it is possible that all three participants (two
-        parents, and loser) could be from the very bottom, or the very top, of
-        the rankings. I set up a comparison framework to run four rounds of both
-        conditions (both beginning from the same random seed). Each Population
-        consisted of 100 Individuals, each with a maximum initial size of 100.
-        Each optimization was for for 2000 steps (which is 20 “generation
-        equivalents”). The entire comparison of eight runs took abut 5.5 hours.</p>
+      <p>Note that absolute fitness for a given individual does not
+        change, so is computed one per individual then cached. This is
+        generally not the case for competitive fitness.</p>
+      <p>I got to thinking about the selection procedure. In the
+        absolute case, nine individuals are selected then used as bias
+        to winnow down to the three actually used in the update step. I
+        wondered if this level of “elitism” was good or bad. Parents
+        would always be selected from the top ranked individuals in the
+        population, because the best-of-three selection is strongly
+        biased toward them. Conversely, all the “deaths” would be among
+        the the very low ranked individuals. This sort of elitism may
+        cause the evolutionary optimization to be “greedy” — to
+        concentrate on low hanging fruit — and perhaps be short-sighted.</p>
+      <p>So I considered a different selection procedure: uniformly
+        select three, rank those as in the competitive tournament case,
+        the top two are the parents, and the “loser” is replaced by the
+        new offspring. That is, the absolute fitness case is implemented
+        <strong>as</strong> a simplistic tournament where rankings are
+        just sorting by fitness. Unlike the nine-way selection, it is
+        possible that all three participants (two parents, and loser)
+        could be from the very bottom, or the very top, of the rankings.
+        I set up a comparison framework to run four rounds of both
+        conditions (both beginning from the same random seed). Each
+        Population consisted of 100 Individuals, each with a maximum
+        initial size of 100. Each optimization was for for 2000 steps
+        (which is 20 “generation equivalents”). The entire comparison of
+        eight runs took abut 5.5 hours.</p>
       <p>For each run, I recorded the fitness as best-of-population and
-        average-of-population, for each of the 2000 steps. These are shown in
-        the plot below. There are 16 lines, best and average for each of eight
-        runs. They are color coded by condition: (a) the nine-way selection with
-        stronger bias are in the magenta-to-red range, (b) the three-way
-        selection with less bias are in the green-to-cyan range. The “best” at
-        the top are monotone increasing steps, the “ave” plots are lower and
-        noisy.</p>
+        average-of-population, for each of the 2000 steps. These are
+        shown in the plot below. There are 16 lines, best and average
+        for each of eight runs. They are color coded by condition: (a)
+        the nine-way selection with stronger bias are in the
+        magenta-to-red range, (b) the three-way selection with less bias
+        are in the green-to-cyan range. The “best” at the top are
+        monotone increasing steps, the “ave” plots are lower and noisy.</p>
       <p>After all that, what I see in the plot is <strong>no obvious
-          difference</strong> in performance between the a/red runs and the
-        b/green runs. The best-of-population fitnesses end up around 0.85 to
-        0.90, with the averages around 0.75.&nbsp; The averages of the b/green
-        runs are closer together, possibly indicating less variance, but that is
-        just a supposition. </p>
-      <p>I will take all this as evidence that LazyPredator's support for
-        “absolute fitness” should be refactored to be based on top of
-        tournament-style evolution steps.</p>
-      <img src="images/20201223_LimitHue_comparison.png" alt="LimitHue::comparison()"
-        title="LimitHue::comparison()" width="650" height="588"> </div>
+          difference</strong> in performance between the a/red runs and
+        the b/green runs. The best-of-population fitnesses end up around
+        0.85 to 0.90, with the averages around 0.75.&nbsp; The averages
+        of the b/green runs are closer together, possibly indicating
+        less variance, but that is just a supposition. </p>
+      <p>I will take all this as evidence that LazyPredator's support
+        for “absolute fitness” should be refactored to be based on top
+        of tournament-style evolution steps.</p>
+      <img src="images/20201223_LimitHue_comparison.png"
+        alt="LimitHue::comparison()" title="LimitHue::comparison()"
+        width="650" height="588"> </div>
     <div class="post" id="20201127"> <a href="#20201127" class="date">November
+
+
+
         27, 2020</a> 🍗
       <h1><code>GpTree</code> with “phantom limb”</h1>
-      <p>Toward the end of November I was tracking down a memory leak. As
-        described <a href="https://cwreynolds.github.io/TexSyn/#20201203">here</a>,
-        the leak was actually in OpenCV. It took me a while to track that down
-        because of an unrelated “confounding bug” in TexSyn's <code>FunctionSet</code>
-        defined in <code>GP.h</code>. The actual code, a <code>GpFunction</code>
-        initializer, is shown here, with the bug in red:</p>
+      <p>Toward the end of November I was tracking down a memory leak.
+        As described <a
+          href="https://cwreynolds.github.io/TexSyn/#20201203">here</a>,
+        the leak was actually in OpenCV. It took me a while to track
+        that down because of an unrelated “confounding bug” in TexSyn's
+        <code>FunctionSet</code> defined in <code>GP.h</code>. The
+        actual code, a <code>GpFunction</code> initializer, is shown
+        here, with the bug in red:</p>
       <pre>...
 {
     "CotsMap",
@@ -475,255 +609,313 @@ Population(int individual_count,
 }
 ...</pre>
       <p>The problem is that the third line has a typo, an extra <code>GpType</code>
-        specification for a <code>Texture</code>. It is saying that the <code>GpFunction</code>
-        for <code>CotsMap</code> has six parameters: four of <code>GpType</code>
-        <code>Vec2</code> and <strong>two</strong> of <code>Texture</code>. In
-        fact, as seen in the next line, <code>CotsMap</code> actually has five
+        specification for a <code>Texture</code>. It is saying that the
+        <code>GpFunction</code> for <code>CotsMap</code> has six
+        parameters: four of <code>GpType</code> <code>Vec2</code> and
+        <strong>two</strong> of <code>Texture</code>. In fact, as seen
+        in the next line, <code>CotsMap</code> actually has five
         parameters, four <code>Vec2</code> and <strong>one</strong> <code>Texture</code>.
-        The result of this specification mismatch is that any occurrence of <code>CotsMap</code>
-        in a <code>GpTree</code> would generate <strong>six</strong> subtrees.
-        One of them would be ignored, specifically by <code>GpTree::eval()</code>,
-        leading to uninitialized values, which caused an error in the
+        The result of this specification mismatch is that any occurrence
+        of <code>CotsMap</code> in a <code>GpTree</code> would
+        generate <strong>six</strong> subtrees. One of them would be
+        ignored, specifically by <code>GpTree::eval()</code>, leading
+        to uninitialized values, which caused an error in the
         destructor. This mismatch caused no end of confusion, especially
         appearing as it did during my hunt for the memory leak.</p>
-      <p>To avoid this confusion in the future I need a way to validate that
-        these two different ways of specifying the parameters to a <code>GpFunction</code>
-        match. One side has to do with actual C++ code definitions and one has
-        to do with the abstractions used by <code>FunctionSet</code>. The lack
-        of “introspection” in C++ makes this difficult. For example it would be
+      <p>To avoid this confusion in the future I need a way to validate
+        that these two different ways of specifying the parameters to a
+        <code>GpFunction</code> match. One side has to do with actual
+        C++ code definitions and one has to do with the abstractions
+        used by <code>FunctionSet</code>. The lack of “introspection”
+        in C++ makes this difficult. For example it would be
         straightforward in Lisp.</p>
     </div>
     <div class="post" id="20201031"> <a href="#20201031" class="date">October
+
+
+
         31, 2020 🎃</a>
       <h1>Progress report: <code>TournamentGroup</code> and bug fix</h1>
-      <p>I have been working along, making incremental progress. After the
-        “yellow/green” test described on <a href="#20201019">October 19</a> I
-        started on a slightly more ambitious test case I called “colorful, well
-        exposed” textures (in a package named <code>CWE</code>). It is nearly
-        random evolution, constrained only by tournament-based “fitness” tests
-        that favor textures with a full range of brightness (luminance) and
-        color saturations. It measures these by uniformly sampling colors from
-        the texture, placing them into a histogram (of saturation or brightness)
-        then scoring the histogram's flatness (uniformity).</p>
+      <p>I have been working along, making incremental progress. After
+        the “yellow/green” test described on <a href="#20201019">October
+
+
+          19</a> I started on a slightly more ambitious test case I
+        called “colorful, well exposed” textures (in a package named <code>CWE</code>).
+
+
+        It is nearly random evolution, constrained only by
+        tournament-based “fitness” tests that favor textures with a full
+        range of brightness (luminance) and color saturations. It
+        measures these by uniformly sampling colors from the texture,
+        placing them into a histogram (of saturation or brightness) then
+        scoring the histogram's flatness (uniformity).</p>
       <p>Previously, a lot of my prototype tournament functions had the
-        structure of passing in three <code>Individual*</code> pointers and
-        returning the “worst” one, the loser of the tournament. This felt
-        awkward and led to duplicated code (e.g. for finding best or worst
-        individuals). So I refactored things to put most of that into a new
-        class <code>TournamentGroup</code>. It encapsulates the previously
-        duplicated code and serves as a container for the individuals in a
-        tournament, with the side benefit of allowing them to have arbitrary
-        size. (In case there is ever a need for tournaments with 2 or 10
-        participants.) Always the careful incrementalist, I made an <code>#ifdef</code>
-        flag so converting to using the new class was reversible. I got the <code>CWE</code>
-        test running with <code>TournamentGroup</code> then went back to verify
-        I got the same result from the old and new code. <strong>I did not.</strong>
-        While poking around I realized that the old code had a significant bug
-        in <code>Population::evolutionStep()</code>. It was related to that
-        “duplicated code” issue, and was definitely doing the wrong thing in ⅓
-        of the cases.</p>
+        structure of passing in three <code>Individual*</code> pointers
+        and returning the “worst” one, the loser of the tournament. This
+        felt awkward and led to duplicated code (e.g. for finding best
+        or worst individuals). So I refactored things to put most of
+        that into a new class <code>TournamentGroup</code>. It
+        encapsulates the previously duplicated code and serves as a
+        container for the individuals in a tournament, with the side
+        benefit of allowing them to have arbitrary size. (In case there
+        is ever a need for tournaments with 2 or 10 participants.)
+        Always the careful incrementalist, I made an <code>#ifdef</code>
+        flag so converting to using the new class was reversible. I got
+        the <code>CWE</code> test running with <code>TournamentGroup</code>
+        then went back to verify I got the same result from the old and
+        new code. <strong>I did not.</strong> While poking around I
+        realized that the old code had a significant bug in <code>Population::evolutionStep()</code>.
+        It was related to that “duplicated code” issue, and was
+        definitely doing the wrong thing in ⅓ of the cases.</p>
       <p>After various testing, I went back to the <code>YG</code>
         (“yellow/green”) test and reran it, using the new <code>TournamentGroup</code>-based
-        bug-free code and got much more satisfying results. The <a href="#20201019">October
-          19</a> results seemed disappointingly “indecisive.” I had expected the
-        green level to push right up toward 100% and the blue level to drop down
-        near zero. Instead the results less convincing—green was highest, red in
-        the middle, and blue lowest—but they wandered in the mid-range instead
-        of pushing out to the bounds. I plotted the results of the new run and
-        it looked much better. Not only are the “population best” green/blue
-        values very close to the bounds, but the “population average” are within
-        about 5% of the bounds. Also this run is 1000 evolution steps long. The
-        run on October 19 was five times longer and never got this close to its
-        goal.</p>
-      <img src="images/20201031_yg_run_5.png" alt="yellow/green run 5" title="yellow/green run 5"
-        width="1000" height="399"> </div>
+
+
+
+        bug-free code and got much more satisfying results. The <a
+          href="#20201019">October 19</a> results seemed disappointingly
+        “indecisive.” I had expected the green level to push right up
+        toward 100% and the blue level to drop down near zero. Instead
+        the results less convincing—green was highest, red in the
+        middle, and blue lowest—but they wandered in the mid-range
+        instead of pushing out to the bounds. I plotted the results of
+        the new run and it looked much better. Not only are the
+        “population best” green/blue values very close to the bounds,
+        but the “population average” are within about 5% of the bounds.
+        Also this run is 1000 evolution steps long. The run on October
+        19 was five times longer and never got this close to its goal.</p>
+      <img src="images/20201031_yg_run_5.png" alt="yellow/green run 5"
+        title="yellow/green run 5" width="1000" height="399"> </div>
     <div class="post" id="20201019"> <a href="#20201019" class="date">October
+
+
+
         19, 2020</a>
       <h1>Evolution: first quantitative data</h1>
-      <p>I did some more tooling work, and collected some data on the simple
-        test application I described on <a href="#20201017">October 17</a>. As
-        then, there are 3-way tournaments. Three TexSyn textures compete based
-        on their “average color.” That is, as if they were infinitely blurred,
-        and could be represented by a single color in RGB space. The tournaments
-        have two cases, one of which is selected randomly. The three textures
-        compete for either (a) the highest green component of their three
-        average colors, or (b) the lowest blue component. This should drive the
-        population toward colors with high green, low blue, and unconstrained
-        red. This describes colors in the yellow-to-green region.</p>
-      <p>The run plotted below has a population size of 50, and was run for 5000
-        steps (which corresponds to 100 “generation equivalents”). This took
-        about 20 minutes, or longer if I rendered the textures. Originally I
-        displayed them one after another, as sort of a flickering movie, which
-        allowed me to see they were trending toward yellow/green color schemes.
-        I recorded <em>ad hoc</em> data and made some plots. I looked at the
-        “average average” color—taking the average color of all 50 textures in
-        the population and averaging them together each step. That produces the
-        wiggly lines in the plot below identified in the legend as “red
-        (average)” etc. This looked OK, the green was higher, blue lower, and
-        red seemed to drift someone in between. Then I selected one member of
-        the population as “best.” This is subject to change. My current criteria
-        for “best” is the member of the population which has “survived” the most
-        tournaments. Since losing a tournament (being ranked third of three)
-        leads to an individual being removed from the population, it seems that
-        the number of times one has been tested and survived is some proxy of
-        quality. The three step-like plots show this current “best” individual's
-        average red, green and blue. The step changes are when a new best comes
-        along, then holds steady until the next change of rankings. Unlike the
-        “average average” plots, these “best” values are closer to the extremes,
-        near or at the bounds of unit RGB space. (TexSyn does not place bounds
-        on color values, but I used <code>Color::clipToUnitRGB()</code> when
-        computing average colors for this run.)</p>
-      <img src="images/20201019_yellow_green_run.png" alt="yellow/green run" title="yellow/green run"
-        width="1000" height="396">
-      <p>One unrelated problem that arose during this work had to do with
-        “minimum size for crossover snippet” as discussed on <a href="#20201008">October
-          8</a>. On a whim I had chosen a value of <strong>five</strong>, while
-        the smallest valid TexSyn tree has size <strong>four</strong>, as in: <code>Uniform(0.3,
-          0.8, 0.4)</code>. My thought was I would rather see slightly larger
-        subtrees used for crossover. It seemed to work fine until today when I
-        was initializing a larger population of size 50. One of those initial
-        random trees just happened to be that minimal size four example.That led
-        to an obscure divide by zero error. I made a temp fix but it needs some
-        more thought.</p>
+      <p>I did some more tooling work, and collected some data on the
+        simple test application I described on <a href="#20201017">October
+
+
+          17</a>. As then, there are 3-way tournaments. Three TexSyn
+        textures compete based on their “average color.” That is, as if
+        they were infinitely blurred, and could be represented by a
+        single color in RGB space. The tournaments have two cases, one
+        of which is selected randomly. The three textures compete for
+        either (a) the highest green component of their three average
+        colors, or (b) the lowest blue component. This should drive the
+        population toward colors with high green, low blue, and
+        unconstrained red. This describes colors in the yellow-to-green
+        region.</p>
+      <p>The run plotted below has a population size of 50, and was run
+        for 5000 steps (which corresponds to 100 “generation
+        equivalents”). This took about 20 minutes, or longer if I
+        rendered the textures. Originally I displayed them one after
+        another, as sort of a flickering movie, which allowed me to see
+        they were trending toward yellow/green color schemes. I recorded
+        <em>ad hoc</em> data and made some plots. I looked at the
+        “average average” color—taking the average color of all 50
+        textures in the population and averaging them together each
+        step. That produces the wiggly lines in the plot below
+        identified in the legend as “red (average)” etc. This looked OK,
+        the green was higher, blue lower, and red seemed to drift
+        someone in between. Then I selected one member of the population
+        as “best.” This is subject to change. My current criteria for
+        “best” is the member of the population which has “survived” the
+        most tournaments. Since losing a tournament (being ranked third
+        of three) leads to an individual being removed from the
+        population, it seems that the number of times one has been
+        tested and survived is some proxy of quality. The three
+        step-like plots show this current “best” individual's average
+        red, green and blue. The step changes are when a new best comes
+        along, then holds steady until the next change of rankings.
+        Unlike the “average average” plots, these “best” values are
+        closer to the extremes, near or at the bounds of unit RGB space.
+        (TexSyn does not place bounds on color values, but I used <code>Color::clipToUnitRGB()</code>
+        when computing average colors for this run.)</p>
+      <img src="images/20201019_yellow_green_run.png" alt="yellow/green
+        run" title="yellow/green run" width="1000" height="396">
+      <p>One unrelated problem that arose during this work had to do
+        with “minimum size for crossover snippet” as discussed on <a
+          href="#20201008">October 8</a>. On a whim I had chosen a value
+        of <strong>five</strong>, while the smallest valid TexSyn tree
+        has size <strong>four</strong>, as in: <code>Uniform(0.3, 0.8,
+          0.4)</code>. My thought was I would rather see slightly larger
+        subtrees used for crossover. It seemed to work fine until today
+        when I was initializing a larger population of size 50. One of
+        those initial random trees just happened to be that minimal size
+        four example.That led to an obscure divide by zero error. I made
+        a temp fix but it needs some more thought.</p>
     </div>
     <div class="post" id="20201018"> <a href="#20201018" class="date">October
+
+
+
         18, 2020</a>
       <h1>Fixing that mutation problem, setting jiggle scale.</h1>
-      <p>I re-enabled <code>GpTree::mutate()</code> and tracked down the
-        problem seen <a href="#20201017">earlier</a>. The added-in-a-hurry <code>GpType::getMaxJiggleFactor()</code>
-        function was misbehaving (the wrong <code>this</code> pointer was
-        captured in the jiggle handler lambda). The intent was to allow
-        customizing the “jiggle scale” but as I had noted in the code, it was
-        not obvious how or when that could happen. I suspect it does not really
-        matter. The default value (of up to ±5% of the given numeric range of a
-        <code>GpType</code>) would probably be fine. But if some imaginary
-        future user of LazyPredator <em>did</em> need to tweak that value they
-        would be annoyed it was not settable. </p>
-      <p>So instead, the mutation bug is now fixed, and the “jiggle scale” still
-        defaults to 0.05 via a new static function called <code>GpType::defaultJiggleScale()</code>,
-        but can be overridden by yet another constructor for the class. For
-        example one of the TexSyn <code>GpType</code>s is currently written:</p>
+      <p>I re-enabled <code>GpTree::mutate()</code> and tracked down
+        the problem seen <a href="#20201017">earlier</a>. The
+        added-in-a-hurry <code>GpType::getMaxJiggleFactor()</code>
+        function was misbehaving (the wrong <code>this</code> pointer
+        was captured in the jiggle handler lambda). The intent was to
+        allow customizing the “jiggle scale” but as I had noted in the
+        code, it was not obvious how or when that could happen. I
+        suspect it does not really matter. The default value (of up to
+        ±5% of the given numeric range of a <code>GpType</code>) would
+        probably be fine. But if some imaginary future user of
+        LazyPredator <em>did</em> need to tweak that value they would
+        be annoyed it was not settable. </p>
+      <p>So instead, the mutation bug is now fixed, and the “jiggle
+        scale” still defaults to 0.05 via a new static function called <code>GpType::defaultJiggleScale()</code>,
+        but can be overridden by yet another constructor for the class.
+        For example one of the TexSyn <code>GpType</code>s is currently
+        written:</p>
       <pre>...<br>{ "Float_01", 0.0f, 1.0f },<br>...</pre>
-      <p>with its “jiggle scale” defaulting to <em>±5%</em>, or a custom value
-        can be given like this:</p>
+      <p>with its “jiggle scale” defaulting to <em>±5%</em>, or a
+        custom value can be given like this:</p>
       <pre>...<br>{ "Float_01", 0.0f, 1.0f, <strong>0.2f</strong> },<br>...</pre>
-      <p>indicating the jiggle scale for that type is ±20% of the given range
-        [0, 1]. Shown below is a plot of repeated jiggle mutations of values
-        from two such <code>GpType</code> definitions. The blue trace
-        corresponds to the default jiggle scale of 0.05 and the red trace with a
-        scale of 0.2. The red trace can change by four times the amount of the
-        blue trace—per mutation—so moves four times faster. There are 500 steps
-        across the horizontal axis.</p>
-      <img src="images/20201018_slow_fast_jitter.png" alt="slow and fast jiggle mutation"
-        title="slow and fast jiggle mutation" width="1000" height="453"> </div>
+      <p>indicating the jiggle scale for that type is ±20% of the given
+        range [0, 1]. Shown below is a plot of repeated jiggle mutations
+        of values from two such <code>GpType</code> definitions. The
+        blue trace corresponds to the default jiggle scale of 0.05 and
+        the red trace with a scale of 0.2. The red trace can change by
+        four times the amount of the blue trace—per mutation—so moves
+        four times faster. There are 500 steps across the horizontal
+        axis.</p>
+      <img src="images/20201018_slow_fast_jitter.png" alt="slow and fast
+        jiggle mutation" title="slow and fast jiggle mutation"
+        width="1000" height="453"> </div>
     <div class="post" id="20201017"> <a href="#20201017" class="date">October
+
+
+
         17, 2020</a>
       <h1>Evolution, almost certainly!</h1>
-      <p><strong>Huzzah!</strong> On <a href="#20201015">October 15</a> I
-        cobbled together a minimal evolution run, using the TexSyn API. I ran a
-        small number of “steps” — steady state population updates — and it did
-        not crash. The next day I cleaned up the prototype tournament function
-        so it might actually be correct. Then I tried a longer run. I got to
-        step 61 when it failed an assert (in TexSyn's RGB↔︎HSV conversions).
-        That code has been stable for many months, as I dug in it seemed to just
-        be noticing bad input data (floating point <code>nan</code>s). Then
-        followed a lot of unsuccessful attempts to isolate the failure. Finally
-        I recalled that I had slapped together <code>GpTree::mutate()</code>
-        just before trying an evolution run. Indeed, when I commented out the
-        call to that, the assert failures stopped. To be fixed soon.</p>
-      <p>Even better, when I let my tiny <code>Population</code> of 10 <code>Individuals</code>
-        run for 1000 steps — what my non-steady-state peeps would call “100
-        generations” — the <code>Population</code> seemed to be clearly
-        evolving toward the goal state. As mentioned in the previous post, I was
-        looking only the “average color” of the TexSyn <code>Texture</code>
-        which is the value of the evolving <code>Individual</code>s. In fact, I
-        looked only at the green and blue components of the average color (in
-        RGB space) so all details of textures are ignored. The “winners” of a
-        tournament among three <code>Textures</code> are the two whose average
-        color have either: the higher green level, or the lower blue level.
-        (Conversely: the “loser” of the tournament is the color with the lowest
-        green or highest blue.) This is a simplistic example of a 3-way
-        tournament and multi-objective optimization. Participants in the
-        tournament are chosen at random, uniformly across the <code>Population</code>.
-        The tournament then makes a uniform random choice between minimizing
+      <p><strong>Huzzah!</strong> On <a href="#20201015">October 15</a>
+        I cobbled together a minimal evolution run, using the TexSyn
+        API. I ran a small number of “steps” — steady state population
+        updates — and it did not crash. The next day I cleaned up the
+        prototype tournament function so it might actually be correct.
+        Then I tried a longer run. I got to step 61 when it failed an
+        assert (in TexSyn's RGB↔︎HSV conversions). That code has been
+        stable for many months, as I dug in it seemed to just be
+        noticing bad input data (floating point <code>nan</code>s).
+        Then followed a lot of unsuccessful attempts to isolate the
+        failure. Finally I recalled that I had slapped together <code>GpTree::mutate()</code>
+        just before trying an evolution run. Indeed, when I commented
+        out the call to that, the assert failures stopped. To be fixed
+        soon.</p>
+      <p>Even better, when I let my tiny <code>Population</code> of 10
+        <code>Individuals</code> run for 1000 steps — what my
+        non-steady-state peeps would call “100 generations” — the <code>Population</code>
+        seemed to be clearly evolving toward the goal state. As
+        mentioned in the previous post, I was looking only the “average
+        color” of the TexSyn <code>Texture</code> which is the value of
+        the evolving <code>Individual</code>s. In fact, I looked only
+        at the green and blue components of the average color (in RGB
+        space) so all details of textures are ignored. The “winners” of
+        a tournament among three <code>Textures</code> are the two
+        whose average color have either: the higher green level, or the
+        lower blue level. (Conversely: the “loser” of the tournament is
+        the color with the lowest green or highest blue.) This is a
+        simplistic example of a 3-way tournament and multi-objective
+        optimization. Participants in the tournament are chosen at
+        random, uniformly across the <code>Population</code>. The
+        tournament then makes a uniform random choice between minimizing
         blue or maximizing green. As the 1000 step evolution ran, the
-        tournament-winning texture clearly moved into the green-to-yellow color
-        range. (The red RGB component is ignored, so allows drift across the
-        green-yellow range.)</p>
-      <p>There is lots more to do, but at least LazyPredator has passed into
-        “not obviously broken” territory. I noticed that the modest 1000 step
-        run accumulated 1.8 GB of memory which means it's leaking memory like
-        mad. OpenCV <code>Mat</code> objects are a likely candidate.</p>
+        tournament-winning texture clearly moved into the
+        green-to-yellow color range. (The red RGB component is ignored,
+        so allows drift across the green-yellow range.)</p>
+      <p>There is lots more to do, but at least LazyPredator has passed
+        into “not obviously broken” territory. I noticed that the modest
+        1000 step run accumulated 1.8 GB of memory which means it's
+        leaking memory like mad. OpenCV <code>Mat</code> objects are a
+        likely candidate.</p>
     </div>
     <div class="post" id="20201015"> <a href="#20201015" class="date">October
+
+
+
         15, 2020</a>
       <h1>Evolution, maybe?</h1>
-      <p>I think I got all the pieces glued together sufficiently so this
-        afternoon I was able to “turn the crank” on an evolutionary computation,
-        if only briefly. It is at least running. Not sure if it is actually
-        working. The first version was using random tournaments, so it was
-        impossible to tell. Then I tried to make a simplistic tournament
-        function. Using the TexSyn <code>FunctionSet</code>, I told it to
-        prefer textures whose average color had high levels of green or low
-        levels of blue. This should produce textures which are primarily in the
-        green-to-yellow neighborhood of color space. Again, it ran OK, but no
-        obvious evolutionary change in such a short test.</p>
+      <p>I think I got all the pieces glued together sufficiently so
+        this afternoon I was able to “turn the crank” on an evolutionary
+        computation, if only briefly. It is at least running. Not sure
+        if it is actually working. The first version was using random
+        tournaments, so it was impossible to tell. Then I tried to make
+        a simplistic tournament function. Using the TexSyn <code>FunctionSet</code>,
+        I told it to prefer textures whose average color had high levels
+        of green or low levels of blue. This should produce textures
+        which are primarily in the green-to-yellow neighborhood of color
+        space. Again, it ran OK, but no obvious evolutionary change in
+        such a short test.</p>
     </div>
     <div class="post" id="20201014"> <a href="#20201014" class="date">October
+
+
+
         14, 2020</a>
       <h1>Back to <code>Population</code> and <code>Individual</code></h1>
-      <h1></h1>
       <p>After about two months developing a representation for genetic
         programming (<code>FunctionSet</code>, <code>GpTree</code>, <code>GpFunction</code>,
-        and <code>GpType</code>) I have returned to the basics of evolutionary
-        computation: <code>Individual</code> and <code>Population</code>. My
-        initial plan is to avoid the traditional numeric measure of fitness,
-        instead using relative fitness as measured in competitive tournaments.
-        For some definitions of fitness, there is no significant difference. If
-        we define the fitness of a tower as its height, then that one number
-        tells us all we need to know about an individual. But in other kinds of
-        fitness—for example, which team in a sports league is best—all that can
-        be established is a relative ranking. We cannot evaluate a team to
-        produce a single numeric fitness that predicts which of two teams will
-        win a match.</p>
+        and <code>GpType</code>) I have returned to the basics of
+        evolutionary computation: <code>Individual</code> and <code>Population</code>.
+        My initial plan is to avoid the traditional numeric measure of
+        fitness, instead using relative fitness as measured in
+        competitive tournaments. For some definitions of fitness, there
+        is no significant difference. If we define the fitness of a
+        tower as its height, then that one number tells us all we need
+        to know about an individual. But in other kinds of fitness—for
+        example, which team in a sports league is best—all that can be
+        established is a relative ranking. We cannot evaluate a team to
+        produce a single numeric fitness that predicts which of two
+        teams will win a match.</p>
       <p>My initial plan is to use tournaments of three <code>Individuals</code>
         from the <code>Population</code>. This provides a minimalist
-        replacement strategy for the “steady state genetic algorithm”: three
-        individuals are selected at random (neutral selection, not “fitness
-        proportionate”), they compete in a three-way contest, the <code>Individual</code>
-        which does the worst is removed from the <code>Population</code>, and
-        replaced with a new offspring, formed by crossover between the other two
-        <code>Individuals</code> in the tournament. It is not required to
-        establish a “full ordering” of the three <code>Individual</code>s, only
-        to determine which is in last place. The ranking of the other two is
-        ignored.</p>
+        replacement strategy for the “steady state genetic algorithm”:
+        three individuals are selected at random (neutral selection, not
+        “fitness proportionate”), they compete in a three-way contest,
+        the <code>Individual</code> which does the worst is removed
+        from the <code>Population</code>, and replaced with a new
+        offspring, formed by crossover between the other two <code>Individuals</code>
+        in the tournament. It is not required to establish a “full
+        ordering” of the three <code>Individual</code>s, only to
+        determine which is in last place. The ranking of the other two
+        is ignored.</p>
       <p>Yesterday I experimented with several implementations of <code>Population::selectThreeIndices()</code>
-        to select three random but unique (“without replacement”?) members of
-        the population to be in a tournament. (The “modern <code>c++17</code>
-        way” of doing this is with <code>std::sample()</code> but for the
-        moment I needed to use LP's <code>RandomSequence</code> API.) Today I
-        started building out the <code>Individual</code> and <code>Population</code>
-        classes. I am now able to initialize a Population of a given size, where
-        each <code>Individual</code> is initialized with random <code>GpTree</code>
-        of a given max size from a given <code>FunctionSet</code>.</p>
+        to select three random but unique (“without replacement”?)
+        members of the population to be in a tournament. (The “modern <code>c++17</code>
+        way” of doing this is with <code>std::sample()</code> but for
+        the moment I needed to use LP's <code>RandomSequence</code>
+        API.) Today I started building out the <code>Individual</code>
+        and <code>Population</code> classes. I am now able to
+        initialize a Population of a given size, where each <code>Individual</code>
+        is initialized with random <code>GpTree</code> of a given max
+        size from a given <code>FunctionSet</code>.</p>
     </div>
     <div class="post" id="20201011"> <a href="#20201011" class="date">October
+
+
+
         11, 2020</a>
       <h1>“Jiggle” mutation for numeric leaf values.</h1>
-      <p>Based on <a href="#20201010">yesterday's</a> streamlining for ranged
-        numeric types, it was pretty easy to add a new handler function to <code>GpType</code>
-        to provide “jiggle” mutation for the numeric constant values found at
-        leaves of <code>GpTree</code>s. Like yesterday, I only supported c++
-        concrete types <code>int</code> and <code>float</code>. If others are
-        needed they can be added later, or explicitly implemented using the
-        older, more general form of <code>GpType</code> constructor. The jiggle
-        handler function is automatically constructed for a ranged numeric <code>
+      <p>Based on <a href="#20201010">yesterday's</a> streamlining for
+        ranged numeric types, it was pretty easy to add a new handler
+        function to <code>GpType</code> to provide “jiggle” mutation
+        for the numeric constant values found at leaves of <code>GpTree</code>s.
+
+
+        Like yesterday, I only supported c++ concrete types <code>int</code>
+        and <code>float</code>. If others are needed they can be added
+        later, or explicitly implemented using the older, more general
+        form of <code>GpType</code> constructor. The jiggle handler
+        function is automatically constructed for a ranged numeric <code>
           GpType</code>, based on the given range bounds and a parameter
         prototyped as <code>GpType::getMaxJiggleFactor()</code>. It is
-        currently set to 0.05 so at any given jiggle, a value will be offset by
-        <em>up to ±5%</em> of the given range. Here is a little test code to
-        watch iterated jiggle of an <code>int</code> and <code>float</code>
-        type on the range [0, 100]:</p>
+        currently set to 0.05 so at any given jiggle, a value will be
+        offset by <em>up to ±5%</em> of the given range. Here is a
+        little test code to watch iterated jiggle of an <code>int</code>
+        and <code>float</code> type on the range [0, 100]:</p>
       <pre>GpType ti("Int", 0, 100);
 GpType tf("Float", 0.0f, 100.0f);
 std::any vi = 50;
@@ -735,22 +927,30 @@ for (int k = 0; k &lt; 1000; k++)
     std::cout &lt;&lt; ti.to_string(vi) &lt;&lt; ", ";
     std::cout &lt;&lt; tf.to_string(vf) &lt;&lt; std::endl;
 }</pre>
-      <p>The result behaves as a “bounded Brownian” series. It stays within the
-        given range, covering the entire range, while not hugging the bounds due
-        to clipping. I took the log from that code and pasted it into a
-        speadsheet for plotting:</p>
-      <img src="images/20201011_jiggle_series.png" alt="jiggle series" title="jiggle series"
-        width="1000" height="404"> </div>
+      <p>The result behaves as a “bounded Brownian” series. It stays
+        within the given range, covering the entire range, while not
+        hugging the bounds due to clipping. I took the log from that
+        code and pasted it into a speadsheet for plotting:</p>
+      <img src="images/20201011_jiggle_series.png" alt="jiggle series"
+        title="jiggle series" width="1000" height="404"> </div>
     <div class="post" id="20201010"> <a href="#20201010" class="date">October
+
+
+
         10, 2020</a>
       <h1><code>GpType</code> constructors: less is more</h1>
-      <p>Two key operators in genetic programming are <em>crossover</em> and <em>mutation</em>.
-        Crossover has been discussed <a href="#20201008">before</a>. I was
-        starting to think about a “point mutation” operator on <code>GpTree</code>s
-        that adds noise to numeric parameters in a tree's leaves. This is not
-        about that, but was prompted by setting the stage for it. The definition
-        of TexSyn's <code>FunctionSet</code> consists of two collection: <code>GpType</code>s
-        and <code>GpFunction</code>s. (And now a third parameter for <code>crossover_min_size</code>.)
+      <p>Two key operators in genetic programming are <em>crossover</em>
+        and <em>mutation</em>. Crossover has been discussed <a
+          href="#20201008">before</a>. I was starting to think about a
+        “point mutation” operator on <code>GpTree</code>s that adds
+        noise to numeric parameters in a tree's leaves. This is not
+        about that, but was prompted by setting the stage for it. The
+        definition of TexSyn's <code>FunctionSet</code> consists of two
+        collection: <code>GpType</code>s and <code>GpFunction</code>s.
+        (And now a third parameter for <code>crossover_min_size</code>.)
+
+
+
         Before today, the <code>GpType</code> specs looked like this:<br>
       </p>
       <pre>{<br>    { "<strong>Texture</strong>" },
@@ -777,84 +977,114 @@ for (int k = 0; k &lt; 1000; k++)
     }<br>}</pre>
       <p>I have been glossing over this format for <code>GpType</code>
         constructors, since it felt a little preliminary. <code>Texture</code>
-        and <code>Vec2</code> are used only as tags to correctly matching up
-        inputs and outputs of <code>GpFunction</code>s. The other four types
-        are specializations of the concrete <code>c++</code> type <code>float</code>.
-        These four types differ only in the range of values they represent. For
-        example, <code>Float_01</code> are values on the interval [0.0, 1.0]
-        and <code>Float_m5p5</code> are values on the interval [-5.0, 5.0]. For
-        each <code>GpType</code> “initializer list” (between braces <code>{}</code>)
-        there is: (1) a character string name, (2) a function to return a random
-        “ephemeral constant” uniformly selected from the type's range, and (3) a
-        function that casts from a value of this type to a character string for
-        printing. (The values actually passed around are of type <code>std::any</code>
-        for “type erasure” but let's not get into that right now.)</p>
-      <p>I came up with a way to make this less messy. I hope eventually that
-        LazyPredator will be used for other applications. For now however, it is
-        only being used with the <code>FunctionSet</code> for TexSyn. So this
-        may be short-sighted, but so far, a <code>GpType</code> either just
-        tags an instance of a c++ class (like <code>Texture</code> and <code>Vec2</code>)
-        or it represents a numeric type, perhaps with range constraints (like <code>Float_01</code>
-        ... <code>Float_m5p5</code>). So rather than writing out the two (soon
-        to be three) handler functions/lambdas, all we need to specify are the
-        ranges. I defined two new constructors for <code>GpType</code> one for
-        float and one for int that takes: a name, range_min, and range_max. The
-        internal structure of a <code>GpType</code> object is unchanged, this
-        is just a different way to initialize its internal state. The result is
-        a much more compact specification for the <code>GpType</code>s of a <code>FunctionSet</code>:</p>
+        and <code>Vec2</code> are used only as tags to correctly
+        matching up inputs and outputs of <code>GpFunction</code>s. The
+        other four types are specializations of the concrete <code>c++</code>
+        type <code>float</code>. These four types differ only in the
+        range of values they represent. For example, <code>Float_01</code>
+        are values on the interval [0.0, 1.0] and <code>Float_m5p5</code>
+        are values on the interval [-5.0, 5.0]. For each <code>GpType</code>
+        “initializer list” (between braces <code>{}</code>) there is:
+        (1) a character string name, (2) a function to return a random
+        “ephemeral constant” uniformly selected from the type's range,
+        and (3) a function that casts from a value of this type to a
+        character string for printing. (The values actually passed
+        around are of type <code>std::any</code> for “type erasure” but
+        let's not get into that right now.)</p>
+      <p>I came up with a way to make this less messy. I hope eventually
+        that LazyPredator will be used for other applications. For now
+        however, it is only being used with the <code>FunctionSet</code>
+        for TexSyn. So this may be short-sighted, but so far, a <code>GpType</code>
+        either just tags an instance of a c++ class (like <code>Texture</code>
+        and <code>Vec2</code>) or it represents a numeric type, perhaps
+        with range constraints (like <code>Float_01</code> ... <code>Float_m5p5</code>).
+
+
+        So rather than writing out the two (soon to be three) handler
+        functions/lambdas, all we need to specify are the ranges. I
+        defined two new constructors for <code>GpType</code> one for
+        float and one for int that takes: a name, range_min, and
+        range_max. The internal structure of a <code>GpType</code>
+        object is unchanged, this is just a different way to initialize
+        its internal state. The result is a much more compact
+        specification for the <code>GpType</code>s of a <code>FunctionSet</code>:</p>
       <pre>{<br>    { "<strong>Texture</strong>" },
     { "<strong>Vec2</strong>" },
     { "<strong>Float_01</strong>", 0.0f, 1.0f },
     { "<strong>Float_02</strong>", 0.0f, 2.0f },
     { "<strong>Float_0_10</strong>", 0.0f, 10.0f },
     { "<strong>Float_m5p5</strong>", -5.0f, 5.0f }<br>}</pre>
-      <p>I like this approach. The connection with mutation operators is that
-        soon there would have been need for a fourth item in <code>GpType</code>'s
-        initializer list: a function to “jiggle” an existing value of this type.
-        Having defined a <code>GpType</code> as a ranged numeric value, we can
-        automatically generate the handlers for randomizing, printing, and soon,
-        for mutating. The older constructors remain available for cases not
-        covered by this streamlining.</p>
+      <p>I like this approach. The connection with mutation operators is
+        that soon there would have been need for a fourth item in <code>GpType</code>'s
+
+
+
+        initializer list: a function to “jiggle” an existing value of
+        this type. Having defined a <code>GpType</code> as a ranged
+        numeric value, we can automatically generate the handlers for
+        randomizing, printing, and soon, for mutating. The older
+        constructors remain available for cases not covered by this
+        streamlining.</p>
     </div>
     <div class="post" id="20201008"> <a href="#20201008" class="date">October
+
+
+
         8, 2020</a>
       <h1>Minimum size for crossover snippet</h1>
-      <p>I am developing LazyPredator and TexSyn in parallel, so sometimes its
-        hard to decide which “blog” should get a post. Recent work with GP
-        crossover was been reported in TexSyn's posts on <a href="https://cwreynolds.github.io/TexSyn/#20201003">October
-          3</a> and <a href="https://cwreynolds.github.io/TexSyn/#20201005">October
+      <p>I am developing LazyPredator and TexSyn in parallel, so
+        sometimes its hard to decide which “blog” should get a post.
+        Recent work with GP crossover was been reported in TexSyn's
+        posts on <a
+          href="https://cwreynolds.github.io/TexSyn/#20201003">October 3</a>
+        and <a href="https://cwreynolds.github.io/TexSyn/#20201005">October
+
+
+
           5</a> (and previously on this page on <a href="#20200930">September
-          30</a>). The topic of the <a href="https://cwreynolds.github.io/TexSyn/#20201005">October
-          5</a> post, and this one, is the question of whether random “crossover
-        points” in a pair of parent GP trees should be selected uniformly across
-        all nodes in the trees. I think this is the most common and
-        “traditional” approach. But I decided to allow a variation on this which
-        seems useful in a concrete case like TexSyn's <code>FunctionSet</code>.</p>
-      <p>The GP tree crossover operation is based on selecting, in two “parent”
-        trees, a pair of nodes. Those two nodes are the roots of two subtrees,
-        which can be thought of as a snippet of code in normal linear textual
-        code notation. We copy the selected subtree of the “donor” tree, and
-        paste it over the subtree of the “recipient”/offspring tree.</p>
-      <p>But let's back up a bit, how is the random selection of a node in each
-        tree defined? In the <a href="https://cwreynolds.github.io/TexSyn/#20201003">October
-          3</a> examples this was done in what I consider the “traditional” way:
-        a recursive traversal of the tree is made and a reference to each
-        node/subtree is stored in an array (in this case an <code>std::vector</code>),
-        then a random index over the size of the array is generated and the
-        corresponding subtree is selected. (Equivalently without the array: one
-        traversal measures the size of the tree, the random index is determined,
-        then a second traversal is made until it reaches the node corresponding
-        to that index, which is returned.) This means that the selection of tree
-        nodes is uniformly distributed over all nodes in the tree.</p>
+
+
+
+          30</a>). The topic of the <a
+          href="https://cwreynolds.github.io/TexSyn/#20201005">October 5</a>
+        post, and this one, is the question of whether random “crossover
+        points” in a pair of parent GP trees should be selected
+        uniformly across all nodes in the trees. I think this is the
+        most common and “traditional” approach. But I decided to allow a
+        variation on this which seems useful in a concrete case like
+        TexSyn's <code>FunctionSet</code>.</p>
+      <p>The GP tree crossover operation is based on selecting, in two
+        “parent” trees, a pair of nodes. Those two nodes are the roots
+        of two subtrees, which can be thought of as a snippet of code in
+        normal linear textual code notation. We copy the selected
+        subtree of the “donor” tree, and paste it over the subtree of
+        the “recipient”/offspring tree.</p>
+      <p>But let's back up a bit, how is the random selection of a node
+        in each tree defined? In the <a
+          href="https://cwreynolds.github.io/TexSyn/#20201003">October 3</a>
+        examples this was done in what I consider the “traditional” way:
+        a recursive traversal of the tree is made and a reference to
+        each node/subtree is stored in an array (in this case an <code>std::vector</code>),
+
+
+
+        then a random index over the size of the array is generated and
+        the corresponding subtree is selected. (Equivalently without the
+        array: one traversal measures the size of the tree, the random
+        index is determined, then a second traversal is made until it
+        reaches the node corresponding to that index, which is
+        returned.) This means that the selection of tree nodes is
+        uniformly distributed over all nodes in the tree.</p>
       <p>Because LazyPredator is based on STGP (strongly typed genetic
-        programming) there is an additional constraint that the two selected
-        subtrees have the same type (<code>GpType</code>). This is accomplished
-        by first selecting a node in the “donor” tree, then filtering the nodes
-        of the “recipient” tree to consider only subtrees with a matching type.</p>
-      <p>Consider this (partially redacted) <code>FunctionSet</code>. It shares
-        a property with TexSyn that the root type (<code>Thing</code>) has no
-        “ephemeral constants”, while the other type (<code>Int</code>) has no
-        operators, appearing only as numeric constant leaf nodes:</p>
+        programming) there is an additional constraint that the two
+        selected subtrees have the same type (<code>GpType</code>). This
+        is accomplished by first selecting a node in the “donor” tree,
+        then filtering the nodes of the “recipient” tree to consider
+        only subtrees with a matching type.</p>
+      <p>Consider this (partially redacted) <code>FunctionSet</code>.
+        It shares a property with TexSyn that the root type (<code>Thing</code>)
+        has no “ephemeral constants”, while the other type (<code>Int</code>)
+        has no operators, appearing only as numeric constant leaf nodes:</p>
       <pre>FunctionSet fs =
 {
     <span class="comment">// GpTypes:</span>
@@ -879,9 +1109,9 @@ for (int k = 0; k &lt; 1000; k++)
         }
     }
 };</pre>
-      <p>This is a typical random <code>GpTree</code>, of size 55, created by
-        that <code>FunctionSet</code> with 28 numeric constant leaf nodes (in
-        red):</p>
+      <p>This is a typical random <code>GpTree</code>, of size 55,
+        created by that <code>FunctionSet</code> with 28 numeric
+        constant leaf nodes (in red):</p>
       <pre>This(Other(<span style="color: red;">9</span>, <span style="color: red;">0</span>),
      That(This(This(This(Other(<span style="color: red;">8</span>, <span style="color: red;">2</span>),
                          This(Other(<span style="color: red;">5</span>, <span style="color: red;">9</span>),
@@ -891,28 +1121,26 @@ for (int k = 0; k &lt; 1000; k++)
                               Other(<span style="color: red;">8</span>, <span style="color: red;">1</span>)),
                          Other(<span style="color: red;">4</span>, <span style="color: red;">0</span>)),
                     This(Other(<span style="color: red;">3</span>, <span style="color: red;">2</span>),
-                         That(This(Other(<span style="color: red;">9</span>, <span
-style="color: red;">4</span>),
-                                   Other(<span style="color: red;">6</span>, <span
-style="color: red;">9</span>)),
-                              This(Other(<span style="color: red;">6</span>, <span
-style="color: red;">4</span>),
-                                   Other(<span style="color: red;">1</span>, <span
-style="color: red;">9</span>)))))),
+                         That(This(Other(<span style="color: red;">9</span>, <span style="color: red;">4</span>),
+                                   Other(<span style="color: red;">6</span>, <span style="color: red;">9</span>)),
+                              This(Other(<span style="color: red;">6</span>, <span style="color: red;">4</span>),
+                                   Other(<span style="color: red;">1</span>, <span style="color: red;">9</span>)))))),
           Other(<span style="color: red;">9</span>, <span style="color: red;">6</span>)))</pre>
-      <p>Note that 28/55 or about 51% of random nodes (selected uniformly) will
-        be these numeric constants. So given two <code>GpTrees</code> from this
-        <code>FunctionSet</code>, roughly half of all crossover operations will
-        consist of moving a single numeric constant from one tree to the other.
-        (Recall that in STGP, <code>Int</code>s from one tree can only
-        crossover to <code>Int</code>s in the other tree.) About half the
-        crossover operations will do nothing but parameter “tweaking” and in a
-        way that ignores the context that would normally exist when a larger
-        subtree is moved. I would prefer that “tweaking” constant leaf values be
-        done by point mutation, which is defined to make “small” changes in
+      <p>Note that 28/55 or about 51% of random nodes (selected
+        uniformly) will be these numeric constants. So given two <code>GpTrees</code>
+        from this <code>FunctionSet</code>, roughly half of all
+        crossover operations will consist of moving a single numeric
+        constant from one tree to the other. (Recall that in STGP, <code>Int</code>s
+        from one tree can only crossover to <code>Int</code>s in the
+        other tree.) About half the crossover operations will do nothing
+        but parameter “tweaking” and in a way that ignores the context
+        that would normally exist when a larger subtree is moved. I
+        would prefer that “tweaking” constant leaf values be done by
+        point mutation, which is defined to make “small” changes in
         value.</p>
-      <p>Consider instead this version of that FunctionSet, identical but with
-        the new <code>crossover_min_size</code> parameter added at the bottom:</p>
+      <p>Consider instead this version of that FunctionSet, identical
+        but with the new <code>crossover_min_size</code> parameter
+        added at the bottom:</p>
       <pre>FunctionSet fs =
 {
     <span class="comment">// GpTypes:</span>
@@ -928,49 +1156,63 @@ style="color: red;">9</span>)))))),
 };</pre>
       <p>By increasing the <code>crossover_min_size</code> to <strong>2</strong>
         from its default of <strong>1</strong>, this requires that all
-        crossover subtrees/snippets must be of size <strong>2</strong> or
-        larger. Specifically this means that a single numeric constant leaf
-        value (of size 1) is <strong>excluded</strong> from selection as the
-        crossover subtree/snippet. (As mentioned above, this is accomplished by
-        filtering the set of candidate subtrees, in this case by size.) The
-        effect of this is that all crossover snippets must consist of subtrees
-        larger than a single leaf node. In terms of the random program above:
-        all of the red leaf nodes are excluded, and the selection must be one of
-        the larger subtrees in black. In the examples shown in TexSyn's blog for
-        <a href="https://cwreynolds.github.io/TexSyn/#20201005">October 5</a>, a
-        <code>crossover_min_size</code> of <strong>5</strong> is used, implying
-        that the crossover snippet must be larger than the minimal (size 4) <code>Texture</code>
-        generator of <code>Uniform(r, g, b)</code>, a “texture” of uniform
-        color.</p>
+        crossover subtrees/snippets must be of size <strong>2</strong>
+        or larger. Specifically this means that a single numeric
+        constant leaf value (of size 1) is <strong>excluded</strong>
+        from selection as the crossover subtree/snippet. (As mentioned
+        above, this is accomplished by filtering the set of candidate
+        subtrees, in this case by size.) The effect of this is that all
+        crossover snippets must consist of subtrees larger than a single
+        leaf node. In terms of the random program above: all of the red
+        leaf nodes are excluded, and the selection must be one of the
+        larger subtrees in black. In the examples shown in TexSyn's blog
+        for <a href="https://cwreynolds.github.io/TexSyn/#20201005">October
+
+
+          5</a>, a <code>crossover_min_size</code> of <strong>5</strong>
+        is used, implying that the crossover snippet must be larger than
+        the minimal (size 4) <code>Texture</code> generator of <code>Uniform(r,
+
+
+          g, b)</code>, a “texture” of uniform color.</p>
     </div>
     <div class="post" id="20200930"> <a href="#20200930" class="date">September
+
+
+
         30, 2020</a>
-      <h1>Crossover of <code>GpTrees</code> — wait, that was <em>too</em> easy</h1>
-      <p>In biology <a href="https://en.wikipedia.org/wiki/Chromosomal_crossover">chromosomal
-          crossover</a> is a key mechanism where the DNA of two parents is
-        combined to produce a unique offspring. Two corresponding strands of
-        parental DNA are “scanned” in parallel, with one or the other being
-        copied into the new offspring's DNA. During this “scan” the source of
-        the offspring's DNA changes “randomly” from one parent to the other. (If
-        you are a biologist, please forgive this over-simplified probably
-        incorrect description.)</p>
-      <p>In genetic programming there is an analogous “crossover” operation on
-        program trees. When describing GP I often call this “random syntax-aware
-        copy-and-paste.” It is as if a subtree (subexpression) from one parent's
-        program is <em>copied</em>, then <em>pasted</em> into (a copy of) the
-        other parent's program, replacing a preexisting subtree (subexpression).
-        This creates a new offspring program with part of its code from one
+      <h1>Crossover of <code>GpTrees</code> — wait, that was <em>too</em>
+        easy</h1>
+      <p>In biology <a
+          href="https://en.wikipedia.org/wiki/Chromosomal_crossover">chromosomal
+
+
+
+          crossover</a> is a key mechanism where the DNA of two parents
+        is combined to produce a unique offspring. Two corresponding
+        strands of parental DNA are “scanned” in parallel, with one or
+        the other being copied into the new offspring's DNA. During this
+        “scan” the source of the offspring's DNA changes “randomly” from
+        one parent to the other. (If you are a biologist, please forgive
+        this over-simplified probably incorrect description.)</p>
+      <p>In genetic programming there is an analogous “crossover”
+        operation on program trees. When describing GP I often call this
+        “random syntax-aware copy-and-paste.” It is as if a subtree
+        (subexpression) from one parent's program is <em>copied</em>,
+        then <em>pasted</em> into (a copy of) the other parent's
+        program, replacing a preexisting subtree (subexpression). This
+        creates a new offspring program with part of its code from one
         parent and part of its code from the other parent. LazyPredator
         implements “strongly typed genetic programming” so there is the
-        additional constraint that the type of the two subtrees must match. (In
-        TexSyn, most of the subtrees are of type <code>Texture</code>, but some
-        subtrees return <code>Vec2</code> or numeric <code>float</code>
+        additional constraint that the type of the two subtrees must
+        match. (In TexSyn, most of the subtrees are of type <code>Texture</code>,
+        but some subtrees return <code>Vec2</code> or numeric <code>float</code>
         values.)</p>
-      <p>Crossover had been on the to-do list for a while and I finally got
-        around to working on it. I defined a new test <code>FunctionSet</code>
-        whose terminals are all single digit integers, and whose functions
-        belong to two families: P, PP, PPP, Q, QQ, and QQQ. Here is that <code>FunctionSet</code>'s
-        self description:</p>
+      <p>Crossover had been on the to-do list for a while and I finally
+        got around to working on it. I defined a new test <code>FunctionSet</code>
+        whose terminals are all single digit integers, and whose
+        functions belong to two families: P, PP, PPP, Q, QQ, and QQQ.
+        Here is that <code>FunctionSet</code>'s self description:</p>
       <pre>1 GpTypes: 
 GpType: Int, min size to terminate: 1, has ephemeral generator, has to_string, functions returning this type: P, PP, PPP, Q, QQ, QQQ.
 
@@ -981,9 +1223,9 @@ GpFunction: PPP, return_type: Int, parameters: (Int, Int, Int).
 GpFunction: Q, return_type: Int, parameters: (Int).
 GpFunction: QQ, return_type: Int, parameters: (Int, Int).
 GpFunction: QQQ, return_type: Int, parameters: (Int, Int, Int).</pre>
-      <p>I also added a mechanism to <code>FunctionSet</code> allowing a filter
-        to be specified on the available functions. Here are randomly created
-        program trees drawn from the two sets:</p>
+      <p>I also added a mechanism to <code>FunctionSet</code> allowing
+        a filter to be specified on the available functions. Here are
+        randomly created program trees drawn from the two sets:</p>
       <pre><span class="comment">// makeRandomTree() called with function filter allowing only the P family:</span>
 PPP(PPP(P(7), P(P(1)), PP(4, 3)), P(PPP(P(8), P(P(0)), PP(8, 4))), PPP(P(P(1)), P(P(6)), P(P(7))))
 
@@ -1017,33 +1259,45 @@ QQQ(Q(QQQ(Q(7), Q(2), QQ(5, 8))), Q(QQQ(Q(5), QQ(5, 3), Q(Q(3)))), QQQ(QQ(3, 4),
     PPP(P(P(1)), P(P(6)), P(P(7))))</span></pre>
     </div>
     <div class="post" id="20200921"> <a href="#20200921" class="date">September
+
+
+
         21, 2020</a>
       <h1>Runtime connection between LazyPredator and TexSyn</h1>
-      <p>[<strong>Update on September 29, 2020: </strong>after some further
-        revisions, I made a “first final” <code>FunctionSet</code> for TexSyn.
-        The code below is both incomplete and slightly outdated. To see the
-        “modern” <code>FunctionSet</code> for TexSyn in this source code: <a href="https://github.com/cwreynolds/TexSyn/blob/60acd34866634d1c3d69f04e0ae53cf3760b4b3c/GP.h">GP.h</a>
-        (assuming I did that right, it should be a permalink to the revision of
-        GP.h as of September 29 on GitHub.)]</p>
-      <p>Finally LazyPredator and TexSyn are talking together at runtime! I had
-        mocked this up back on <a href="https://cwreynolds.github.io/TexSyn/#20200815">August
-          15</a> by having prototype <code>FunctionSet:makeRandomTree()</code>
-        print out the “source code” of generated trees, then hand editing that
-        into a test jig in TexSyn and rendering the textures. Now it is actually
-        working, directly evaluating the <code>GpTree</code> and then passing
-        that result to TexSyn's render utility. See renderings in today's the <a
-          href="https://cwreynolds.github.io/TexSyn/#20200921">TexSyn log</a>.</p>
+      <p>[<strong>Update on September 29, 2020: </strong>after some
+        further revisions, I made a “first final” <code>FunctionSet</code>
+        for TexSyn. The code below is both incomplete and slightly
+        outdated. To see the “modern” <code>FunctionSet</code> for
+        TexSyn in this source code: <a
+href="https://github.com/cwreynolds/TexSyn/blob/60acd34866634d1c3d69f04e0ae53cf3760b4b3c/GP.h">GP.h</a>
+        (assuming I did that right, it should be a permalink to the
+        revision of GP.h as of September 29 on GitHub.)]</p>
+      <p>Finally LazyPredator and TexSyn are talking together at
+        runtime! I had mocked this up back on <a
+          href="https://cwreynolds.github.io/TexSyn/#20200815">August 15</a>
+        by having prototype <code>FunctionSet:makeRandomTree()</code>
+        print out the “source code” of generated trees, then hand
+        editing that into a test jig in TexSyn and rendering the
+        textures. Now it is actually working, directly evaluating the <code>GpTree</code>
+        and then passing that result to TexSyn's render utility. See
+        renderings in today's the <a
+          href="https://cwreynolds.github.io/TexSyn/#20200921">TexSyn
+          log</a>.</p>
       <p>I was not looking forward to the software engineering of making
-        LazyPredator into a proper linkable library. Instead I took the path
-        that is becoming more popular, especially for libraries of modest size
-        like LazyPredator: I made it a <a href="https://stackoverflow.com/questions/12671383/benefits-of-header-only-libraries">header-only
-          library</a>. Then “linking” it to TexSyn was merely a matter of adding
-        the directive <code>#include "LazyPredator.h"</code>.</p>
-      <p>I wrote a subset of the <code>FunctionSet</code> definition for TexSyn
-        (similar to an earlier prototype in LP called <code>TestFS::tinyTexSyn()</code>)
+        LazyPredator into a proper linkable library. Instead I took the
+        path that is becoming more popular, especially for libraries of
+        modest size like LazyPredator: I made it a <a
+href="https://stackoverflow.com/questions/12671383/benefits-of-header-only-libraries">header-only
+
+
+
+          library</a>. Then “linking” it to TexSyn was merely a matter
+        of adding the directive <code>#include "LazyPredator.h"</code>.</p>
+      <p>I wrote a subset of the <code>FunctionSet</code> definition
+        for TexSyn (similar to an earlier prototype in LP called <code>TestFS::tinyTexSyn()</code>)
         for testing. It supports <code>GpTypes</code> for <code>Texture</code>
-        pointers, <code>Vec2</code> values, and <code>Float_01</code> values.
-        It provides two <code>GpFunction</code>s as <code>Texture</code>
+        pointers, <code>Vec2</code> values, and <code>Float_01</code>
+        values. It provides two <code>GpFunction</code>s as <code>Texture</code>
         operators : <code>Uniform</code> and <code>Spot</code>:</p>
       <pre>const FunctionSet tiny_texsyn =<br>{
     {
@@ -1099,69 +1353,86 @@ QQQ(Q(QQQ(Q(7), Q(2), QQ(5, 8))), Q(QQQ(Q(5), QQ(5, 3), Q(Q(3)))), QQQ(QQ(3, 4),
         operators in TexSyn.</p>
     </div>
     <div class="post" id="20200919"> <a href="#20200919" class="date">September
+
+
+
         19, 2020</a>
       <h1>Tweaks to <code>FunctionSet</code></h1>
       <p>Well that exploded quickly! I noticed that the recording of <code>GpType</code>
-        with a constant “leaf” value in a <code>GpTree</code> was wrong, which
-        was going undetected, and ultimately not mattering. The latter—that the
-        <code>GpType</code> is redundant since it can be inferred from the
-        parent <code>GpTree</code> node—is an issue to consider later. However
-        if the value is stored it ought to be correct. It either needed to be
-        error checked (which it now is, at least in the unit test) or set in
-        sync with the tree's root function or leaf value are set. I changed <code>GpTree::setFunction()</code>
+        with a constant “leaf” value in a <code>GpTree</code> was
+        wrong, which was going undetected, and ultimately not mattering.
+        The latter—that the <code>GpType</code> is redundant since it
+        can be inferred from the parent <code>GpTree</code> node—is an
+        issue to consider later. However if the value is stored it ought
+        to be correct. It either needed to be error checked (which it
+        now is, at least in the unit test) or set in sync with the
+        tree's root function or leaf value are set. I changed <code>GpTree::setFunction()</code>
         and <code>GpTree::setLeafValue()</code> to record a <code>GpType</code>
         in the <code>GpTree</code>'s root.</p>
-      <p>Or that was what I did after I fixed the <em>other</em> bug I ran
-        into. Sample <code>FunctionSet</code>s are defined in <code>TestFS</code>.
-        Those are immutable <code>const</code> references. I had been copying
-        those because previously <code>FunctionSet</code> assumed it could
-        mutate itself. So I made several changes to allow <code>FunctionSet</code>s
-        to remain immutable. Part of that was to move a <code>RandomSequence</code>
-        object from inside <code>FunctionSet</code> out to global scope, now
-        accessed as <code>LPRS()</code>. That also needs to be reconsidered.
-        Maybe it should belong to <code>Population</code> class or something
-        else. In any case, the point is to have restartable random number
-        sequences when that is helpful for testing or debugging.</p>
-      <p>I was also concerned that there were four nearly identical short
-        functions in <code>FunctionSet</code>: <code>const</code> and non-<code>const</code>
-        versions of <code>lookupGpTypeByName()</code> and <code>lookupGpFunctionByName()</code>.
-        In fact their bodies were exactly identical, the differences were <code>const</code>-ness
-        of the functions and their return values. I tried making their bodies a
-        common function, then a common template, then finally fell back to a
-        common preprocessor macro. Not pretty, but some times you just need to
-        turn off type checking.</p>
-      <p>Finally, since its role is to create a random <code>GpTree</code>, I
-        renamed <code>FunctionSet</code>'s <code>makeRandomProgram()</code> to
-        <code>makeRandomTree()</code>.</p>
+      <p>Or that was what I did after I fixed the <em>other</em> bug I
+        ran into. Sample <code>FunctionSet</code>s are defined in <code>TestFS</code>.
+        Those are immutable <code>const</code> references. I had been
+        copying those because previously <code>FunctionSet</code>
+        assumed it could mutate itself. So I made several changes to
+        allow <code>FunctionSet</code>s to remain immutable. Part of
+        that was to move a <code>RandomSequence</code> object from
+        inside <code>FunctionSet</code> out to global scope, now
+        accessed as <code>LPRS()</code>. That also needs to be
+        reconsidered. Maybe it should belong to <code>Population</code>
+        class or something else. In any case, the point is to have
+        restartable random number sequences when that is helpful for
+        testing or debugging.</p>
+      <p>I was also concerned that there were four nearly identical
+        short functions in <code>FunctionSet</code>: <code>const</code>
+        and non-<code>const</code> versions of <code>lookupGpTypeByName()</code>
+        and <code>lookupGpFunctionByName()</code>. In fact their bodies
+        were exactly identical, the differences were <code>const</code>-ness
+
+
+
+        of the functions and their return values. I tried making their
+        bodies a common function, then a common template, then finally
+        fell back to a common preprocessor macro. Not pretty, but some
+        times you just need to turn off type checking.</p>
+      <p>Finally, since its role is to create a random <code>GpTree</code>,
+        I renamed <code>FunctionSet</code>'s <code>makeRandomProgram()</code>
+        to <code>makeRandomTree()</code>.</p>
     </div>
     <div class="post" id="20200915"> <a href="#20200915" class="date">September
+
+
+
         15, 2020</a>
       <h1>Tree evaluation to construct procedural models</h1>
-      <p>The <a href="#20200907">previous post</a> demonstrated evaluating GP
-        trees to produce a numeric result. This is easier when all tree nodes
-        have numeric values (or other “plain old data” (POD) types). It is more
-        complicated when the values in a tree represent data structures or
-        abstractions like class instances. It is trivial to copy (say) a numeric
-        value, but the cost of copying a composite object can be significantly
-        higher to handle the data and procedural state of an object. (As a
+      <p>The <a href="#20200907">previous post</a> demonstrated
+        evaluating GP trees to produce a numeric result. This is easier
+        when all tree nodes have numeric values (or other “plain old
+        data” (POD) types). It is more complicated when the values in a
+        tree represent data structures or abstractions like class
+        instances. It is trivial to copy (say) a numeric value, but the
+        cost of copying a composite object can be significantly higher
+        to handle the data and procedural state of an object. (As a
         concrete example, during initialization, TexSyn's <em>LotsOfSpots</em>
-        texture operator builds a moderate-sized data set and runs a relaxation
-        procedure on it.) So generally, we need to be able to pass
-        “references”/“pointers” to these larger objects in addition to copying
-        “plain old data” types (and small instances: TexSyn routinely copies <em>Vec2</em>
-        objects whose entire state is just two floats).</p>
-      <p>LazyPredator is being built to optimize TexSyn procedural texture
-        models. In this mode of use, GP programs are evaluated to <strong>construct</strong>
-        a secondary representation, here a tree of TexSyn texture operator
-        instances (plus 2d vectors and numbers). From a c++ point of view, the
-        GP tree represents a deeply nested expression consisting of class <strong>constructors</strong>.
-        Evaluating that expression builds the various texture operators, using
-        the supplied parameters, some of which are themselves newly constructed
-        texture operators. Once built these procedural texture models can be
-        used to render the texture for display or file output, or to place the
-        texture into evolutionary competition with other textures.</p>
-      <p>To test this capability I made a toy example (analogous to but separate
-        from TexSyn) based on these three classes:</p>
+        texture operator builds a moderate-sized data set and runs a
+        relaxation procedure on it.) So generally, we need to be able to
+        pass “references”/“pointers” to these larger objects in addition
+        to copying “plain old data” types (and small instances: TexSyn
+        routinely copies <em>Vec2</em> objects whose entire state is
+        just two floats).</p>
+      <p>LazyPredator is being built to optimize TexSyn procedural
+        texture models. In this mode of use, GP programs are evaluated
+        to <strong>construct</strong> a secondary representation, here
+        a tree of TexSyn texture operator instances (plus 2d vectors and
+        numbers). From a c++ point of view, the GP tree represents a
+        deeply nested expression consisting of class <strong>constructors</strong>.
+        Evaluating that expression builds the various texture operators,
+        using the supplied parameters, some of which are themselves
+        newly constructed texture operators. Once built these procedural
+        texture models can be used to render the texture for display or
+        file output, or to place the texture into evolutionary
+        competition with other textures.</p>
+      <p>To test this capability I made a toy example (analogous to but
+        separate from TexSyn) based on these three classes:</p>
       <pre>class ClassA
 {
 public:
@@ -1189,52 +1460,58 @@ private:
     int j_;
 };</pre>
       <p>Note that <code>ClassA</code>'s first parameter is a <code>ClassB</code>
-        instance passed by <strong>reference</strong> and its second parameter
-        is a <code>ClassC</code> instance passed by <strong>value</strong>.
-        The new <code>UnitTests::gp_tree_eval_objects()</code> uses the <code>FunctionSet</code>
-        from <code>TestFS::treeEvalObjects()</code> to construct, then
-        evaluate, this tree:</p>
+        instance passed by <strong>reference</strong> and its second
+        parameter is a <code>ClassC</code> instance passed by <strong>value</strong>.
+        The new <code>UnitTests::gp_tree_eval_objects()</code> uses the
+        <code>FunctionSet</code> from <code>TestFS::treeEvalObjects()</code>
+        to construct, then evaluate, this tree:</p>
       <pre>ClassA(ClassB(0.5), ClassC(1, 2))</pre>
-      <p>It then verifies that the <code>ClassA</code> instance constructed is
-        valid, contains a reference to a valid instance of <code>ClassB</code>
-        and a copy of a valid <code>ClassC</code> instance, and all have the
-        expected internal state.</p>
-      <p>New <code>UnitTests::gp_tree_eval_simple()</code> similarly tests
-        evaluation of <code>GpTree</code>s with numeric values.</p>
+      <p>It then verifies that the <code>ClassA</code> instance
+        constructed is valid, contains a reference to a valid instance
+        of <code>ClassB</code> and a copy of a valid <code>ClassC</code>
+        instance, and all have the expected internal state.</p>
+      <p>New <code>UnitTests::gp_tree_eval_simple()</code> similarly
+        tests evaluation of <code>GpTree</code>s with numeric values.</p>
     </div>
     <div class="post" id="20200907"> <a href="#20200907" class="date">September
+
+
+
         7, 2020</a>
       <h1>Evaluating program trees</h1>
-      <p>Today I finally got past a roadblock which held me up for a week. The
-        code to generate a random program was working well, and the <code>GpTree</code>
-        containers were solid. But I had not yet connected my abstract <code>GpFunction</code>s
-        and <code>GpType</code>s to the “real world” of c++ types. This would
-        be required to support “evaluation”/“execution” of the <code>GpTree</code>.</p>
-      <p>Generally in c++ when you want to parameterize something by types, you
-        use a “template.” As I had been working along, I assumed I would derive
-        templated versions of <code> GpFunction</code>s and <code>GpType</code>s
-        to accommodate the concrete c++ types. There were problems with that,
-        chiefly that “template virtual functions” are <em>not a thing</em>. I
-        tried several refactorings but none allowed me to generalize over the
-        set of concrete types. I even considered “hiding” the types inside an
+      <p>Today I finally got past a roadblock which held me up for a
+        week. The code to generate a random program was working well,
+        and the <code>GpTree</code> containers were solid. But I had
+        not yet connected my abstract <code>GpFunction</code>s and <code>GpType</code>s
+        to the “real world” of c++ types. This would be required to
+        support “evaluation”/“execution” of the <code>GpTree</code>.</p>
+      <p>Generally in c++ when you want to parameterize something by
+        types, you use a “template.” As I had been working along, I
+        assumed I would derive templated versions of <code> GpFunction</code>s
+        and <code>GpType</code>s to accommodate the concrete c++ types.
+        There were problems with that, chiefly that “template virtual
+        functions” are <em>not a thing</em>. I tried several
+        refactorings but none allowed me to generalize over the set of
+        concrete types. I even considered “hiding” the types inside an
         abstraction where they were stored as <code>void*</code> / <code>std::shared_ptr&lt;void&gt;</code>
-        pointers, with the required “casting” to concrete types on the way in
-        and out. Of course that is not “type safe” so a bug can lead to bizarre
-        “undefined behavior.”</p>
+        pointers, with the required “casting” to concrete types on the
+        way in and out. Of course that is not “type safe” so a bug can
+        lead to bizarre “undefined behavior.”</p>
       <p>While reading about that I discovered that the <code>c++17</code>
-        standard introduced a new “meta type” called <code>std::any</code>. It
-        is nearly identical to the <code>void*</code> trick, while keeping
-        track of the type of the data behind the blind pointer for error
-        checking, and being fully supported by the language and compiler. Yay!
-        So now the <code>GpTree</code> keeps track of values of arbitrary c++
-        types via type <code>std::any</code>. The <code> GpType</code>s and <code>GpFunction</code>s
-        “know” the concrete types, so provide the transformations via <code>std::any_cast&lt;T&gt;(A)</code>
-        which casts <code>A</code>, an <code>std::any</code>, to a value of
-        concrete type <code>T</code>. One consequence of this is that
-        LazyPredator <em>requires</em> <code>c++17</code> (whereas before, <code>c++11</code>
-        was good enough).</p>
-      <p>For a simple example, imagine a <code>FunctionSet</code> consisting of
-        two types and these five functions:</p>
+        standard introduced a new “meta type” called <code>std::any</code>.
+        It is nearly identical to the <code>void*</code> trick, while
+        keeping track of the type of the data behind the blind pointer
+        for error checking, and being fully supported by the language
+        and compiler. Yay! So now the <code>GpTree</code> keeps track
+        of values of arbitrary c++ types via type <code>std::any</code>.
+        The <code> GpType</code>s and <code>GpFunction</code>s “know”
+        the concrete types, so provide the transformations via <code>std::any_cast&lt;T&gt;(A)</code>
+        which casts <code>A</code>, an <code>std::any</code>, to a
+        value of concrete type <code>T</code>. One consequence of this
+        is that LazyPredator <em>requires</em> <code>c++17</code>
+        (whereas before, <code>c++11</code> was good enough).</p>
+      <p>For a simple example, imagine a <code>FunctionSet</code>
+        consisting of two types and these five functions:</p>
       <pre>Int AddInt(Int a, Int b) {…}
 Float AddFloat(Float a, Float b) {…}
 Int Floor(Float a) {…}
@@ -1242,13 +1519,16 @@ Float Sqrt(Int a) {…}
 Float Mult(Float a, Int b) {…}</pre>
       <p>In the code, this is currently written like this. The <code>FunctionSet</code>
         takes a collection of <code>GpType</code>s and one of <code>GpFunction</code>s.
-        Each takes “helper functions” (lambdas, function pointers, callbacks)
-        that handle casting, generating ephemeral constants and evaluating
-        concrete functions. (So for example, <code>AddInt</code> is passed a
-        reference to some node in a <code>GpTree</code>, it evaluates the
-        subtrees corresponding to its parameters, casts those to concrete types,
-        applies its own underlying function to them, and returns the result as
-        an <code>std::any</code>):</p>
+
+
+
+        Each takes “helper functions” (lambdas, function pointers,
+        callbacks) that handle casting, generating ephemeral constants
+        and evaluating concrete functions. (So for example, <code>AddInt</code>
+        is passed a reference to some node in a <code>GpTree</code>, it
+        evaluates the subtrees corresponding to its parameters, casts
+        those to concrete types, applies its own underlying function to
+        them, and returns the result as an <code>std::any</code>):</p>
       <pre>FunctionSet <strong>test_tree_eval</strong> =
 {
     <span class="comment">// GpTypes (with ephemeral constant generatorss, and to_string handlers).<br></span>    {
@@ -1262,8 +1542,7 @@ Float Mult(Float a, Int b) {…}</pre>
             [](){ return std::any(frandom01()); },
             any_to_string&lt;float&gt;
         }
-    },<br>    <span class="comment">// GpFunctions (with a lambda</span><span class="comment"> to apply function to </span><span
-class="comment"><span class="comment">parameter via </span>a GpTree)</span>
+    },<br>    <span class="comment">// GpFunctions (with a lambda</span><span class="comment"> to apply function to </span><span class="comment"><span class="comment">parameter via </span>a GpTree)</span>
     {
         {
             "<strong>AddInt</strong>", "Int", {"Int", "Int"}, [](const GpTree&amp; t)
@@ -1299,46 +1578,55 @@ class="comment"><span class="comment">parameter via </span>a GpTree)</span>
 };</pre>
       <p>Using that <code>FunctionSet</code>, called <code>test_tree_eval</code>,
         here is a random program of size 10, whose value is 3.60555: </p>
-      <p class="wrapping_code">Sqrt(AddInt(AddInt(6, Floor(0.262453)), AddInt(7,
-        Floor(0.736082))))</p>
-      <p>And here is a random program of size 100, whose value is 74.2361:</p>
+      <p class="wrapping_code">Sqrt(AddInt(AddInt(6, Floor(0.262453)),
+        AddInt(7, Floor(0.736082))))</p>
+      <p>And here is a random program of size 100, whose value is
+        74.2361:</p>
       <p class="wrapping_code">AddFloat(Mult(Mult(AddFloat(AddFloat(Sqrt(4),
+
+
+
         Sqrt(0)), Sqrt(Floor(Mult(0.081061, 5)))),
         Floor(AddFloat(AddFloat(Sqrt(7), Sqrt(5)), Mult(Sqrt(0),
-        Floor(0.269215))))), Floor(AddFloat(Mult(AddFloat(Sqrt(4), Sqrt(7)),
-        Floor(AddFloat(0.776866, Sqrt(4)))),
+        Floor(0.269215))))), Floor(AddFloat(Mult(AddFloat(Sqrt(4),
+        Sqrt(7)), Floor(AddFloat(0.776866, Sqrt(4)))),
         AddFloat(Sqrt(Floor(AddFloat(0.422460, 0.282156))),
         Sqrt(Floor(AddFloat(0.193967, 0.011316))))))),
         AddFloat(Sqrt(Floor(Mult(Mult(Mult(0.191824, Floor(0.983236)),
-        Floor(AddFloat(0.244054, Sqrt(1)))), Floor(Mult(Sqrt(AddInt(8, 5)),
-        AddInt(Floor(0.601010), Floor(0.176880))))))),
+        Floor(AddFloat(0.244054, Sqrt(1)))), Floor(Mult(Sqrt(AddInt(8,
+        5)), AddInt(Floor(0.601010), Floor(0.176880))))))),
         AddFloat(Sqrt(AddInt(AddInt(Floor(0.828355), Floor(0.157731)),
         AddInt(Floor(0.987937), Floor(0.257169)))),
         Sqrt(Floor(AddFloat(Sqrt(Floor(Sqrt(7))), AddFloat(Sqrt(7),
         Sqrt(3))))))))</p>
     </div>
     <div class="post" id="20200829"> <a href="#20200829" class="date">August
+
+
+
         29, 2020</a>
       <h1>Progress on <code>GpTree</code></h1>
       <p>A dirty little secret of <code>FunctionSet::makeRandomProgram()</code>
-        was that it did not <em>actually</em> “make” a program. It had been
-        just going through the motions, and printing out a textual
-        representation of the program it <em>would</em> be making, if only
-        there was an internal representation of programs. Now there is <code>GpTree</code>
-        which I have been building out for a few days, adding tools for building
-        and accessing them. A <code>FunctionSet</code> is defined as a grammar
-        in terms of <code>GpType</code> and <code>GpFunction</code>. Now <code>FunctionSet::makeRandomProgram()</code>
-        stores its result in a <code>GpTree</code> object. They have a <code>GpTree::size()</code>
+        was that it did not <em>actually</em> “make” a program. It had
+        been just going through the motions, and printing out a textual
+        representation of the program it <em>would</em> be making, if
+        only there was an internal representation of programs. Now there
+        is <code>GpTree</code> which I have been building out for a few
+        days, adding tools for building and accessing them. A <code>FunctionSet</code>
+        is defined as a grammar in terms of <code>GpType</code> and <code>GpFunction</code>.
+        Now <code>FunctionSet::makeRandomProgram()</code> stores its
+        result in a <code>GpTree</code> object. They have a <code>GpTree::size()</code>
         function which had previously been handled by <code>makeRandomProgram()</code>.
-        Similarly <code>GpTree::to_string()</code> does a translation to
-        “source code” as an <code>std::string</code>, mostly for debugging and
-        logging.</p>
-      <p>The <code>FunctionSet</code> for TexSyn is particularly simple: all
-        function returns <code>Texture</code>, except <code>Vec2</code>, and
-        the only other component is <code>float</code> constants. I had not
-        initially handled the case where a <code>GpType</code> can be supplied
-        by either a “leaf” constant <strong>or</strong> a subtree of functions.
-        So I defined a little <code> FunctionSet</code> that had that issue:</p>
+        Similarly <code>GpTree::to_string()</code> does a translation
+        to “source code” as an <code>std::string</code>, mostly for
+        debugging and logging.</p>
+      <p>The <code>FunctionSet</code> for TexSyn is particularly
+        simple: all function returns <code>Texture</code>, except <code>Vec2</code>,
+        and the only other component is <code>float</code> constants. I
+        had not initially handled the case where a <code>GpType</code>
+        can be supplied by either a “leaf” constant <strong>or</strong>
+        a subtree of functions. So I defined a little <code>
+          FunctionSet</code> that had that issue:</p>
       <pre>FunctionSet fs = {
                      {
                          {"Int", [](){ return rand() % 10; }}  // GpType "Int" with "ephemeral generator".
@@ -1349,68 +1637,83 @@ class="comment"><span class="comment">parameter via </span>a GpTree)</span>
                          {"Cat", "Int", {"Int"}}               // GpFunction "Cat", returns Int, takes one Int parameter.
                      }
                  };</pre>
-      <p>Initially all random programs generated from this set consisted of
-        exactly one <code>Int</code> constant. After making the fix to allow a
-        type to be return by both functions and “ephemeral constants”, it
-        produced trees of the given size (here 50):</p>
+      <p>Initially all random programs generated from this set consisted
+        of exactly one <code>Int</code> constant. After making the fix
+        to allow a type to be return by both functions and “ephemeral
+        constants”, it produced trees of the given size (here 50):</p>
       <pre>Cat(Cat(Cat(Ant(Cat(Cat(Bat(Bat(Ant(4, Cat(7)), Ant(Cat(4), Cat(4))),
                             Cat(Cat(Bat(Bat(4, 8), Cat(Cat(Cat(8))))))))),
                 Cat(Bat(Ant(Ant(1, Cat(7)), Ant(Cat(3), Cat(2))),
                         Ant(Bat(Cat(0), Cat(9)), Cat(Bat(7, Cat(4))))))))))</pre>
     </div>
     <div class="post" id="20200824"> <a href="#20200824" class="date">August
+
+
+
         24, 2020</a>
       <h1>Component types <code>GpType</code> and <code>GpFunction</code></h1>
       <p>I rewrote the prototype <code>FunctionSet::makeRandomProgram()</code>
         to be less ugly. Chiefly I made new abstractions, <code>GpType</code>
-        and <code>GpFunction</code>, to represent types and functions of the GP
-        <code>FunctionSet</code>. I added a new constructor for <code>FunctionSet</code>
-        which allows the whole set of types and functions to be defined in a
-        single expression. Before a lot of analysis of the function set (e.g.
-        which functions return a value of this type?) was repeated each time it
-        was needed. Now it all gets done once, in the new constructor, and
-        cached. Similarly a lot of looking up character string names in maps has
-        been replaced with direct pointers. </p>
-      <p>I also refactored the two pre-defined FunctionSets for testing: <code>tiny_texsyn</code>
-        and <code>full_texsyn</code>.</p>
+        and <code>GpFunction</code>, to represent types and functions
+        of the GP <code>FunctionSet</code>. I added a new constructor
+        for <code>FunctionSet</code> which allows the whole set of
+        types and functions to be defined in a single expression. Before
+        a lot of analysis of the function set (e.g. which functions
+        return a value of this type?) was repeated each time it was
+        needed. Now it all gets done once, in the new constructor, and
+        cached. Similarly a lot of looking up character string names in
+        maps has been replaced with direct pointers. </p>
+      <p>I also refactored the two pre-defined FunctionSets for testing:
+        <code>tiny_texsyn</code> and <code>full_texsyn</code>.</p>
     </div>
     <div class="post" id="20200817"> <a href="#20200817" class="date">August
+
+
+
         17, 2020</a>
       <h1>Size control fixed for random programs</h1>
-      <p>I tracked down the bug(s) that prevented exact control of the maximum
-        size of GP programs constructed by <code>FunctionSet::makeRandomProgram()</code>.&nbsp;
+      <p>I tracked down the bug(s) that prevented exact control of the
+        maximum size of GP programs constructed by <code>FunctionSet::makeRandomProgram()</code>.&nbsp;
+
+
+
         Now, generating a series of programs (here for the TexSyn <code>FunctionSet</code>)
-        produces mostly programs of the given max_size (which is 50 in these
-        examples), some slightly smaller, and occasionally much smaller. I have
-        not decided if I care about the minimum size of these programs.</p>
+        produces mostly programs of the given max_size (which is 50 in
+        these examples), some slightly smaller, and occasionally much
+        smaller. I have not decided if I care about the minimum size of
+        these programs.</p>
       <p class="wrapping_code"><span class="comment">// size=50</span> <br>
         Colorize(Vec2(3.337209, -0.111232), Vec2(-1.048723, 2.609511),
-        SliceToRadial(Vec2(-0.735182, 2.328732), Vec2(2.607049, 4.752589),
-        Blur(0.763175, Gamma(4.788119, EdgeDetect(0.303196, Blur(0.725915,
-        Gamma(1.888874, Uniform(0.645293, 0.362680, 0.187303))))))),
-        EdgeEnhance(0.566709, 0.395660, Min(BrightnessToHue(0.227292,
-        EdgeDetect(0.088983, Uniform(0.432841, 0.452565, 0.759366))),
-        Blur(0.878352, AdjustSaturation(0.648826, EdgeDetect(0.192719,
+        SliceToRadial(Vec2(-0.735182, 2.328732), Vec2(2.607049,
+        4.752589), Blur(0.763175, Gamma(4.788119, EdgeDetect(0.303196,
+        Blur(0.725915, Gamma(1.888874, Uniform(0.645293, 0.362680,
+        0.187303))))))), EdgeEnhance(0.566709, 0.395660,
+        Min(BrightnessToHue(0.227292, EdgeDetect(0.088983,
+        Uniform(0.432841, 0.452565, 0.759366))), Blur(0.878352,
+        AdjustSaturation(0.648826, EdgeDetect(0.192719,
         Uniform(0.464628, 0.675937, 0.744247))))))) <br>
         <br>
         <span class="comment">// size=50</span> <br>
         LotsOfSpots(0.012097, 0.135414, 0.751684, 0.965764, 0.281318,
         LotsOfSpots(0.147613, 0.588885, 0.570666, 0.800021, 0.687004,
-        AdjustSaturation(0.277342, EdgeDetect(0.894000, Uniform(0.127598,
-        0.188189, 0.893133))), Blur(0.093948, Gamma(3.296728, Uniform(0.652457,
-        0.482005, 0.737463)))), LotsOfButtons(0.797039, 0.144344, 0.208901,
-        0.213856, 0.829122, Vec2(-1.575197, 1.251038), Uniform(0.904293,
-        0.052319, 0.090617), 0.854814, ColorNoise(Vec2(3.118072, 1.187010),
+        AdjustSaturation(0.277342, EdgeDetect(0.894000,
+        Uniform(0.127598, 0.188189, 0.893133))), Blur(0.093948,
+        Gamma(3.296728, Uniform(0.652457, 0.482005, 0.737463)))),
+        LotsOfButtons(0.797039, 0.144344, 0.208901, 0.213856, 0.829122,
+        Vec2(-1.575197, 1.251038), Uniform(0.904293, 0.052319,
+        0.090617), 0.854814, ColorNoise(Vec2(3.118072, 1.187010),
         Vec2(-0.589404, 2.754478), 0.299059))) <br>
         <br>
         <span class="comment">// size=49</span> <br>
-        Wrap(-3.596494, Vec2(0.694285, 0.919086), Vec2(0.989166, -4.823082),
-        SliceShear(Vec2(-0.120761, -2.569393), Vec2(-0.134178, 1.804898),
-        EdgeDetect(0.959444, Gamma(6.956436, Uniform(0.111692, 0.197541,
-        0.677295))), Vec2(2.580718, 0.258248), Vec2(3.048599, -3.998405),
-        Min(BrightnessWrap(0.183154, 0.216393, EdgeEnhance(0.937688, 0.592261,
-        Uniform(0.792651, 0.186018, 0.810909))), AbsDiff(Uniform(0.830450,
-        0.310026, 0.461115), Uniform(0.473002, 0.195799, 0.609615))))) <br>
+        Wrap(-3.596494, Vec2(0.694285, 0.919086), Vec2(0.989166,
+        -4.823082), SliceShear(Vec2(-0.120761, -2.569393),
+        Vec2(-0.134178, 1.804898), EdgeDetect(0.959444, Gamma(6.956436,
+        Uniform(0.111692, 0.197541, 0.677295))), Vec2(2.580718,
+        0.258248), Vec2(3.048599, -3.998405),
+        Min(BrightnessWrap(0.183154, 0.216393, EdgeEnhance(0.937688,
+        0.592261, Uniform(0.792651, 0.186018, 0.810909))),
+        AbsDiff(Uniform(0.830450, 0.310026, 0.461115), Uniform(0.473002,
+        0.195799, 0.609615))))) <br>
         <br>
         <span class="comment"><span class="comment">// size=8</span> <br>
           ColorNoise(Vec2(4.320298, 0.666899), Vec2(2.787325, 4.352788),
@@ -1418,89 +1721,107 @@ class="comment"><span class="comment">parameter via </span>a GpTree)</span>
           <br>
           <span class="comment"></span>// size=50</span> <br>
         Multiply(Gamma(9.301153, EdgeDetect(0.117543, HueOnly(0.059045,
-        0.402121, Add(ColorNoise(Vec2(-0.885789, -2.376529), Vec2(4.686641,
-        -0.853005), 0.158803), ColorNoise(Vec2(-0.682632, -3.960764),
-        Vec2(0.204911, -0.370719), 0.662522))))), SliceGrating(Vec2(0.915037,
-        3.041960), Vec2(-3.293618, 4.275027), SoftMatte(Uniform(0.031453,
-        0.989732, 0.696574), Blur(0.835575, Uniform(0.979765, 0.764766,
-        0.473790)), BrightnessWrap(0.012443, 0.341328, Uniform(0.533497,
-        0.499851, 0.642036))))) <br>
+        0.402121, Add(ColorNoise(Vec2(-0.885789, -2.376529),
+        Vec2(4.686641, -0.853005), 0.158803), ColorNoise(Vec2(-0.682632,
+        -3.960764), Vec2(0.204911, -0.370719), 0.662522))))),
+        SliceGrating(Vec2(0.915037, 3.041960), Vec2(-3.293618,
+        4.275027), SoftMatte(Uniform(0.031453, 0.989732, 0.696574),
+        Blur(0.835575, Uniform(0.979765, 0.764766, 0.473790)),
+        BrightnessWrap(0.012443, 0.341328, Uniform(0.533497, 0.499851,
+        0.642036))))) <br>
         <br>
         <span class="comment">// size=20</span> <br>
-        AdjustSaturation(0.066990, Ring(4.104012, Vec2(-2.495622, 0.238659),
-        Vec2(0.829247, -3.823189), AdjustBrightness(0.070340,
-        ColorNoise(Vec2(-0.894583, 2.009082), Vec2(-4.681360, -2.824072),
-        0.809685)))) <br>
+        AdjustSaturation(0.066990, Ring(4.104012, Vec2(-2.495622,
+        0.238659), Vec2(0.829247, -3.823189), AdjustBrightness(0.070340,
+        ColorNoise(Vec2(-0.894583, 2.009082), Vec2(-4.681360,
+        -2.824072), 0.809685)))) <br>
         <br>
         <span class="comment">// size=4</span> <br>
         Uniform(0.912225, 0.591371, 0.169519) <br>
         <br>
         <span class="comment">// size=49</span> <br>
         LotsOfButtons(0.522967, 0.333162, 0.085013, 0.728105, 0.668366,
-        Vec2(1.857913, -2.245440), ColorNoise(Vec2(-0.412046, -3.319272),
-        Vec2(-4.977819, 2.511291), 0.610481), 0.917300, AdjustHue(0.857817,
-        SoftMatte(Min(Uniform(0.211855, 0.353225, 0.061723), Uniform(0.792557,
-        0.015160, 0.339307)), Max(Uniform(0.163184, 0.786264, 0.147327),
-        Uniform(0.351334, 0.191037, 0.729921)), AdjustSaturation(0.686154,
+        Vec2(1.857913, -2.245440), ColorNoise(Vec2(-0.412046,
+        -3.319272), Vec2(-4.977819, 2.511291), 0.610481), 0.917300,
+        AdjustHue(0.857817, SoftMatte(Min(Uniform(0.211855, 0.353225,
+        0.061723), Uniform(0.792557, 0.015160, 0.339307)),
+        Max(Uniform(0.163184, 0.786264, 0.147327), Uniform(0.351334,
+        0.191037, 0.729921)), AdjustSaturation(0.686154,
         ColorNoise(Vec2(0.018567, 4.154261), Vec2(3.782207, 4.571167),
         0.044231))))) <br>
         <br>
         <span class="comment">// size=50</span> <br>
-        Ring(5.741549, Vec2(-0.906608, -4.878014), Vec2(2.884423, -3.600070),
-        ColoredSpots(0.678892, 0.553492, 0.929361, 0.208069, 0.767077,
-        CotsMap(Vec2(-3.395577, -0.600270), Vec2(2.026988, -3.274830),
-        Vec2(0.036533, -4.649998), Vec2(2.966635, 1.534505), Uniform(0.527436,
-        0.518428, 0.101204)), Grating(Vec2(-1.834993, -0.729365),
-        Uniform(0.231773, 0.243197, 0.261381), Vec2(2.077976, -3.491028),
-        Uniform(0.279188, 0.504817, 0.897037), 0.532966, 0.978290)))</p>
+        Ring(5.741549, Vec2(-0.906608, -4.878014), Vec2(2.884423,
+        -3.600070), ColoredSpots(0.678892, 0.553492, 0.929361, 0.208069,
+        0.767077, CotsMap(Vec2(-3.395577, -0.600270), Vec2(2.026988,
+        -3.274830), Vec2(0.036533, -4.649998), Vec2(2.966635, 1.534505),
+        Uniform(0.527436, 0.518428, 0.101204)), Grating(Vec2(-1.834993,
+        -0.729365), Uniform(0.231773, 0.243197, 0.261381),
+        Vec2(2.077976, -3.491028), Uniform(0.279188, 0.504817,
+        0.897037), 0.532966, 0.978290)))</p>
     </div>
     <div class="post" id="20200815"> <a href="#20200815" class="date">August
+
+
+
         15, 2020</a>
       <h1>Prototype <code>FunctionSet</code> covering entire TexSyn API</h1>
-      <p>Yesterday I plowed through the entire TexSyn API converting it into the
-        prototype <code>FunctionSet</code> format. This includes 52 <code>Texture</code>
-        operators, plus <code>Vec2</code>, plus several “ephemeral constants”
-        for various random distributions of floating point values. This allowed
-        procedural construction of random TexSyn programs. <code>FunctionSet::makeRandomProgram()</code>
-        is still very much a prototype implementation, and still has a bug
-        controlling program size. But I could at least print out the text of
-        these random programs, then cut-and-paste that into TexSyn for
-        rendering. Some samples of textures generated by these random programs
-        are in <a href="https://cwreynolds.github.io/TexSyn/#20200815">today's
+      <p>Yesterday I plowed through the entire TexSyn API converting it
+        into the prototype <code>FunctionSet</code> format. This
+        includes 52 <code>Texture</code> operators, plus <code>Vec2</code>,
+        plus several “ephemeral constants” for various random
+        distributions of floating point values. This allowed procedural
+        construction of random TexSyn programs. <code>FunctionSet::makeRandomProgram()</code>
+        is still very much a prototype implementation, and still has a
+        bug controlling program size. But I could at least print out the
+        text of these random programs, then cut-and-paste that into
+        TexSyn for rendering. Some samples of textures generated by
+        these random programs are in <a
+          href="https://cwreynolds.github.io/TexSyn/#20200815">today's
           entry in TexSyn's log</a>.</p>
     </div>
     <div class="post" id="20200813"> <a href="#20200813" class="date">August
+
+
+
         13, 2020</a>
       <h1>Making random programs</h1>
-      <p>I've been prototyping a <code>FunctionSet</code> class to represent
-        the “domain specific language” manipulated by genetic programming.
-        LazyPredator implements <em>strongly typed genetic programming</em>
-        where the values of <em>function</em> and <em>terminals</em>, and the
-        parameters to <em>functions</em>, all have associated <em>types</em>.
-        I made a simple API for adding definitions of the <em>types</em> and
-        the <em>functions</em> used in the “domain specific language”. These
-        use prototype underpinnings, just enough scaffolding to begin developing
-        additional functionality. After I “rough out” a working <code>FunctionSet</code>
-        class, and so better understand the requirements, I will refactor the
-        underlying <code>FunctionSet</code> structure to be more clean and
-        efficient.</p>
+      <p>I've been prototyping a <code>FunctionSet</code> class to
+        represent the “domain specific language” manipulated by genetic
+        programming. LazyPredator implements <em>strongly typed genetic
+          programming</em> where the values of <em>function</em> and <em>terminals</em>,
+        and the parameters to <em>functions</em>, all have associated <em>types</em>.
+        I made a simple API for adding definitions of the <em>types</em>
+        and the <em>functions</em> used in the “domain specific
+        language”. These use prototype underpinnings, just enough
+        scaffolding to begin developing additional functionality. After
+        I “rough out” a working <code>FunctionSet</code> class, and so
+        better understand the requirements, I will refactor the
+        underlying <code>FunctionSet</code> structure to be more clean
+        and efficient.</p>
       <p>To initialize a GP population we need a utility—here called <code>FunctionSet::makeRandomProgram()</code>—to
-        generate a “random program” in the “domain specific language” (aka a
-        grammar) defined by a <code>FunctionSet</code> instance. By “random
-        program” I mean a random <em>expression</em>, a composition of <em>functions</em>
-        and <em>terminals</em> which, when evaluated, produce a value. <code>makeRandomProgram()</code>
-        is further parameterized by a <code>max_size</code> for the generated
-        programs. This size is measured as the count of function names and <em>
-          terminals</em> such as numeric constants (and potentially input <em>variables</em>,
-        but that is not currently supported).</p>
+
+
+
+        generate a “random program” in the “domain specific language”
+        (aka a grammar) defined by a <code>FunctionSet</code> instance.
+        By “random program” I mean a random <em>expression</em>, a
+        composition of <em>functions</em> and <em>terminals</em>
+        which, when evaluated, produce a value. <code>makeRandomProgram()</code>
+        is further parameterized by a <code>max_size</code> for the
+        generated programs. This size is measured as the count of
+        function names and <em> terminals</em> such as numeric
+        constants (and potentially input <em>variables</em>, but that
+        is not currently supported).</p>
       <p>This post is to mark that my prototype <code>makeRandomProgram()</code>
-        is now generating random programs that are no longer obviously wrong. I
-        made a toy <code>FunctionSet</code> corresponding to a tiny subset of <a
-          href="https://cwreynolds.github.io/TexSyn/">TexSyn</a>. The <em>functions</em>
-        are drawn from: <code>Vec2</code>, <code>Uniform</code>, <code>Affine</code>,
-        <code>Multiply</code>, and <code>Scale</code>. The <em>terminals</em>
-        are <code>float</code> “ephemeral constants” whose values are randomly
-        initialized. Here are a couple of “random programs” of size 20:</p>
+        is now generating random programs that are no longer obviously
+        wrong. I made a toy <code>FunctionSet</code> corresponding to a
+        tiny subset of <a href="https://cwreynolds.github.io/TexSyn/">TexSyn</a>.
+        The <em>functions</em> are drawn from: <code>Vec2</code>, <code>Uniform</code>,
+        <code>Affine</code>, <code>Multiply</code>, and <code>Scale</code>.
+        The <em>terminals</em> are <code>float</code> “ephemeral
+        constants” whose values are randomly initialized. Here are a
+        couple of “random programs” of size 20:</p>
       <pre>Scale(-1.89065,
       Affine(Vec2(2.71928, 1.51213),
              Vec2(-2.15447, 3.58087),
@@ -1514,47 +1835,53 @@ Affine(Vec2(1.62775, 0.925812),
              Affine(Vec2(1.14234, 0.321014),
                     Vec2(3.70146, 3.92498),
                     Uniform(0.842375, 0.46032, 0.180332))))</pre>
-      <p>These are of course gibberish, not only because they are “random” but
-        because this tiny function set is unable to express anything
-        interesting. One important problem with the current code is that there
-        is a bug in the control of program size. The <code>max_size</code>
-        parameter is intended to be a strict upper bound. Instead <code>FunctionSet</code><code>::makeRandomProgram()</code>
-        generates programs whose sizes are distributed “in the vicinity of” <code>max_size</code>.
-        That is at least better than a recent version that generated programs up
-        to size 1000.</p>
+      <p>These are of course gibberish, not only because they are
+        “random” but because this tiny function set is unable to express
+        anything interesting. One important problem with the current
+        code is that there is a bug in the control of program size. The
+        <code>max_size</code> parameter is intended to be a strict upper
+        bound. Instead <code>FunctionSet</code><code>::makeRandomProgram()</code>
+        generates programs whose sizes are distributed “in the vicinity
+        of” <code>max_size</code>. That is at least better than a
+        recent version that generated programs up to size 1000.</p>
     </div>
-    <div class="post" id="20200807"> <a href="#20200807" class="date">August 7,
-        2020</a>
+    <div class="post" id="20200807"> <a href="#20200807" class="date">August
+
+
+        7, 2020</a>
       <h1>Monitor lifetime of <code>Individual</code> in <code>Population</code></h1>
-      <p>My vague plan is that the <code>Population</code> class will handle
-        all aspects of <code>Individual</code>s. A <code>Population</code>
-        instance will generate the initial collection of random programs. It
-        will randomly select the individuals to participate in a tournament. It
-        will form offspring from tournament winners, remove the losers, and
-        replace them with the offspring. </p>
-      <p>One important bit of “owning” the individuals is that they must be
-        properly allocated and de-allocated. I gave the <code>Individual</code>
+      <p>My vague plan is that the <code>Population</code> class will
+        handle all aspects of <code>Individual</code>s. A <code>Population</code>
+        instance will generate the initial collection of random
+        programs. It will randomly select the individuals to participate
+        in a tournament. It will form offspring from tournament winners,
+        remove the losers, and replace them with the offspring. </p>
+      <p>One important bit of “owning” the individuals is that they must
+        be properly allocated and de-allocated. I gave the <code>Individual</code>
         class a counter which gets incremented in the constructor and
         decremented in the destructor. </p>
-      <p>I made the first unit test which ensures that this count is initially
-        zero, then constructing a <code>Population</code> with <em>n</em> <code>Individual</code>s
-        causes it to be n, and that deleting the <code>Population</code> causes
-        it to go back to zero. Right now it only tests the initial creation of
-        (“mock”) <code>Individual</code>s, later the unit test should include
-        running tournaments.</p>
+      <p>I made the first unit test which ensures that this count is
+        initially zero, then constructing a <code>Population</code>
+        with <em>n</em> <code>Individual</code>s causes it to be n,
+        and that deleting the <code>Population</code> causes it to go
+        back to zero. Right now it only tests the initial creation of
+        (“mock”) <code>Individual</code>s, later the unit test should
+        include running tournaments.</p>
     </div>
-    <div class="post" id="20200806"> <a href="#20200806" class="date">August 6,
-        2020</a>
+    <div class="post" id="20200806"> <a href="#20200806" class="date">August
+
+
+        6, 2020</a>
       <h1>Getting started, stubs for <code>Population</code>, <code>Individual</code>,
         and <code>UnitTests</code></h1>
-      <p>Just starting to rough out the components of the system. Today it is a
-        class for an evolutionary <code>Population</code> and the <code>Individual</code>s
-        in it. Also a namespace for <code>UnitTests</code> with a goal of using
-        “test driven development.”</p>
+      <p>Just starting to rough out the components of the system. Today
+        it is a class for an evolutionary <code>Population</code> and
+        the <code>Individual</code>s in it. Also a namespace for <code>UnitTests</code>
+        with a goal of using “test driven development.”</p>
     </div>
     <div class="post" id="0">
-      <p>This page, and the software it describes, by <a href="https://www.red3d.com/cwr">Craig
-          Reynolds</a></p>
+      <p>This page, and the software it describes, by <a
+          href="https://www.red3d.com/cwr">Craig Reynolds</a></p>
     </div>
   </body>
 </html>
