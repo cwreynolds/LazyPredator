@@ -97,6 +97,24 @@ public:
         standing_ = std::max(standing_, int(defeated.getFitness()));
     }
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    
+    
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // 20230308 TODO prototyping float "static quality metric"
+    // This seems the same as absolute fitness. But under time pressure (in the
+    // week between rejection by SIGGRAPH 2023 and submission to ALIFE 2023) I
+    // do not want to risk breaking anything.
+    bool has_sqm_ = false;
+    float static_quality_metric_ = 0;
+    bool hasStaticQualityMetric() const { return has_sqm_; }
+    float getStaticQualityMetric() const { return static_quality_metric_; }
+    void setStaticQualityMetric(float sqm)
+    {
+        static_quality_metric_ = sqm;
+        has_sqm_ = true;
+    }
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    
 private:
     GpTree tree_;
     // Resettable cache for result of tree evaluation.
