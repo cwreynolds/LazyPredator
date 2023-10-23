@@ -31,6 +31,7 @@
 		849C0FF124DB689400590B1D /* LazyPredator */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = LazyPredator; sourceTree = BUILT_PRODUCTS_DIR; };
 		849C0FF424DB689400590B1D /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		84BC107E259F9E1D0095F83B /* TournamentGroup.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TournamentGroup.h; sourceTree = "<group>"; };
+		84C8B2792AE5F14200D5D1B5 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		84F2452724DCA87E00001C0A /* Population.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Population.h; sourceTree = "<group>"; };
 		84F2452A24DCA8A300001C0A /* Individual.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Individual.h; sourceTree = "<group>"; };
 		84F2452C24DCA8C200001C0A /* UnitTests.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = UnitTests.cpp; sourceTree = "<group>"; };
@@ -62,6 +63,7 @@
 				84F2453224DE172000001C0A /* LazyPredator.h */,
 				849C0FF424DB689400590B1D /* main.cpp */,
 				84F2452724DCA87E00001C0A /* Population.h */,
+				84C8B2792AE5F14200D5D1B5 /* README.md */,
 				8458EED0250AA3FF0079DF1D /* TestFS.h */,
 				84BC107E259F9E1D0095F83B /* TournamentGroup.h */,
 				84F2452D24DCA8C200001C0A /* UnitTests.h */,
