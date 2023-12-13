@@ -10,6 +10,6 @@ more specifically, the varient called strongly typed genetic programming (STGP: 
 
 **LazyPredator** was initially used to optimize programs to perform procedural texture synthesis based on the [TexSyn](https://cwreynolds.github.io/TexSyn/) library. That combination of LazyPredator and TexSyn was a large component of the research project described in the paper [Coevolution of Camouflage](https://arxiv.org/abs/2304.11793) published at the Artificial Life Conference 2023, in Sapporo, Japan, then in a poster at SIGGRAPH 2023 in Los Angeles, USA.
 
-There is a bit of a [LazyPredator development notebook](https://cwreynolds.github.io/LazyPredator/). Much deeper discussion of its initial use for the canoyuflage project is in [TexSyn's devo blog](https://cwreynolds.github.io/TexSyn/).
+There is a bit of a [LazyPredator development notebook](https://cwreynolds.github.io/LazyPredator/). Much deeper discussion of its initial use for the camouflage project is in [TexSyn's devo blog](https://cwreynolds.github.io/TexSyn/).
 
 Please contact the [author](https://github.com/cwreynolds) if you have questions about using LazyPredator.
