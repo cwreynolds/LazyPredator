@@ -456,7 +456,11 @@ bool subpopulation_migration()
 
 bool UnitTests::allTestsOK()
 {
-    Timer timer("Run time for unit test suite: ", "");
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // TODO 20240229 fixes in LazyPredator and TexSyn while debugging evoflock.
+//    Timer timer("Run time for unit test suite: ", "");
+    Timer timer("Run time for unit test suite: ");
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     bool all_tests_passed = true;
     
     logAndTally(population_allocation_of_individuals);

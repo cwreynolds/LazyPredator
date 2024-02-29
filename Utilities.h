@@ -15,7 +15,13 @@
 
 // TODO UTILITIES_NAMESPACES
 // TODO temporarily share utilities with TexSyn
-#include "../TexSyn/TexSyn.h"
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// TODO 20240229 fixes in LazyPredator and TexSyn while debugging evoflock.
+//#include "../TexSyn/TexSyn.h"
+#include "../TexSyn/Utilities.h"
+#include "../TexSyn/RandomSequence.h"
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
  
 // TODO -- LPRS() temporary LazyPredator global RandomSequence used for things
 //         like makeRandomTree, crossover, ephemeral generators.  Redesign?
